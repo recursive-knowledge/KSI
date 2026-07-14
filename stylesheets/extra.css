@@ -1,5 +1,5 @@
 /* ==========================================================================
-   KCSI docs — Apple-style theme layer over Material.
+   KSI docs — Apple-style theme layer over Material.
    Monochrome light/dark palette with a single accent (Apple's marketing
    blue). mkdocs.yml's theme.font.code loads Fira Code; Material's
    font-loading template also fetches Roboto as an unused side effect
@@ -8,8 +8,8 @@
    ========================================================================== */
 
 :root {
-  --kcsi-accent-light: #0071e3;
-  --kcsi-accent-dark: #2997ff;
+  --ksi-accent-light: #0071e3;
+  --ksi-accent-dark: #2997ff;
 }
 
 :root,
@@ -34,8 +34,8 @@ body {
 [data-md-color-scheme="default"] {
   --md-primary-fg-color: #ffffff;
   --md-primary-bg-color: #1d1d1f;
-  --md-accent-fg-color: var(--kcsi-accent-light);
-  --md-typeset-a-color: var(--kcsi-accent-light);
+  --md-accent-fg-color: var(--ksi-accent-light);
+  --md-typeset-a-color: var(--ksi-accent-light);
   --md-default-fg-color: #1d1d1f;
   --md-default-bg-color: #ffffff;
   --md-code-bg-color: #f5f5f7;
@@ -52,7 +52,7 @@ body {
 }
 
 [data-md-color-scheme="default"] .md-tabs__link--active {
-  color: var(--kcsi-accent-light);
+  color: var(--ksi-accent-light);
   opacity: 1;
 }
 
@@ -60,8 +60,8 @@ body {
 [data-md-color-scheme="slate"] {
   --md-primary-fg-color: #000000;
   --md-primary-bg-color: #f5f5f7;
-  --md-accent-fg-color: var(--kcsi-accent-dark);
-  --md-typeset-a-color: var(--kcsi-accent-dark);
+  --md-accent-fg-color: var(--ksi-accent-dark);
+  --md-typeset-a-color: var(--ksi-accent-dark);
   --md-default-fg-color: #f5f5f7;
   --md-default-bg-color: #000000;
   --md-code-bg-color: #1d1d1f;
@@ -78,7 +78,7 @@ body {
 }
 
 [data-md-color-scheme="slate"] .md-tabs__link--active {
-  color: var(--kcsi-accent-dark);
+  color: var(--ksi-accent-dark);
   opacity: 1;
 }
 
@@ -150,20 +150,20 @@ body {
 /* ==========================================================================
    Homepage hero
    ========================================================================== */
-.kcsi-hero {
+.ksi-hero {
   margin: 0 0 2.5rem;
   padding: 3.2rem 1.4rem 3rem;
   text-align: center;
 }
 
-.kcsi-hero h1 {
+.ksi-hero h1 {
   margin: 0 0 0.6rem;
   font-size: 2.5rem;
   line-height: 1.1;
   color: var(--md-default-fg-color);
 }
 
-.kcsi-hero .kcsi-tagline {
+.ksi-hero .ksi-tagline {
   margin: 0 auto 1.6rem;
   max-width: 42rem;
   font-size: 1.05rem;
@@ -171,43 +171,43 @@ body {
   opacity: 0.72;
 }
 
-.kcsi-cta {
+.ksi-cta {
   display: inline-flex;
   flex-wrap: wrap;
   gap: 0.7rem;
   justify-content: center;
 }
 
-.kcsi-cta .md-button {
+.ksi-cta .md-button {
   border-radius: 980px;
   font-weight: 500;
   padding: 0.6rem 1.4rem;
 }
 
 /* Primary CTA: solid accent fill, Apple's pill-button convention */
-[data-md-color-scheme="default"] .kcsi-cta .md-button--primary {
-  background: var(--kcsi-accent-light);
+[data-md-color-scheme="default"] .ksi-cta .md-button--primary {
+  background: var(--ksi-accent-light);
   border-color: transparent;
   color: #ffffff;
 }
-[data-md-color-scheme="default"] .kcsi-cta .md-button--primary:hover {
+[data-md-color-scheme="default"] .ksi-cta .md-button--primary:hover {
   background: #0077ed;
 }
-[data-md-color-scheme="slate"] .kcsi-cta .md-button--primary {
-  background: var(--kcsi-accent-dark);
+[data-md-color-scheme="slate"] .ksi-cta .md-button--primary {
+  background: var(--ksi-accent-dark);
   border-color: transparent;
   color: #000000;
 }
-[data-md-color-scheme="slate"] .kcsi-cta .md-button--primary:hover {
+[data-md-color-scheme="slate"] .ksi-cta .md-button--primary:hover {
   background: #45a8ff;
 }
 
 /* Secondary CTA: hairline outline, no fill */
-[data-md-color-scheme="default"] .kcsi-cta .md-button:not(.md-button--primary) {
+[data-md-color-scheme="default"] .ksi-cta .md-button:not(.md-button--primary) {
   border-color: #d2d2d7;
   color: #1d1d1f;
 }
-[data-md-color-scheme="slate"] .kcsi-cta .md-button:not(.md-button--primary) {
+[data-md-color-scheme="slate"] .ksi-cta .md-button:not(.md-button--primary) {
   border-color: #424245;
   color: #f5f5f7;
 }
@@ -241,11 +241,11 @@ body {
 /* Card icon glyph in accent */
 [data-md-color-scheme="default"] .md-typeset .grid.cards > ul > li > hr + p:first-of-type .twemoji,
 [data-md-color-scheme="default"] .md-typeset .grid.cards .twemoji svg {
-  fill: var(--kcsi-accent-light);
+  fill: var(--ksi-accent-light);
 }
 [data-md-color-scheme="slate"] .md-typeset .grid.cards > ul > li > hr + p:first-of-type .twemoji,
 [data-md-color-scheme="slate"] .md-typeset .grid.cards .twemoji svg {
-  fill: var(--kcsi-accent-dark);
+  fill: var(--ksi-accent-dark);
 }
 .md-typeset .grid.cards .twemoji {
   height: 1.6rem;
