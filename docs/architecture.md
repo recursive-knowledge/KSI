@@ -2,7 +2,9 @@
 
 Current technical design for the knowledge-centric benchmark runtime. This is
 the canonical design reference; operational runbooks and wrapper details live
-in the README, campaign checklist, and experiment script README.
+in the README, campaign checklist, and experiment script README. For the
+research narrative behind this design — the method story and results — see
+the [paper page](https://recursive-knowledge.github.io/knowledge-centric-self-improvement/).
 
 ## 1. System Map
 
