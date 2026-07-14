@@ -6,6 +6,30 @@ from __future__ import annotations
 import kcsi.doctor as doctor
 
 
+def test_parse_node_version_accepts_node_cli_output() -> None:
+    assert doctor._parse_node_version("v22.16.0") == (22, 16, 0)
+    assert doctor._parse_node_version("22.16.0") == (22, 16, 0)
+    assert doctor._parse_node_version("not-a-version") is None
+
+
+def test_node_version_support_matches_runtime_package_engines() -> None:
+    assert doctor._node_version_is_supported((22, 16, 0))
+    assert doctor._node_version_is_supported((22, 20, 0))
+    assert not doctor._node_version_is_supported((22, 15, 9))
+    assert not doctor._node_version_is_supported((23, 0, 0))
+
+
+def test_check_node_rejects_old_version(monkeypatch, capsys) -> None:
+    monkeypatch.setattr(doctor.shutil, "which", lambda name: "/usr/bin/node" if name == "node" else None)
+    monkeypatch.setattr(doctor, "_run", lambda cmd, timeout=15.0: (0, "v20.11.1"))
+
+    r = doctor.Report()
+    doctor._check_node(r)
+
+    assert r.hard_failures == 1
+    assert doctor.NODE_ENGINE_RANGE in capsys.readouterr().out
+
+
 def test_doctor_main_returns_int(capsys) -> None:
     rc = doctor.doctor_main([])
     out = capsys.readouterr().out

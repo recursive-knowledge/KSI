@@ -60,17 +60,20 @@ part of any official benchmark — no data preparation needed:
 uv run python -m kcsi.cli --task-source arc --tasks-path examples/quickstart/arc_demo ...
 ```
 
-See [../docs/getting-started.md](../docs/getting-started.md) for the full
-quickstart walkthrough.
+The primary fresh-clone quickstart uses the custom-task demo documented in
+[../docs/getting-started.md](../docs/getting-started.md); this ARC-format demo
+is for exercising the ARC loader/evaluator without a dataset download.
 
 ## Where results land
 
-Direct CLI runs and the run presets write score summaries to
-`results/<experiment-name>.json` (when `--output-json` is set) and knowledge/
-runtime sidecars to `./<experiment-name>_knowledge.sqlite` /
-`./<experiment-name>_runtime.sqlite`. `scripts/run_kcsi.sh` instead scopes
-everything under `results/<name>/`. Execution traces land under
-`analysis/traces/<experiment-name>/`. See
+Direct CLI runs default the knowledge DB to
+`runtime_state/knowledge/<experiment-name>/<experiment-name>_knowledge.sqlite`
+and derive the runtime DB as a sibling unless explicit paths are passed. The
+run presets pass `--output-json results/<artifact-name>.json` and explicit
+repo-root SQLite sidecars such as `./<artifact-name>_knowledge.sqlite`; the
+Terminal-Bench preset also writes `./<artifact-name>_runtime.sqlite`.
+`scripts/run_kcsi.sh` instead scopes everything under `results/<name>/`.
+Execution traces land under `analysis/traces/<experiment-name>/`. See
 [../docs/artifacts.md](../docs/artifacts.md) for the full report layout and
 cleanup workflow.
 
