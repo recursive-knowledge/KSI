@@ -18,9 +18,9 @@ MANIFEST
 .env
 .envrc
 local-llm-host/.env
-configs/kcsi/.env.*
-!configs/kcsi/*.example
-!configs/kcsi/*.template
+configs/ksi/.env.*
+!configs/ksi/*.example
+!configs/ksi/*.template
 configs/baselines/*.env
 !configs/baselines/*.env.example
 configs/providers/.env.*

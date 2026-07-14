@@ -27,7 +27,7 @@ export interface TaskPayload {
   metadata?: Record<string, unknown>;
 }
 
-export interface KcsiPayload {
+export interface KsiPayload {
   generation: number;
   agent_id: string;
   task: TaskPayload;

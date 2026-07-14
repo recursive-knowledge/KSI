@@ -11,21 +11,21 @@
 #   grep -o '"[a-z+]*__bowling"' benchmarks/polyglot/task_maps/*.json
 #
 # Prerequisites:
-#   - kcsi-agent:bench and kcsi-polyglot-eval:latest Docker images built
+#   - ksi-agent:bench and ksi-polyglot-eval:latest Docker images built
 #   - data/polyglot_medium.json containing the chosen instance_id, e.g.:
 #       echo '["java__bowling"]' > /tmp/subset.json
 #       uv run python benchmarks/scripts/dataprep/prepare_polyglot_dataset.py \
 #         --subset-url /tmp/subset.json --output data/polyglot_medium.json
-#   - a live provider profile (see configs/kcsi/*.env.*.template)
+#   - a live provider profile (see configs/ksi/*.env.*.template)
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
 DRY_RUN="${DRY_RUN:-false}"
 TASK_ID="${1:?usage: polyglot_test_feedback_smoke.sh <instance_id>}"
 TASKS_PATH="${TASKS_PATH:-data/polyglot_medium.json}"
-PROVIDER_PROFILE="${PROVIDER_PROFILE:-configs/kcsi/.env.haiku}"
+PROVIDER_PROFILE="${PROVIDER_PROFILE:-configs/ksi/.env.haiku}"
 
-CMD=(uv run python -m kcsi.cli
+CMD=(uv run python -m ksi.cli
   --task-source polyglot
   --tasks-path "${TASKS_PATH}"
   --task-ids "${TASK_ID}"

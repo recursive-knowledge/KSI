@@ -2,7 +2,7 @@
 
 The SDK is consumed on BOTH sides of the runtime:
 
-  - Python host: ``claude_agent_sdk`` (``src/kcsi/tasks/loaders.py``) — task
+  - Python host: ``claude_agent_sdk`` (``src/ksi/tasks/loaders.py``) — task
     classification drives the bundled Claude Code CLI via ``query()``.
   - TS agent-runner: ``@anthropic-ai/claude-agent-sdk``
     (``runtime_runner/agent-runner/``) — the in-container agent loop drives its

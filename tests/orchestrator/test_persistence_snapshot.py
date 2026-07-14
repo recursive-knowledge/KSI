@@ -5,8 +5,8 @@ every trace collected up to that point (only the final, post-``run()``
 
 from __future__ import annotations
 
-from kcsi.models import TaskTrace
-from kcsi.orchestrator.persistence import CollectingPersistence
+from ksi.models import TaskTrace
+from ksi.orchestrator.persistence import CollectingPersistence
 
 
 def _make_trace(task_id: str, generation: int) -> TaskTrace:

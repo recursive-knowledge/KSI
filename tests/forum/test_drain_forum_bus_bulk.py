@@ -1,6 +1,6 @@
 """Tests for bulk forum drain optimizations (C5+F2)."""
 
-from kcsi.memory.knowledge_store import KnowledgeStore
+from ksi.memory.knowledge_store import KnowledgeStore
 
 
 def _make_store(tmp_path, **kwargs):
@@ -134,7 +134,7 @@ class TestEnsureRefs:
 
 from unittest.mock import MagicMock
 
-from kcsi.orchestrator.engine import _drain_forum_bus
+from ksi.orchestrator.engine import _drain_forum_bus
 
 
 class _FakeEvent:

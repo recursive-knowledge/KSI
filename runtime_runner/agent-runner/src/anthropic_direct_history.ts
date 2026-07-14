@@ -1,6 +1,6 @@
 export type AnthropicMessage = Record<string, unknown>;
 
-const COMPACT_TOOL_RESULT_MARKER = '[kcsi compacted tool result]';
+const COMPACT_TOOL_RESULT_MARKER = '[ksi compacted tool result]';
 
 function messageToolResultBlocks(message: AnthropicMessage): Array<Record<string, unknown>> {
   if (message.role !== 'user' || !Array.isArray(message.content)) {

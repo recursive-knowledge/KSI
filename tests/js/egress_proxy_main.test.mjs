@@ -16,7 +16,7 @@ describe('egress_proxy_main', () => {
       import net from 'node:net';
       import { spawn } from 'node:child_process';
       const proc = spawn('npx', ['tsx', ${JSON.stringify(MAIN)}], {
-        env: { ...process.env, KCSI_EGRESS_PROXY_PORT: '0', KCSI_EGRESS_ALLOWLIST: 'api.anthropic.com' },
+        env: { ...process.env, KSI_EGRESS_PROXY_PORT: '0', KSI_EGRESS_ALLOWLIST: 'api.anthropic.com' },
         stdio: ['ignore', 'pipe', 'pipe'],
       });
       let buf = '';

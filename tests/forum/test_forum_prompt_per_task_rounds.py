@@ -9,7 +9,7 @@ already has). These tests pin the fix: `round_num` and same-generation
 rendered prompt, mirroring `build_cross_task_discussion_parts`.
 """
 
-from kcsi.forum import build_per_task_discussion_parts
+from ksi.forum import build_per_task_discussion_parts
 
 
 def _full(parts) -> str:

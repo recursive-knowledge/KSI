@@ -40,7 +40,7 @@ function buildEnvSamples() {
       HUGGING_FACE_HUB_TOKEN: 'hf_hub_secret',
       HF_HOME: '/cache/huggingface',
       SENTENCE_TRANSFORMERS_HOME: '/cache/sentence-transformers',
-      KCSI_EMBEDDING_MODEL: 'local-embedding-model',
+      KSI_EMBEDDING_MODEL: 'local-embedding-model',
       MEMORY_ENABLE_SEMANTIC_SEARCH: '1',
     };
     const memoryMcp = {
@@ -87,7 +87,7 @@ describe('memory MCP subprocess envs do not receive host HF tokens', () => {
       );
       assert.equal(env.HF_HOME, '/cache/huggingface');
       assert.equal(env.SENTENCE_TRANSFORMERS_HOME, '/cache/sentence-transformers');
-      assert.equal(env.KCSI_EMBEDDING_MODEL, 'local-embedding-model');
+      assert.equal(env.KSI_EMBEDDING_MODEL, 'local-embedding-model');
     }
     assert.deepEqual(samples.allowedTools, ['mcp__memory__*']);
   });

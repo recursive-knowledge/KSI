@@ -10,7 +10,7 @@ behavior, and which repo-root sidecars are maintained wrapper output.
 | Result JSON reports and campaign bundles | `results/` (prefer a per-campaign subdirectory) |
 | Knowledge / runtime DBs (`*_knowledge.sqlite`, `*_runtime.sqlite`) | `runtime_state/knowledge/<experiment>/` (per-experiment subdir) |
 | Memory / board snapshots (`memory_snapshot_*.json`) | `runtime_state/` |
-| Runtime event trace | `analysis/traces/<experiment>/runtime_events.jsonl` (or `$KCSI_TRACE_DIR`) |
+| Runtime event trace | `analysis/traces/<experiment>/runtime_events.jsonl` (or `$KSI_TRACE_DIR`) |
 
 `runtime_state/`, `results/`, and `analysis/` are gitignored. Direct CLI runs
 use these roots by default. Some benchmark wrappers intentionally pass
@@ -25,7 +25,7 @@ usage, the report stamps the code commit, resolved model, scoring mode, and
 ARC split. When `--task-map-path` is used, it also stores map identity and
 provenance under `task_map`.
 
-KCSI refreshes this report after each completed generation. Check
+KSI refreshes this report after each completed generation. Check
 `run_complete` before treating it as final: `false` is a best-effort progress
 snapshot preserved after a mid-run failure; `true` is the final report.
 

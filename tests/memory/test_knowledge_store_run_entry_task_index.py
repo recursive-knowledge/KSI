@@ -10,7 +10,7 @@ Mirrors ``test_knowledge_store_task_type_index.py``'s structure.
 import tempfile
 from pathlib import Path
 
-from kcsi.memory.knowledge_store import KnowledgeStore
+from ksi.memory.knowledge_store import KnowledgeStore
 
 
 def _index_names(ks: KnowledgeStore) -> set[str]:

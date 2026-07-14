@@ -28,9 +28,9 @@ from pathlib import Path
 
 import pytest
 
-import kcsi.benchmarks.swebench_pro as swebench_pro_module
-from kcsi.benchmarks.swebench_pro import _swebench_pro_revision_error
-from kcsi.benchmarks.swebench_pro_external import DEFAULT_EVALUATOR_RELATIVE
+import ksi.benchmarks.swebench_pro as swebench_pro_module
+from ksi.benchmarks.swebench_pro import _swebench_pro_revision_error
+from ksi.benchmarks.swebench_pro_external import DEFAULT_EVALUATOR_RELATIVE
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 EVALUATOR_DIR = REPO_ROOT / DEFAULT_EVALUATOR_RELATIVE
@@ -41,7 +41,7 @@ _SKIP_REASON = f"SWE-bench Pro evaluator checkout absent ({GRADER_SCRIPT}); CI-o
 
 # The full, maximally-configured argv that ``SwebenchProEvaluator.evaluate()``
 # can pass to ``swe_bench_pro_eval.py``. Mirrors the ``cmd = [...]`` list in
-# ``src/kcsi/benchmarks/swebench_pro.py`` plus its conditional ``--use_local_docker`` /
+# ``src/ksi/benchmarks/swebench_pro.py`` plus its conditional ``--use_local_docker`` /
 # ``--block_network`` / ``--docker_platform`` appends. The
 # ``test_evaluate_call_site_flags_are_covered`` guard below fails if evaluate()
 # ever threads a flag not represented here, so this stays honest across changes.

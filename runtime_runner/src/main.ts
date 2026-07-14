@@ -9,7 +9,7 @@ import { RegisteredWorkspace } from './container_types.js';
 import { collectNativeSessionMemory } from './native_memory.js';
 import { cleanupWorkspace, loadSessionForAgent, saveSessionForAgent } from './sessions.js';
 import { ContainerOutput } from './shared_types.js';
-import { RuntimeScope, KcsiPayload } from './types.js';
+import { RuntimeScope, KsiPayload } from './types.js';
 import {
   CONTAINER_ACTIVE_WORKSPACE_DIR,
   buildPrompt,
@@ -29,14 +29,14 @@ function readJsonFile<T>(filePath: string): T {
 
 /**
  * Validate the parsed payload shape at the process boundary. The unsound
- * `readJsonFile<KcsiPayload>` cast otherwise lets a malformed payload (null,
+ * `readJsonFile<KsiPayload>` cast otherwise lets a malformed payload (null,
  * a non-object, or one missing `agent_id`/`task.id`) flow downstream and
  * silently surface as `undefined` dereferences. Fail loudly instead.
  */
-function assertKcsiPayload(
+function assertKsiPayload(
   value: unknown,
   filePath: string,
-): asserts value is KcsiPayload {
+): asserts value is KsiPayload {
   function fail(pathName: string, expectation: string): never {
     die(`payload at ${filePath} ${pathName} must be ${expectation}`);
   }
@@ -381,7 +381,7 @@ const WORKSPACE_DIFF_NOISE_PATHSPEC = [
   ':(exclude,glob)**/.DS_Store',
   ':(exclude,glob)**/*.egg-info/**',
   ':(exclude,glob)**/*.log',
-  // .repo-stamp is a kcsi-internal seeding-fingerprint file written by
+  // .repo-stamp is a ksi-internal seeding-fingerprint file written by
   // workspace.ts at the repo root. It is host-state, not part of the
   // benchmark patch. Suppress to keep the workspace diff focused on the
   // agent's actual edits.
@@ -400,7 +400,7 @@ export function captureWorkspaceDiff(repoDir: string): { diff: string; changedFi
   }
   // Polyglot exercise repos and any other workspace seeded from non-git source
   // have no own .git. Without this guard, ``git diff`` walks up the filesystem
-  // looking for a repo and ends up capturing the kcsi host repo's
+  // looking for a repo and ends up capturing the ksi host repo's
   // working-tree diff as the agent's patch — pure noise that pollutes
   // workspace_diff / workspace_changed_files for any downstream consumer.
   // Note: ``.git`` may be a directory (normal repo) or a regular file (linked
@@ -523,7 +523,7 @@ function collectPolyglotSolutionFiles(repoDir: string, taskMeta: Record<string, 
 // (host_workspace_repo_dir, when it survives, is unaffected). Mirrors the
 // polyglot fallback's exclusions: skip `score.json` (never let a captured
 // copy masquerade as the eval command's own override — see
-// kcsi.eval.command's matching forgery-close guard), any basename
+// ksi.eval.command's matching forgery-close guard), any basename
 // containing `test` (case-insensitive, same rule as
 // collectPolyglotSolutionFiles), and `__pycache__/`/`*.pyc` noise.
 function collectGenericSolutionFiles(repoDir: string): Record<string, string> {
@@ -553,12 +553,12 @@ function captureWorkspaceArtifacts(
     return { repoDir, diff: '', changedFiles: [], solutionFiles: {} };
   }
   if (taskSource === 'custom') {
-    // `custom` seeds repoDir from a plain (non-git) directory (kcsi.tasks.custom),
+    // `custom` seeds repoDir from a plain (non-git) directory (ksi.tasks.custom),
     // so the git-diff-based capture below always returns empty for it —
     // captureWorkspaceDiff bails out whenever `.git` is absent. Capture file
     // CONTENT instead (like polyglot's solution-file fallback): this
     // survives even when the workspace is later wiped before the `command`
-    // evaluator (kcsi.eval.command) runs, unlike a bare directory path.
+    // evaluator (ksi.eval.command) runs, unlike a bare directory path.
     const solutionFiles = collectGenericSolutionFiles(repoDir);
     // Note: `changedFiles` here is every captured file, not a real diff
     // against a prior state (there is no git history to diff against) —
@@ -656,8 +656,8 @@ async function main(): Promise<void> {
     die(`payload not found: ${payloadPath}`);
   }
 
-  const payload = readJsonFile<KcsiPayload>(payloadPath);
-  assertKcsiPayload(payload, payloadPath);
+  const payload = readJsonFile<KsiPayload>(payloadPath);
+  assertKsiPayload(payload, payloadPath);
   const scope: RuntimeScope =
     payload.runtime?.session_scope === 'agent' ? 'agent' : 'task';
   const wipeWorkspacePerTask =
@@ -679,19 +679,19 @@ async function main(): Promise<void> {
   // confirmed empirically on commit 9e1fa515 with phase1 polyglot smoke
   // (see project_phase1_barrier_diagnosis.md).
   // Emit on stderr ASAP so the Python host's BarrierWatcher can read it
-  // from a tempfile referenced via KCSI_BARRIER_WORKSPACE_FILE without
+  // from a tempfile referenced via KSI_BARRIER_WORKSPACE_FILE without
   // having to replicate `toWorkspaceKey()` (which has drifted between
   // sides before — see CLAUDE.md's discussion of the workspace-key formula).
   const workspaceTaskDir = workspaceRootPath;
   process.stderr.write(`WORKSPACE_PATH=${workspaceTaskDir}\n`);
-  const barrierWorkspaceFile = process.env.KCSI_BARRIER_WORKSPACE_FILE;
+  const barrierWorkspaceFile = process.env.KSI_BARRIER_WORKSPACE_FILE;
   if (barrierWorkspaceFile) {
     try {
       fs.mkdirSync(path.dirname(barrierWorkspaceFile), { recursive: true });
       fs.writeFileSync(barrierWorkspaceFile, workspaceTaskDir, 'utf-8');
     } catch (err) {
       process.stderr.write(
-        `WARN: failed to write KCSI_BARRIER_WORKSPACE_FILE=${barrierWorkspaceFile}: ${
+        `WARN: failed to write KSI_BARRIER_WORKSPACE_FILE=${barrierWorkspaceFile}: ${
           err instanceof Error ? err.message : String(err)
         }\n`,
       );
@@ -733,12 +733,12 @@ async function main(): Promise<void> {
     }
   }
 
-  process.env.KCSI_DISABLE_AGENT_TEAMS = '1';
+  process.env.KSI_DISABLE_AGENT_TEAMS = '1';
 
   const workspaceRuntime: RegisteredWorkspace = {
-    name: `kcsi-${payload.agent_id}`,
+    name: `ksi-${payload.agent_id}`,
     folder: workspaceKey,
-    trigger: '@Kcsi',
+    trigger: '@Ksi',
     added_at: new Date().toISOString(),
     requiresTrigger: false,
   };
@@ -856,7 +856,7 @@ async function main(): Promise<void> {
         prompt: buildPrompt(payload),
         sessionId,
         workspaceKey,
-        assistantName: 'KCSI',
+        assistantName: 'KSI',
         memoryMcp,
         arcTools,
         forumCacheablePrefix,
@@ -1006,7 +1006,7 @@ async function main(): Promise<void> {
       session_id: latestSessionId || '',
       active_task_dir: CONTAINER_ACTIVE_WORKSPACE_DIR,
       knowledge_db_path: payload.knowledge?.db_path || '',
-      container_image: process.env.KCSI_CONTAINER_IMAGE || process.env.CONTAINER_IMAGE || '',
+      container_image: process.env.KSI_CONTAINER_IMAGE || process.env.CONTAINER_IMAGE || '',
       official_container_image: payload.runtime?.official_container_image || '',
       runner_image: payload.runtime?.runner_image || '',
       repo_container_path: payload.runtime?.repo_container_path || '',
@@ -1031,7 +1031,7 @@ async function main(): Promise<void> {
       // a real success from a reconstructed one.
       recovery_note: effectiveOutput.recovery_note,
       // Phase-1 self-reflection text + diagnostic, threaded through for
-      // ``src/kcsi/orchestrator/engine.py`` to write into
+      // ``src/ksi/orchestrator/engine.py`` to write into
       // ``attempt.content.reflection``. Both fields are optional —
       // ``phase1_reflection`` is absent when the feature flag is off OR
       // the host barrier didn't respond OR the SDK follow-up turn

@@ -21,7 +21,7 @@ Motivation: live Haiku baseline-sweep evidence showed
     across generations.
 """
 
-from kcsi.forum import (
+from ksi.forum import (
     build_cross_task_discussion_parts,
     build_per_task_discussion_parts,
 )

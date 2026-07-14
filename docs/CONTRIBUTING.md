@@ -1,4 +1,4 @@
-# Contributing to kcsi
+# Contributing to ksi
 
 Thanks for your interest in extending the knowledge-centric self-improvement
 agent. This guide gets you from clone to a tested change.
@@ -9,8 +9,8 @@ Python 3.12+ and [uv](https://github.com/astral-sh/uv) are required. All Python
 runs through `uv run`.
 
 ```bash
-git clone https://github.com/recursive-knowledge/KCSI
-cd kcsi
+git clone https://github.com/recursive-knowledge/KSI
+cd ksi
 bash scripts/setup_all.sh          # installs deps + builds the agent container image
 # or, deps only:
 uv sync --extra memory
@@ -19,7 +19,7 @@ uv sync --extra memory
 Verify your setup:
 
 ```bash
-uv run kcsi-doctor                 # setup readiness check
+uv run ksi-doctor                 # setup readiness check
 bash scripts/quickstart.sh          # end-to-end custom-task demo (no dataset download)
 ```
 
@@ -29,10 +29,10 @@ bash scripts/quickstart.sh          # end-to-end custom-task demo (no dataset do
 uv run pytest                       # full test suite (see note below)
 uv run ruff check src tests scripts examples --fix   # lint (line length 120) — CI scope
 uv run ruff format src tests scripts examples        # format — CI scope
-uv run mypy src/kcsi --follow-imports=silent  # type check (CI scope)
+uv run mypy src/ksi --follow-imports=silent  # type check (CI scope)
 ```
 
-> Mypy runs over the WHOLE `src/kcsi` package (honoring the shipped `py.typed`
+> Mypy runs over the WHOLE `src/ksi` package (honoring the shipped `py.typed`
 > marker). Modules that still carry pre-existing errors are explicitly
 > opted out with per-module `[[tool.mypy.overrides]] ignore_errors = true`
 > entries in `pyproject.toml`, so new modules are type-checked by default.
@@ -44,17 +44,17 @@ Git hooks live in `.githooks/` and are enabled by `bash scripts/setup_all.sh`
 ruff lint + format check (`uv run ruff check` / `ruff format --check src tests
 scripts examples`) when Python files are staged, and the TypeScript typechecks
 when runtime_runner / agent-runner
-sources are staged. Bypass with `SKIP_KCSI_LINT=1` /
-`SKIP_KCSI_TYPECHECK=1`, or `--no-verify`.
+sources are staged. Bypass with `SKIP_KSI_LINT=1` /
+`SKIP_KSI_TYPECHECK=1`, or `--no-verify`.
 
 **Run the full suite before pushing — not a file subset.** A change to a shared
 dispatch site or a moved symbol can break a test in a file you never opened;
 running only the files you touched hides that. (The pre-commit hook runs ruff
 and the TypeScript typechecks, but not pytest.)
 
-## Extending kcsi (the seams)
+## Extending ksi (the seams)
 
-kcsi is built around small, typed extension points so you can add a benchmark,
+ksi is built around small, typed extension points so you can add a benchmark,
 evaluator, runtime, or improvement strategy **without editing core engine code**.
 Each is a `Protocol` + a registry. Start here:
 
@@ -68,7 +68,7 @@ your spec. No `if name == ...` dispatch edits.
 [architecture.md](./architecture.md) is the canonical architecture guide: it covers the
 runtime and DB design, including the maintained execution path (§1 System Map,
 §2 Attempt Runtime Lifecycle, §9 Provider Runtime) and database ownership
-(§5 Database Ownership). The primary package is `src/kcsi/`. See
+(§5 Database Ownership). The primary package is `src/ksi/`. See
 [extending.md](./extending.md) for the index of extension seams.
 
 ## Pull requests
@@ -85,5 +85,5 @@ runtime and DB design, including the maintained execution path (§1 System Map,
 ## Code style
 
 - Linter/formatter: `ruff` (line length 120). Config in `pyproject.toml`.
-- Type checking: `mypy` (`kcsi` ships a PEP 561 `py.typed` marker).
+- Type checking: `mypy` (`ksi` ships a PEP 561 `py.typed` marker).
 - Match the surrounding code's idiom; touch only what the change requires.

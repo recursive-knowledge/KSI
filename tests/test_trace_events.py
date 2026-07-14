@@ -1,10 +1,10 @@
-"""Tests for src/kcsi/trace_events.py -- trace event appending and helpers."""
+"""Tests for src/ksi/trace_events.py -- trace event appending and helpers."""
 
 from __future__ import annotations
 
 import json
 
-from kcsi.trace_events import _now_iso, append_trace_event, get_trace_dir
+from ksi.trace_events import _now_iso, append_trace_event, get_trace_dir
 
 
 class TestNowIso:
@@ -23,15 +23,15 @@ class TestNowIso:
 
 class TestGetTraceDir:
     def test_returns_env_value(self, monkeypatch):
-        monkeypatch.setenv("KCSI_TRACE_DIR", "/tmp/traces")
+        monkeypatch.setenv("KSI_TRACE_DIR", "/tmp/traces")
         assert get_trace_dir() == "/tmp/traces"
 
     def test_returns_empty_when_unset(self, monkeypatch):
-        monkeypatch.delenv("KCSI_TRACE_DIR", raising=False)
+        monkeypatch.delenv("KSI_TRACE_DIR", raising=False)
         assert get_trace_dir() == ""
 
     def test_strips_whitespace(self, monkeypatch):
-        monkeypatch.setenv("KCSI_TRACE_DIR", "  /tmp/traces  ")
+        monkeypatch.setenv("KSI_TRACE_DIR", "  /tmp/traces  ")
         assert get_trace_dir() == "/tmp/traces"
 
 

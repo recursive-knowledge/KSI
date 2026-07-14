@@ -3,10 +3,10 @@
 import json
 from unittest.mock import MagicMock
 
-from kcsi.models import GenerationConfig, TaskSpec
-from kcsi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
-from kcsi.runtime.types import RuntimeResult
-from kcsi.tokens import LLMResponse, TokenUsage
+from ksi.models import GenerationConfig, TaskSpec
+from ksi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
+from ksi.runtime.types import RuntimeResult
+from ksi.tokens import LLMResponse, TokenUsage
 from tests.orchestrator_phase_helpers import per_task_forum
 
 

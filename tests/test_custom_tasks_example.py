@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from kcsi.tasks.custom import load_custom_tasks
+from ksi.tasks.custom import load_custom_tasks
 
 EXAMPLE = Path(__file__).parent.parent / "examples" / "custom_tasks" / "tasks.jsonl"
 

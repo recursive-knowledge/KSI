@@ -2,16 +2,16 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from kcsi.errors import AuthenticationFailure
-from kcsi.models import AgentState, GenerationConfig, TaskSpec, TaskTrace
-from kcsi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
-from kcsi.orchestrator.execution_phase import (
+from ksi.errors import AuthenticationFailure
+from ksi.models import AgentState, GenerationConfig, TaskSpec, TaskTrace
+from ksi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
+from ksi.orchestrator.execution_phase import (
     EngineExecutionPhaseService,
     ExecutionPhaseInput,
     ExecutionPhaseResult,
 )
-from kcsi.runtime import RuntimeResult
-from kcsi.tokens import TokenUsage
+from ksi.runtime import RuntimeResult
+from ksi.tokens import TokenUsage
 from tests.orchestrator_phase_decoupling_guard import functions_referencing_engine
 
 
@@ -33,7 +33,7 @@ def test_engine_execution_phase_service_exposes_run():
 
 
 def test_execution_body_has_no_engine_access():
-    from kcsi.orchestrator import execution_phase
+    from ksi.orchestrator import execution_phase
 
     offenders = functions_referencing_engine(execution_phase.__file__)
     assert offenders <= {"_collaborators"}, offenders
@@ -42,7 +42,7 @@ def test_execution_body_has_no_engine_access():
 def test_execution_collaborators_is_frozen():
     from dataclasses import FrozenInstanceError
 
-    from kcsi.orchestrator.execution_phase import ExecutionCollaborators
+    from ksi.orchestrator.execution_phase import ExecutionCollaborators
 
     c = ExecutionCollaborators(
         config=object(),

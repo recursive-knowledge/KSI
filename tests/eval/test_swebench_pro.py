@@ -9,7 +9,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from kcsi.benchmarks.swebench_pro import (
+from ksi.benchmarks.swebench_pro import (
     SwebenchProEvaluator,
     _build_tests_status,
     _git_workspace_diff,
@@ -17,13 +17,13 @@ from kcsi.benchmarks.swebench_pro import (
     _patch_from_tool_trace,
     filter_grader_test_hunks,
 )
-from kcsi.benchmarks.swebench_pro_external import (
+from ksi.benchmarks.swebench_pro_external import (
     EVALUATOR_REVISION,
     REVISION_MARKER,
     SWEBENCH_FAILURE_STATUSES,
 )
-from kcsi.models import TaskSpec
-from kcsi.tasks.loaders import load_tasks_for_source
+from ksi.models import TaskSpec
+from ksi.tasks.loaders import load_tasks_for_source
 
 
 def _write_eval_root(path: Path, *, revision: str = EVALUATOR_REVISION) -> None:
@@ -112,7 +112,7 @@ def test_swebench_pro_evaluator_invokes_official_repo(monkeypatch, tmp_path: Pat
             json.dumps({"instance_demo__repo-123": True}),
             encoding="utf-8",
         )
-        (instance_dir / "kcsi_output.json").write_text(
+        (instance_dir / "ksi_output.json").write_text(
             json.dumps(
                 {
                     "tests": [
@@ -125,7 +125,7 @@ def test_swebench_pro_evaluator_invokes_official_repo(monkeypatch, tmp_path: Pat
         )
         return SimpleNamespace(returncode=0, stdout="", stderr=""), {}
 
-    monkeypatch.setattr("kcsi.benchmarks.swebench_pro._run_eval_command", fake_run_eval)
+    monkeypatch.setattr("ksi.benchmarks.swebench_pro._run_eval_command", fake_run_eval)
 
     evaluator = SwebenchProEvaluator(
         raw_sample_path=str(raw_sample_path),
@@ -172,10 +172,10 @@ def test_swebench_pro_evaluator_uses_workspace_diff_fallback(monkeypatch, tmp_pa
             json.dumps({"instance_demo__repo-123": True}),
             encoding="utf-8",
         )
-        (instance_dir / "kcsi_output.json").write_text(json.dumps({"tests": []}), encoding="utf-8")
+        (instance_dir / "ksi_output.json").write_text(json.dumps({"tests": []}), encoding="utf-8")
         return SimpleNamespace(returncode=0, stdout="", stderr=""), {}
 
-    monkeypatch.setattr("kcsi.benchmarks.swebench_pro._run_eval_command", fake_run_eval)
+    monkeypatch.setattr("ksi.benchmarks.swebench_pro._run_eval_command", fake_run_eval)
     evaluator = SwebenchProEvaluator(
         raw_sample_path=str(raw_sample_path),
         repo_root=str(repo_root),
@@ -215,10 +215,10 @@ def test_swebench_pro_evaluator_prefers_workspace_diff_over_model_output(monkeyp
             json.dumps({"instance_demo__repo-123": True}),
             encoding="utf-8",
         )
-        (instance_dir / "kcsi_output.json").write_text(json.dumps({"tests": []}), encoding="utf-8")
+        (instance_dir / "ksi_output.json").write_text(json.dumps({"tests": []}), encoding="utf-8")
         return SimpleNamespace(returncode=0, stdout="", stderr=""), {}
 
-    monkeypatch.setattr("kcsi.benchmarks.swebench_pro._run_eval_command", fake_run_eval)
+    monkeypatch.setattr("ksi.benchmarks.swebench_pro._run_eval_command", fake_run_eval)
     evaluator = SwebenchProEvaluator(
         raw_sample_path=str(raw_sample_path),
         repo_root=str(repo_root),
@@ -266,10 +266,10 @@ def test_swebench_pro_evaluator_uses_runtime_meta_workspace_repo_fallback(monkey
             json.dumps({"instance_demo__repo-123": True}),
             encoding="utf-8",
         )
-        (instance_dir / "kcsi_output.json").write_text(json.dumps({"tests": []}), encoding="utf-8")
+        (instance_dir / "ksi_output.json").write_text(json.dumps({"tests": []}), encoding="utf-8")
         return SimpleNamespace(returncode=0, stdout="", stderr=""), {}
 
-    monkeypatch.setattr("kcsi.benchmarks.swebench_pro._run_eval_command", fake_run_eval)
+    monkeypatch.setattr("ksi.benchmarks.swebench_pro._run_eval_command", fake_run_eval)
     evaluator = SwebenchProEvaluator(
         raw_sample_path=str(raw_sample_path),
         repo_root=str(repo_root),
@@ -308,10 +308,10 @@ def test_swebench_pro_evaluator_timeout_grace_is_explicit(monkeypatch, tmp_path:
             json.dumps({"instance_demo__repo-123": False}),
             encoding="utf-8",
         )
-        (instance_dir / "kcsi_output.json").write_text(json.dumps({"tests": []}), encoding="utf-8")
+        (instance_dir / "ksi_output.json").write_text(json.dumps({"tests": []}), encoding="utf-8")
         return SimpleNamespace(returncode=0, stdout="", stderr=""), {}
 
-    monkeypatch.setattr("kcsi.benchmarks.swebench_pro._run_eval_command", fake_run_eval)
+    monkeypatch.setattr("ksi.benchmarks.swebench_pro._run_eval_command", fake_run_eval)
 
     evaluator = SwebenchProEvaluator(
         raw_sample_path=str(raw_sample_path),
@@ -347,7 +347,7 @@ def test_swebench_pro_evaluator_timeout_reports_cleanup(monkeypatch, tmp_path: P
             "swebench_stderr_tail": "partial stderr",
         }
 
-    monkeypatch.setattr("kcsi.benchmarks.swebench_pro._run_eval_command", fake_run_eval)
+    monkeypatch.setattr("ksi.benchmarks.swebench_pro._run_eval_command", fake_run_eval)
 
     evaluator = SwebenchProEvaluator(
         raw_sample_path=str(raw_sample_path),
@@ -389,7 +389,7 @@ def test_swebench_pro_evaluator_nonzero_returncode_marks_harness_failed(monkeypa
         # Harness ran but exited non-zero without writing eval_results.json.
         return SimpleNamespace(returncode=1, stdout="boom stdout", stderr="boom stderr"), {}
 
-    monkeypatch.setattr("kcsi.benchmarks.swebench_pro._run_eval_command", fake_run_eval)
+    monkeypatch.setattr("ksi.benchmarks.swebench_pro._run_eval_command", fake_run_eval)
 
     evaluator = SwebenchProEvaluator(
         raw_sample_path=str(raw_sample_path),
@@ -411,7 +411,7 @@ def test_swebench_pro_evaluator_nonzero_returncode_marks_harness_failed(monkeypa
     assert "native_score" not in result
 
     # The score path treats the missing native_score + harness_failed status as unscored (None) for swebench_pro.
-    from kcsi.orchestrator.engine import _score_from_eval
+    from ksi.orchestrator.engine import _score_from_eval
 
     assert _score_from_eval(result, task=task) is None
 
@@ -431,7 +431,7 @@ def test_swebench_pro_evaluator_malformed_eval_results_is_harness_failed(monkeyp
         (output_dir / "eval_results.json").write_text("{not valid json", encoding="utf-8")
         return SimpleNamespace(returncode=0, stdout="stdout tail", stderr="stderr tail"), {}
 
-    monkeypatch.setattr("kcsi.benchmarks.swebench_pro._run_eval_command", fake_run_eval)
+    monkeypatch.setattr("ksi.benchmarks.swebench_pro._run_eval_command", fake_run_eval)
 
     result = SwebenchProEvaluator(raw_sample_path=str(raw_sample_path), repo_root=str(repo_root)).evaluate(
         task=load_tasks_for_source(task_source="swebench_pro", tasks_path=raw_sample_path)[0],
@@ -464,10 +464,10 @@ def test_swebench_pro_evaluator_malformed_output_json_is_harness_failed(monkeypa
             json.dumps({"instance_demo__repo-123": False}),
             encoding="utf-8",
         )
-        (instance_dir / "kcsi_output.json").write_text("{not valid json", encoding="utf-8")
+        (instance_dir / "ksi_output.json").write_text("{not valid json", encoding="utf-8")
         return SimpleNamespace(returncode=0, stdout="stdout tail", stderr="stderr tail"), {}
 
-    monkeypatch.setattr("kcsi.benchmarks.swebench_pro._run_eval_command", fake_run_eval)
+    monkeypatch.setattr("ksi.benchmarks.swebench_pro._run_eval_command", fake_run_eval)
 
     result = SwebenchProEvaluator(raw_sample_path=str(raw_sample_path), repo_root=str(repo_root)).evaluate(
         task=load_tasks_for_source(task_source="swebench_pro", tasks_path=raw_sample_path)[0],
@@ -476,7 +476,7 @@ def test_swebench_pro_evaluator_malformed_output_json_is_harness_failed(monkeypa
 
     assert result["swebench_status"] == "harness_failed"
     assert result["swebench_malformed_output_json"] is True
-    assert result["swebench_output_json_path"].endswith("kcsi_output.json")
+    assert result["swebench_output_json_path"].endswith("ksi_output.json")
     assert "not valid json" in result["swebench_parse_error"]
     assert result["swebench_stdout_tail"] == "stdout tail"
     assert result["swebench_stderr_tail"] == "stderr tail"
@@ -520,10 +520,10 @@ def test_swebench_pro_evaluator_emits_block_network(monkeypatch, tmp_path: Path)
             json.dumps({"instance_demo__repo-123": False}),
             encoding="utf-8",
         )
-        (instance_dir / "kcsi_output.json").write_text(json.dumps({"tests": []}), encoding="utf-8")
+        (instance_dir / "ksi_output.json").write_text(json.dumps({"tests": []}), encoding="utf-8")
         return SimpleNamespace(returncode=0, stdout="", stderr=""), {}
 
-    monkeypatch.setattr("kcsi.benchmarks.swebench_pro._run_eval_command", fake_run_eval)
+    monkeypatch.setattr("ksi.benchmarks.swebench_pro._run_eval_command", fake_run_eval)
 
     evaluator = SwebenchProEvaluator(
         raw_sample_path=str(raw_sample_path),
@@ -819,16 +819,16 @@ class TestFilterGraderTestHunks:
 
 def test_output_prefix_constant_matches_payload_and_readback():
     """The rename broke this once (issue #758): the patch payload sent
-    prefix="kcsi" while the readback still looked for swarms_output.json.
+    prefix="ksi" while the readback still looked for swarms_output.json.
     Pin both sides to the shared constant so they cannot diverge again."""
     import inspect
 
-    from kcsi.benchmarks import swebench_pro as sp
+    from ksi.benchmarks import swebench_pro as sp
 
     src = " ".join(inspect.getsource(sp).split())  # whitespace-normalized
     assert '"prefix": _SWE_OUTPUT_PREFIX' in src
     assert 'f"{_SWE_OUTPUT_PREFIX}_output.json"' in src
-    assert sp._SWE_OUTPUT_PREFIX == "kcsi"
+    assert sp._SWE_OUTPUT_PREFIX == "ksi"
 
 
 def _write_jsonl_sample(path: Path) -> None:
@@ -866,7 +866,7 @@ def test_evaluator_retries_when_output_json_missing_then_succeeds(monkeypatch, t
             (output_dir / "eval_results.json").write_text(
                 json.dumps({"instance_demo__repo-123": True}), encoding="utf-8"
             )
-            (instance_dir / "kcsi_output.json").write_text(
+            (instance_dir / "ksi_output.json").write_text(
                 json.dumps(
                     {
                         "tests": [
@@ -883,7 +883,7 @@ def test_evaluator_retries_when_output_json_missing_then_succeeds(monkeypatch, t
             )
         return SimpleNamespace(returncode=0, stdout="", stderr=""), {}
 
-    monkeypatch.setattr("kcsi.benchmarks.swebench_pro._run_eval_command", fake_run_eval)
+    monkeypatch.setattr("ksi.benchmarks.swebench_pro._run_eval_command", fake_run_eval)
     evaluator = SwebenchProEvaluator(
         raw_sample_path=str(raw_sample_path), repo_root=str(repo_root), timeout_sec=30, max_eval_attempts=2
     )
@@ -912,10 +912,10 @@ def test_evaluator_fails_loud_when_output_json_persistently_missing(monkeypatch,
         calls["n"] += 1
         output_dir = Path(cmd[cmd.index("--output_dir") + 1])
         (output_dir / "eval_results.json").write_text(json.dumps({"instance_demo__repo-123": False}), encoding="utf-8")
-        # never writes kcsi_output.json -> simulates an interrupted run every time
+        # never writes ksi_output.json -> simulates an interrupted run every time
         return SimpleNamespace(returncode=0, stdout="ran tests", stderr=""), {}
 
-    monkeypatch.setattr("kcsi.benchmarks.swebench_pro._run_eval_command", fake_run_eval)
+    monkeypatch.setattr("ksi.benchmarks.swebench_pro._run_eval_command", fake_run_eval)
     evaluator = SwebenchProEvaluator(
         raw_sample_path=str(raw_sample_path), repo_root=str(repo_root), timeout_sec=30, max_eval_attempts=3
     )
@@ -932,7 +932,7 @@ def test_evaluator_fails_loud_when_output_json_persistently_missing(monkeypatch,
 
 
 def test_evaluator_surfaces_oom_kill_diagnostic(monkeypatch, tmp_path: Path, caplog) -> None:
-    """The patched evaluator writes a kcsi_oom.json marker when Docker reports
+    """The patched evaluator writes a ksi_oom.json marker when Docker reports
     the container was OOM-killed by the mem_limit cap (per_instance_resource_limits.patch).
     Without this, an OOM kill is indistinguishable from a genuine test failure
     across every retry attempt. The flag must be diagnostic-only: it must not
@@ -948,16 +948,16 @@ def test_evaluator_surfaces_oom_kill_diagnostic(monkeypatch, tmp_path: Path, cap
         instance_dir.mkdir(parents=True, exist_ok=True)
         (output_dir / "eval_results.json").write_text(json.dumps({"instance_demo__repo-123": False}), encoding="utf-8")
         # The container was OOM-killed before parser.py could write output.json.
-        (instance_dir / "kcsi_oom.json").write_text(
+        (instance_dir / "ksi_oom.json").write_text(
             json.dumps({"oom_killed": True, "status_code": 137, "mem_limit": "8g"}), encoding="utf-8"
         )
         return SimpleNamespace(returncode=0, stdout="ran tests", stderr=""), {}
 
-    monkeypatch.setattr("kcsi.benchmarks.swebench_pro._run_eval_command", fake_run_eval)
+    monkeypatch.setattr("ksi.benchmarks.swebench_pro._run_eval_command", fake_run_eval)
     evaluator = SwebenchProEvaluator(
         raw_sample_path=str(raw_sample_path), repo_root=str(repo_root), timeout_sec=30, max_eval_attempts=2
     )
-    with caplog.at_level(logging.WARNING, logger="kcsi.benchmarks.swebench_pro"):
+    with caplog.at_level(logging.WARNING, logger="ksi.benchmarks.swebench_pro"):
         result = evaluator.evaluate(
             task=load_tasks_for_source(task_source="swebench_pro", tasks_path=raw_sample_path)[0],
             model_output="<patch>diff --git a/a b/a\n--- a/a\n+++ b/a\n@@\n-x\n+y\n</patch>",
@@ -1001,7 +1001,7 @@ def test_evaluator_scores_completed_output_with_oom_marker_by_resolution(
         (output_dir / "eval_results.json").write_text(
             json.dumps({"instance_demo__repo-123": resolved}), encoding="utf-8"
         )
-        (instance_dir / "kcsi_output.json").write_text(
+        (instance_dir / "ksi_output.json").write_text(
             json.dumps(
                 {
                     "tests": [
@@ -1012,12 +1012,12 @@ def test_evaluator_scores_completed_output_with_oom_marker_by_resolution(
             ),
             encoding="utf-8",
         )
-        (instance_dir / "kcsi_oom.json").write_text(
+        (instance_dir / "ksi_oom.json").write_text(
             json.dumps({"oom_killed": True, "status_code": 137, "mem_limit": "8g"}), encoding="utf-8"
         )
         return SimpleNamespace(returncode=0, stdout="ran tests", stderr=""), {}
 
-    monkeypatch.setattr("kcsi.benchmarks.swebench_pro._run_eval_command", fake_run_eval)
+    monkeypatch.setattr("ksi.benchmarks.swebench_pro._run_eval_command", fake_run_eval)
     evaluator = SwebenchProEvaluator(
         raw_sample_path=str(raw_sample_path), repo_root=str(repo_root), timeout_sec=30, max_eval_attempts=1
     )
@@ -1115,7 +1115,7 @@ def _fake_grader_resolved(instance_id: str):
         instance_dir = output_dir / instance_id
         instance_dir.mkdir(parents=True, exist_ok=True)
         (output_dir / "eval_results.json").write_text(json.dumps({instance_id: True}), encoding="utf-8")
-        (instance_dir / "kcsi_output.json").write_text(json.dumps({"tests": []}), encoding="utf-8")
+        (instance_dir / "ksi_output.json").write_text(json.dumps({"tests": []}), encoding="utf-8")
         return SimpleNamespace(returncode=0, stdout="", stderr=""), {}
 
     return fake_run_eval
@@ -1130,7 +1130,7 @@ def test_evaluator_refuses_unverified_patch_from_tool_trace(monkeypatch, tmp_pat
         encoding="utf-8",
     )
     monkeypatch.setattr(
-        "kcsi.benchmarks.swebench_pro._run_eval_command",
+        "ksi.benchmarks.swebench_pro._run_eval_command",
         _fake_grader_resolved("instance_demo__repo-123"),
     )
     recovered = "diff --git a/a b/a\n--- a/a\n+++ b/a\n@@ -1 +1 @@\n-x\n+y\n"

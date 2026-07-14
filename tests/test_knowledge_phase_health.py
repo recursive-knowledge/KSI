@@ -11,11 +11,11 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-from kcsi.distillation import DistillOutput, PerTaskBundle
-from kcsi.memory.forum_bus import ForumBus
-from kcsi.models import GenerationConfig
-from kcsi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence, _drain_forum_bus
-from kcsi.tokens import LLMResponse, TokenUsage
+from ksi.distillation import DistillOutput, PerTaskBundle
+from ksi.memory.forum_bus import ForumBus
+from ksi.models import GenerationConfig
+from ksi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence, _drain_forum_bus
+from ksi.tokens import LLMResponse, TokenUsage
 from tests.orchestrator_phase_helpers import load_cross_task_seed_bundle, run_distill
 
 
@@ -129,7 +129,7 @@ def test_distill_phase_records_distiller_failures(tmp_path, monkeypatch):
         calls.append(1)
         return DistillOutput(per_task={}, cross_task=None, failures=3)
 
-    import kcsi.distillation as dist_pkg
+    import ksi.distillation as dist_pkg
 
     monkeypatch.setattr(dist_pkg, "distill", fake_distill)
     run_distill(orch, generation=4, task_ids=["t1"])
@@ -149,7 +149,7 @@ def test_distill_phase_wholesale_exception_records_one_failure(tmp_path, monkeyp
         calls.append(1)
         raise RuntimeError("distill exploded")
 
-    import kcsi.distillation as dist_pkg
+    import ksi.distillation as dist_pkg
 
     monkeypatch.setattr(dist_pkg, "distill", boom)
     run_distill(orch, generation=2, task_ids=["t1"])
@@ -181,7 +181,7 @@ def test_distill_phase_records_persistence_failures(tmp_path, monkeypatch):
     def fail_record_distillation(*args, **kwargs):
         raise RuntimeError("record failed")
 
-    import kcsi.distillation as dist_pkg
+    import ksi.distillation as dist_pkg
 
     monkeypatch.setattr(dist_pkg, "distill", fake_distill)
     monkeypatch.setattr(orch._knowledge, "record_distillation", fail_record_distillation)

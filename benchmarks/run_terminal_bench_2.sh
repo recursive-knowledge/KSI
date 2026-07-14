@@ -26,33 +26,33 @@
 #   Default config follows the paper's main protocol (10 generations, drop-solved).
 #   The image-pull / step-cap / wall-time knobs below remain Harbor-aligned, but
 #   drop-solved + 10 generations depart from Harbor's >=5-attempts-per-task rule.
-#   - KCSI_TB2_REQUIRE_PULL=1 is exported below: a task whose canonical image
+#   - KSI_TB2_REQUIRE_PULL=1 is exported below: a task whose canonical image
 #     cannot be pulled fails that trial rather than silently rebuilding locally;
 #     healthy siblings continue unless every dispatched trial has a registry
 #     acquisition failure, which aborts after their traces are persisted.
 #   - For publishable image-byte reproducibility, set
-#     KCSI_TB2_IMAGE_DIGEST_MANIFEST=/path/to/image_digests.json. When set, the
+#     KSI_TB2_IMAGE_DIGEST_MANIFEST=/path/to/image_digests.json. When set, the
 #     runtime aborts before the task starts if the pulled registry digest is
 #     missing from the manifest or differs from it.
-#   - KCSI_TB2_MAX_STEPS is left UNSET (no kcsi-side step cap); the per-task
+#   - KSI_TB2_MAX_STEPS is left UNSET (no ksi-side step cap); the per-task
 #     [agent].timeout_sec from task.toml is the sole wall-time bound.
-#   - The runtime timeout is FIXED at a negative --runtime-timeout-sec (no kcsi
+#   - The runtime timeout is FIXED at a negative --runtime-timeout-sec (no ksi
 #     hard container cap). NOT configurable: setting TIMEOUT aborts the run.
 #   - drop-solved defaults ON and GENERATIONS defaults to 10 (paper MAIN
 #     protocol). For a Harbor submission pass `--no-drop-solved` and keep
 #     GENERATIONS>=5 so every task is attempted every generation.
 #   - --runtime-db-path is set per condition so the runtime audit DB exists for
-#     kcsi.benchmarks.tb2_submission (Harbor submission needs the runtime sidecar).
+#     ksi.benchmarks.tb2_submission (Harbor submission needs the runtime sidecar).
 #
 # Environment variables:
-#   TB2_TASK_MAP    (default: $KCSI_ROOT/benchmarks/terminal_bench_2/task_maps/terminal_bench_2_all.json)
+#   TB2_TASK_MAP    (default: $KSI_ROOT/benchmarks/terminal_bench_2/task_maps/terminal_bench_2_all.json)
 #   HAIKU_PROFILE / OPENAI_PROFILE, GENERATIONS (default 10), SEEDS (default "1"),
 #   MAX_CONCURRENT (default 25). TIMEOUT is NOT configurable (aborts the run).
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/common.sh"
 
 # TB2's per-task task.toml [agent].timeout_sec is the AUTHORITATIVE wall-time
-# bound (Harbor parity; e.g. build-pov-ray = 12000s). The KCSI-side runtime hard
+# bound (Harbor parity; e.g. build-pov-ray = 12000s). The KSI-side runtime hard
 # cap is deliberately NOT configurable for TB2: the run always passes a
 # negative --runtime-timeout-sec (no hard cap) so the per-task timeout binds.
 if [[ -n "${TIMEOUT:-}" ]]; then
@@ -82,11 +82,11 @@ resolve_seeds                    # sets SEEDS_LIST
 
 GENERATIONS="${GENERATIONS:-10}"
 MAX_CONCURRENT="${MAX_CONCURRENT:-25}"
-TB2_TASK_MAP="${TB2_TASK_MAP:-$KCSI_ROOT/benchmarks/terminal_bench_2/task_maps/terminal_bench_2_all.json}"
+TB2_TASK_MAP="${TB2_TASK_MAP:-$KSI_ROOT/benchmarks/terminal_bench_2/task_maps/terminal_bench_2_all.json}"
 
 # Fairness knobs (see INTEGRATION.md). REQUIRE_PULL on; MAX_STEPS deliberately unset.
-export KCSI_TB2_REQUIRE_PULL="${KCSI_TB2_REQUIRE_PULL:-1}"
-unset KCSI_TB2_MAX_STEPS
+export KSI_TB2_REQUIRE_PULL="${KSI_TB2_REQUIRE_PULL:-1}"
+unset KSI_TB2_MAX_STEPS
 
 maybe_validate_file "$TB2_TASK_MAP" "Terminal-Bench 2 task map"
 
@@ -112,7 +112,7 @@ COMMON_ARGS=(
   --runtime container
   --generations "$GENERATIONS"
   --max-concurrent-tasks "$MAX_CONCURRENT"
-  # Negative = no KCSI hard container cap; the per-task task.toml
+  # Negative = no KSI hard container cap; the per-task task.toml
   # [agent].timeout_sec is the sole wall-time bound (Harbor parity). Fixed, not
   # configurable — see the TIMEOUT guard above.
   --runtime-timeout-sec -1

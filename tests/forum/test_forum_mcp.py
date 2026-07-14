@@ -5,15 +5,15 @@ import json
 import os
 from unittest import mock
 
-from kcsi.memory.forum_bus import ForumBus
-from kcsi.memory.mcp_server import (
+from ksi.memory.forum_bus import ForumBus
+from ksi.memory.mcp_server import (
     handle_forum_post,
     handle_forum_read,
 )
-from kcsi.memory.mcp_server import (
+from ksi.memory.mcp_server import (
     main as mcp_main,
 )
-from kcsi.memory.store import MemoryStore
+from ksi.memory.store import MemoryStore
 
 
 def test_forum_post_and_read(tmp_path):
@@ -206,8 +206,8 @@ def test_forum_signal_done_v2_embeds_task_ids_in_bus(tmp_path):
     events were written with empty content and the drain explicitly
     skipped them, so audits saw 0 signal_done across every generation.
     """
-    from kcsi.memory.knowledge_store import KnowledgeStore
-    from kcsi.memory.mcp_server import handle_forum_signal_done
+    from ksi.memory.knowledge_store import KnowledgeStore
+    from ksi.memory.mcp_server import handle_forum_signal_done
 
     bus = ForumBus(
         db_path=str(tmp_path / "memory.sqlite"),
@@ -252,7 +252,7 @@ def test_forum_signal_done_v2_logs_invocation(tmp_path, caplog):
     "called but swallowed"."""
     import logging
 
-    from kcsi.memory.mcp_server import handle_forum_signal_done
+    from ksi.memory.mcp_server import handle_forum_signal_done
 
     bus = ForumBus(
         db_path=str(tmp_path / "memory.sqlite"),
@@ -261,7 +261,7 @@ def test_forum_signal_done_v2_logs_invocation(tmp_path, caplog):
     )
     bus.clear()
     try:
-        with caplog.at_level(logging.INFO, logger="kcsi.memory.mcp_server"):
+        with caplog.at_level(logging.INFO, logger="ksi.memory.mcp_server"):
             handle_forum_signal_done(
                 knowledge_store=None,
                 forum_bus=bus,
@@ -620,7 +620,7 @@ def test_mcp_forum_post_dispatch_passes_allowed_task_ids():
     """
     import inspect
 
-    from kcsi.memory import mcp_server
+    from ksi.memory import mcp_server
 
     src = inspect.getsource(mcp_server._run_server)
     assert 'elif tool_name == "forum_post":' in src, "forum_post dispatch branch removed; update this regression test"

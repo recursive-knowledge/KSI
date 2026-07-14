@@ -10,7 +10,7 @@
  *
  * Policy: native web tools (WebSearch/WebFetch) are OFF by default for ALL
  * benchmark tasks. An operator opts a specific run in with
- * `KCSI_ALLOW_WEB_TOOLS=1`. ARC stays strictly offline regardless of the
+ * `KSI_ALLOW_WEB_TOOLS=1`. ARC stays strictly offline regardless of the
  * flag (callers AND-gate with `!isOffline`).
  */
 
@@ -19,17 +19,17 @@ export const WEB_TOOLS: readonly string[] = ['WebSearch', 'WebFetch'];
 
 /**
  * Whether native web tools (WebSearch/WebFetch) may be offered to the Claude
- * agent on this run, based solely on the `KCSI_ALLOW_WEB_TOOLS` flag.
+ * agent on this run, based solely on the `KSI_ALLOW_WEB_TOOLS` flag.
  *
  * Truthiness mirrors the Python `_is_enabled_env` helper
- * (src/kcsi/runtime/container_host.py): any non-empty value that is not one of
+ * (src/ksi/runtime/container_host.py): any non-empty value that is not one of
  * 0/false/no/off counts as enabled. ARC offlineness is applied by the caller,
  * not here.
  */
 export function isWebToolsAllowed(
   sdkEnv: Record<string, string | undefined>,
 ): boolean {
-  const raw = String(sdkEnv.KCSI_ALLOW_WEB_TOOLS ?? '').trim().toLowerCase();
+  const raw = String(sdkEnv.KSI_ALLOW_WEB_TOOLS ?? '').trim().toLowerCase();
   if (!raw) return false;
   return !['0', 'false', 'no', 'off'].includes(raw);
 }
@@ -47,7 +47,7 @@ export interface WebToolGating {
    * preset re-adds web tools to the model's context regardless of
    * `allowedTools`; only `disallowedTools` removes them. So this is
    * `['WebSearch','WebFetch']` whenever web tools are not enabled (ARC always,
-   * and every benchmark unless the operator sets KCSI_ALLOW_WEB_TOOLS=1).
+   * and every benchmark unless the operator sets KSI_ALLOW_WEB_TOOLS=1).
    */
   disallowedWebTools: string[];
   /** Self-documenting reason string for the status log line. */
@@ -67,8 +67,8 @@ export function buildWebToolGating(
   const reason = isOffline
     ? 'ARC offline benchmark (web tools always denied)'
     : webToolsAllowedByFlag
-      ? 'KCSI_ALLOW_WEB_TOOLS=1'
-      : 'default-off (set KCSI_ALLOW_WEB_TOOLS=1 to enable; issue #666)';
+      ? 'KSI_ALLOW_WEB_TOOLS=1'
+      : 'default-off (set KSI_ALLOW_WEB_TOOLS=1 to enable; issue #666)';
   return {
     webToolsAllowedByFlag,
     webToolsEnabled,

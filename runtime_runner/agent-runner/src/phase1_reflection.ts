@@ -24,7 +24,7 @@ import {
 /**
  * Barrier name used by the Phase 1 reflection round-trip. Centralized so
  * the host-side BarrierWatcher in Python uses the same identifier — these
- * two literals MUST agree (see `src/kcsi/runtime/barrier.py`).
+ * two literals MUST agree (see `src/ksi/runtime/barrier.py`).
  */
 export const PHASE1_REFLECTION_BARRIER_NAME = 'phase1_reflection';
 
@@ -262,7 +262,7 @@ export async function runPhase1Reflection(args: {
         // for this turn — earlier code listed glob patterns
         // (``mcp__memory__*`` etc.) on ``disallowedTools``, which the SDK
         // matcher MAY treat as literal strings depending on version, leaving
-        // the agent's MCP tools (memory, arc, kcsi) callable on the
+        // the agent's MCP tools (memory, arc, ksi) callable on the
         // reflection turn. Setting ``mcpServers: {}`` removes the MCP
         // surface entirely so we don't have to hand-enumerate every concrete
         // tool name and keep that list in sync with future MCP server

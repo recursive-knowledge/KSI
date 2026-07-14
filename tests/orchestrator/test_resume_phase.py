@@ -14,13 +14,13 @@ from unittest.mock import MagicMock
 
 from conftest import _build_mock_llm
 
-from kcsi.models import GenerationConfig, TaskSpec, TaskTrace
-from kcsi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
-from kcsi.tokens import TokenUsage
+from ksi.models import GenerationConfig, TaskSpec, TaskTrace
+from ksi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
+from ksi.tokens import TokenUsage
 
 
 def _resume_orch(tmp_path):
-    from kcsi.memory.knowledge_store import KnowledgeStore
+    from ksi.memory.knowledge_store import KnowledgeStore
 
     knowledge_db_path = str(tmp_path / "resume_phase_knowledge.sqlite")
     knowledge = KnowledgeStore(knowledge_db_path, default_experiment="resume-phase-exp")

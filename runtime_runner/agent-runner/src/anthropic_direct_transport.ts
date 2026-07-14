@@ -80,8 +80,8 @@ export interface AnthropicResponse {
  *
  * Transient failures (429 + 5xx, plus network-level fetch rejections) are
  * retried with exponential backoff, honoring a numeric `Retry-After` header
- * when present. Tunable via `KCSI_ANTHROPIC_MAX_RETRIES` (default 4) and
- * `KCSI_ANTHROPIC_RETRY_BASE_MS` (default 1000); set retries to 0 to
+ * when present. Tunable via `KSI_ANTHROPIC_MAX_RETRIES` (default 4) and
+ * `KSI_ANTHROPIC_RETRY_BASE_MS` (default 1000); set retries to 0 to
  * disable. The callers still degrade gracefully on a final thrown error.
  */
 export async function createMessage(
@@ -93,8 +93,8 @@ export async function createMessage(
   if (!apiKey) {
     throw new Error(`ANTHROPIC_API_KEY is required for ${label} runs.`);
   }
-  const maxRetries = clampInt(sdkEnv.KCSI_ANTHROPIC_MAX_RETRIES, DEFAULT_MAX_RETRIES, 0, 10);
-  const baseMs = clampInt(sdkEnv.KCSI_ANTHROPIC_RETRY_BASE_MS, DEFAULT_RETRY_BASE_MS, 0, 60_000);
+  const maxRetries = clampInt(sdkEnv.KSI_ANTHROPIC_MAX_RETRIES, DEFAULT_MAX_RETRIES, 0, 10);
+  const baseMs = clampInt(sdkEnv.KSI_ANTHROPIC_RETRY_BASE_MS, DEFAULT_RETRY_BASE_MS, 0, 60_000);
 
   const backoffMs = (attempt: number): number =>
     Math.min(MAX_RETRY_BACKOFF_MS, baseMs * 2 ** attempt);

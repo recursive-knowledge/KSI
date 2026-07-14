@@ -6,7 +6,7 @@ from pathlib import Path
 
 
 def _make_bus(tmp: str):
-    from kcsi.memory.forum_bus import ForumBus
+    from ksi.memory.forum_bus import ForumBus
 
     # ForumBus resolves db_parent.parent / "forum_bus" for its event dir; we
     # create a throwaway sqlite path under tmp so the bus has a stable anchor.
@@ -33,8 +33,8 @@ def test_append_with_reply_to_persists_field():
 
 def test_drain_forum_bus_propagates_reply_to_to_record_post():
     """Orchestrator drain should carry reply_to through to knowledge_store.record_post."""
-    from kcsi.memory.knowledge_store import KnowledgeStore
-    from kcsi.orchestrator.engine import _drain_forum_bus
+    from ksi.memory.knowledge_store import KnowledgeStore
+    from ksi.orchestrator.engine import _drain_forum_bus
 
     with tempfile.TemporaryDirectory() as tmp:
         bus = _make_bus(tmp)
@@ -80,8 +80,8 @@ def test_drain_forum_bus_propagates_reply_to_to_record_post():
 
 def test_drain_forum_bus_is_idempotent_by_event_id():
     """Re-draining the same ForumBus file must not duplicate knowledge rows."""
-    from kcsi.memory.knowledge_store import KnowledgeStore
-    from kcsi.orchestrator.engine import _drain_forum_bus
+    from ksi.memory.knowledge_store import KnowledgeStore
+    from ksi.orchestrator.engine import _drain_forum_bus
 
     with tempfile.TemporaryDirectory() as tmp:
         bus = _make_bus(tmp)

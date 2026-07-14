@@ -23,7 +23,7 @@ const tsxAvailable = fs.existsSync(tsxBin);
 
 // Call the real buildContainerArgs() inside tsx with a controlled env, in
 // non-egress ("open") mode so no docker network/proxy calls are required
-// (KCSI_DOCKER_NETWORK defaults to the builtin "bridge", which
+// (KSI_DOCKER_NETWORK defaults to the builtin "bridge", which
 // ensureDockerNetwork() no-ops on).
 function evalBuildArgs(extraEnv) {
   const script = `
@@ -62,8 +62,8 @@ describe('container_args resource hardening (issue #1012)', () => {
     assert.ok(args.includes('--pids-limit=4096'), `missing --pids-limit=4096 in ${JSON.stringify(args)}`);
   });
 
-  it('honors KCSI_CONTAINER_PIDS_LIMIT to override the default', () => {
-    const res = evalBuildArgs({ KCSI_CONTAINER_PIDS_LIMIT: '256' });
+  it('honors KSI_CONTAINER_PIDS_LIMIT to override the default', () => {
+    const res = evalBuildArgs({ KSI_CONTAINER_PIDS_LIMIT: '256' });
     assert.equal(res.status, 0, `tsx failed: stderr=${res.stderr}`);
     const args = JSON.parse(res.stdout);
     assert.ok(args.includes('--pids-limit=256'), `expected overridden pids-limit in ${JSON.stringify(args)}`);
@@ -79,7 +79,7 @@ describe('container_args resource hardening (issue #1012)', () => {
   });
 
   it('sets --memory/--cpus only when explicitly opted in via env', () => {
-    const res = evalBuildArgs({ KCSI_CONTAINER_MEMORY_LIMIT: '8g', KCSI_CONTAINER_CPU_LIMIT: '4' });
+    const res = evalBuildArgs({ KSI_CONTAINER_MEMORY_LIMIT: '8g', KSI_CONTAINER_CPU_LIMIT: '4' });
     assert.equal(res.status, 0, `tsx failed: stderr=${res.stderr}`);
     const args = JSON.parse(res.stdout);
     assert.ok(args.includes('--memory=8g'), `missing opt-in --memory in ${JSON.stringify(args)}`);
@@ -128,8 +128,8 @@ describe('egress-proxy sidecar resource hardening (issue #1025)', () => {
     assert.ok(args.includes('--pids-limit=4096'), `missing --pids-limit=4096 in ${JSON.stringify(args)}`);
   });
 
-  it('honors KCSI_CONTAINER_PIDS_LIMIT override on the proxy container too', () => {
-    const res = evalProxyRunArgs({ KCSI_CONTAINER_PIDS_LIMIT: '256' });
+  it('honors KSI_CONTAINER_PIDS_LIMIT override on the proxy container too', () => {
+    const res = evalProxyRunArgs({ KSI_CONTAINER_PIDS_LIMIT: '256' });
     assert.equal(res.status, 0, `tsx failed: stderr=${res.stderr}`);
     const args = JSON.parse(res.stdout);
     assert.ok(args.includes('--pids-limit=256'), `expected overridden pids-limit in ${JSON.stringify(args)}`);

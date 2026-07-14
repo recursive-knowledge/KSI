@@ -14,8 +14,8 @@ import os
 
 import pytest
 
-from kcsi.models import TaskSpec
-from kcsi.prompts import build_task_markdown
+from ksi.models import TaskSpec
+from ksi.prompts import build_task_markdown
 
 _ARC2_EVAL_DIR = "benchmarks/arc2/source/data/evaluation"
 

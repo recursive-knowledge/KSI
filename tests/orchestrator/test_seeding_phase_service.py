@@ -1,8 +1,8 @@
 from unittest.mock import MagicMock
 
-from kcsi.models import AgentState, GenerationConfig
-from kcsi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
-from kcsi.orchestrator.seeding_phase import (
+from ksi.models import AgentState, GenerationConfig
+from ksi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
+from ksi.orchestrator.seeding_phase import (
     EngineSeedingPhaseService,
     SeedingPhaseInput,
     SeedingPhaseResult,
@@ -57,7 +57,7 @@ def test_seed_next_generation_service_preserves_stats_and_returns_result(monkeyp
 
 
 def test_seeding_body_has_no_engine_access():
-    from kcsi.orchestrator import seeding_phase
+    from ksi.orchestrator import seeding_phase
 
     offenders = functions_referencing_engine(seeding_phase.__file__)
     assert offenders <= {"_collaborators"}, offenders
@@ -66,7 +66,7 @@ def test_seeding_body_has_no_engine_access():
 def test_seeding_collaborators_is_frozen():
     from dataclasses import FrozenInstanceError
 
-    from kcsi.orchestrator.seeding_phase import SeedingCollaborators
+    from ksi.orchestrator.seeding_phase import SeedingCollaborators
 
     c = SeedingCollaborators(
         config=object(),

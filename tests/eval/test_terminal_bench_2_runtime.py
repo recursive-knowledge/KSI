@@ -6,8 +6,8 @@ from pathlib import Path
 
 import pytest
 
-from kcsi.benchmarks.terminal_bench_2 import resolve_terminal_bench_2_task_contract
-from kcsi.benchmarks.terminal_bench_2_runtime import (
+from ksi.benchmarks.terminal_bench_2 import resolve_terminal_bench_2_task_contract
+from ksi.benchmarks.terminal_bench_2_runtime import (
     _TB2_CONTAINER_CTRF_PATH,
     _TB2_CONTAINER_REWARD_PATH,
     _TB2_REWARD_READOUT_SENTINEL,
@@ -25,7 +25,7 @@ from kcsi.benchmarks.terminal_bench_2_runtime import (
     _parse_reward,
     _parse_reward_text,
     _resolve_tb2_max_steps,
-    _run_kcsi_agent_in_tb2_container,
+    _run_ksi_agent_in_tb2_container,
     _stable_image_tag,
     _tb2_trim_oldest_history,
     _verifier_phase_copies,
@@ -34,10 +34,10 @@ from kcsi.benchmarks.terminal_bench_2_runtime import (
     materialize_terminal_bench_2_workspace_seed,
     run_terminal_bench_2_trial,
 )
-from kcsi.errors import ContainerRegistryError
-from kcsi.models import TaskSpec
-from kcsi.runtime import RuntimeResult, TerminalBench2Executor
-from kcsi.tokens import LLMResponse, TokenUsage
+from ksi.errors import ContainerRegistryError
+from ksi.models import TaskSpec
+from ksi.runtime import RuntimeResult, TerminalBench2Executor
+from ksi.tokens import LLMResponse, TokenUsage
 
 
 def test_default_agent_command_oracle() -> None:
@@ -48,8 +48,8 @@ def test_default_agent_command_noop() -> None:
     assert default_agent_command(agent_mode="noop") == "true"
 
 
-def test_default_agent_command_kcsi() -> None:
-    assert default_agent_command(agent_mode="kcsi") == ""
+def test_default_agent_command_ksi() -> None:
+    assert default_agent_command(agent_mode="ksi") == ""
 
 
 def test_default_agent_command_requires_explicit_command() -> None:
@@ -246,8 +246,8 @@ def test_docker_build_with_retry_retries_transient_registry_failures(monkeypatch
             stderr="",
         )
 
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._run", fake_run)
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime.time.sleep", lambda _: None)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._run", fake_run)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime.time.sleep", lambda _: None)
 
     proc = _docker_build_with_retry(["docker", "build"], timeout_sec=30, attempts=3)
 
@@ -259,8 +259,8 @@ def test_docker_build_with_retry_returns_124_on_timeout(monkeypatch: pytest.Monk
     def fake_run(cmd: list[str], *, timeout_sec: float | None = None):
         raise subprocess.TimeoutExpired(cmd=cmd, timeout=timeout_sec or 0)
 
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._run", fake_run)
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime.time.sleep", lambda _: None)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._run", fake_run)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime.time.sleep", lambda _: None)
 
     proc = _docker_build_with_retry(["docker", "build"], timeout_sec=30, attempts=1)
     assert proc.returncode == 124
@@ -268,7 +268,7 @@ def test_docker_build_with_retry_returns_124_on_timeout(monkeypatch: pytest.Monk
 
 
 def test_docker_exec_uses_absolute_container_bash(monkeypatch: pytest.MonkeyPatch) -> None:
-    from kcsi.benchmarks.terminal_bench_2_runtime import _TB2_CONTAINER_BASH, _docker_exec
+    from ksi.benchmarks.terminal_bench_2_runtime import _TB2_CONTAINER_BASH, _docker_exec
 
     recorded: list[list[str]] = []
 
@@ -276,7 +276,7 @@ def test_docker_exec_uses_absolute_container_bash(monkeypatch: pytest.MonkeyPatc
         recorded.append(list(cmd))
         return subprocess.CompletedProcess(args=cmd, returncode=0, stdout="", stderr="")
 
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._run", fake_run)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._run", fake_run)
 
     _docker_exec(container_name="tb2", command="true", timeout_sec=1)
 
@@ -312,17 +312,17 @@ def test_stable_image_tag_deterministic(tmp_path: Path) -> None:
     tag_one = _stable_image_tag(environment_dir=d, safe_task="demo-task")
     tag_two = _stable_image_tag(environment_dir=d, safe_task="demo-task")
     assert tag_one == tag_two
-    assert tag_one.startswith("kcsi-tb2-demo-task:")
+    assert tag_one.startswith("ksi-tb2-demo-task:")
 
 
 def test_keep_tb2_images_default(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.delenv("KCSI_TB2_KEEP_IMAGES", raising=False)
+    monkeypatch.delenv("KSI_TB2_KEEP_IMAGES", raising=False)
     assert _keep_tb2_images_default() is True
-    monkeypatch.setenv("KCSI_TB2_KEEP_IMAGES", "0")
+    monkeypatch.setenv("KSI_TB2_KEEP_IMAGES", "0")
     assert _keep_tb2_images_default() is False
-    monkeypatch.setenv("KCSI_TB2_KEEP_IMAGES", "false")
+    monkeypatch.setenv("KSI_TB2_KEEP_IMAGES", "false")
     assert _keep_tb2_images_default() is False
-    monkeypatch.setenv("KCSI_TB2_KEEP_IMAGES", "1")
+    monkeypatch.setenv("KSI_TB2_KEEP_IMAGES", "1")
     assert _keep_tb2_images_default() is True
 
 
@@ -334,7 +334,7 @@ def test_docker_pull_with_retry_returns_success_on_first_try(monkeypatch: pytest
         assert cmd[:2] == ["docker", "pull"]
         return subprocess.CompletedProcess(args=cmd, returncode=0, stdout="ok", stderr="")
 
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._run", fake_run)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._run", fake_run)
     proc = _docker_pull_with_retry("alexgshaw/example:tag", timeout_sec=30)
     assert proc.returncode == 0
     assert calls["count"] == 1
@@ -354,8 +354,8 @@ def test_docker_pull_with_retry_retries_transient_registry_failures(monkeypatch:
             )
         return subprocess.CompletedProcess(args=cmd, returncode=0, stdout="ok", stderr="")
 
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._run", fake_run)
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime.time.sleep", lambda _: None)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._run", fake_run)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime.time.sleep", lambda _: None)
 
     proc = _docker_pull_with_retry("alexgshaw/example:tag", timeout_sec=30, attempts=3)
     assert proc.returncode == 0
@@ -382,8 +382,8 @@ def test_docker_pull_with_retry_retries_ambiguous_registry_failures(
             return subprocess.CompletedProcess(args=cmd, returncode=1, stdout="", stderr=stderr)
         return subprocess.CompletedProcess(args=cmd, returncode=0, stdout="ok", stderr="")
 
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._run", fake_run)
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime.time.sleep", lambda _: None)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._run", fake_run)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime.time.sleep", lambda _: None)
 
     proc = _docker_pull_with_retry("alexgshaw/example:tag", timeout_sec=30, attempts=3)
     assert proc.returncode == 0
@@ -399,8 +399,8 @@ def test_docker_pull_with_retry_normalizes_and_retries_timeouts(monkeypatch: pyt
             raise subprocess.TimeoutExpired(cmd=cmd, timeout=timeout_sec or 0)
         return subprocess.CompletedProcess(args=cmd, returncode=0, stdout="ok", stderr="")
 
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._run", fake_run)
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime.time.sleep", lambda _: None)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._run", fake_run)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime.time.sleep", lambda _: None)
 
     proc = _docker_pull_with_retry("alexgshaw/example:tag", timeout_sec=30, attempts=3)
     assert proc.returncode == 0
@@ -419,8 +419,8 @@ def test_docker_pull_with_retry_does_not_retry_non_transient(monkeypatch: pytest
             stderr="manifest unknown: image not found in registry",
         )
 
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._run", fake_run)
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime.time.sleep", lambda _: None)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._run", fake_run)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime.time.sleep", lambda _: None)
 
     proc = _docker_pull_with_retry("alexgshaw/missing:tag", timeout_sec=30, attempts=3)
     assert proc.returncode == 1
@@ -444,7 +444,7 @@ def test_tb2_image_digest_manifest_mismatch_fails_closed(monkeypatch: pytest.Mon
         encoding="utf-8",
     )
 
-    monkeypatch.setenv("KCSI_TB2_IMAGE_DIGEST_MANIFEST", str(manifest))
+    monkeypatch.setenv("KSI_TB2_IMAGE_DIGEST_MANIFEST", str(manifest))
 
     with pytest.raises(RuntimeError, match="image digest mismatch"):
         _enforce_tb2_image_digest_manifest(
@@ -463,7 +463,7 @@ def test_tb2_image_digest_manifest_requires_entry(monkeypatch: pytest.MonkeyPatc
     manifest = tmp_path / "image_digests.json"
     manifest.write_text('{"tasks":{}}', encoding="utf-8")
 
-    monkeypatch.setenv("KCSI_TB2_IMAGE_DIGEST_MANIFEST", str(manifest))
+    monkeypatch.setenv("KSI_TB2_IMAGE_DIGEST_MANIFEST", str(manifest))
 
     with pytest.raises(RuntimeError, match="has no digest entry"):
         _enforce_tb2_image_digest_manifest(
@@ -510,15 +510,15 @@ def test_acquire_tb2_image_enforces_digest_manifest(monkeypatch: pytest.MonkeyPa
             )
         raise AssertionError(f"unexpected command: {cmd}")
 
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_pull_with_retry", fake_pull)
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._run", fake_run)
-    monkeypatch.setenv("KCSI_TB2_IMAGE_DIGEST_MANIFEST", str(manifest))
-    monkeypatch.setenv("KCSI_TB2_REQUIRE_PULL", "1")
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_pull_with_retry", fake_pull)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._run", fake_run)
+    monkeypatch.setenv("KSI_TB2_IMAGE_DIGEST_MANIFEST", str(manifest))
+    monkeypatch.setenv("KSI_TB2_REQUIRE_PULL", "1")
 
     acquired = _acquire_tb2_image(
         task=task,
         contract=contract,
-        image_tag="kcsi-tb2-demo:latest",
+        image_tag="ksi-tb2-demo:latest",
         meta_dir=meta_dir,
     )
 
@@ -795,9 +795,9 @@ def test_verifier_sanitize_runs_before_test_copy_and_run(monkeypatch: pytest.Mon
             return _reward_readout_process(cmd, reward_host_path)
         return subprocess.CompletedProcess(args=cmd, returncode=0, stdout="", stderr="")
 
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_pull_with_retry", fake_pull)
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._run", fake_run)
-    monkeypatch.setenv("KCSI_TB2_REQUIRE_PULL", "1")
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_pull_with_retry", fake_pull)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._run", fake_run)
+    monkeypatch.setenv("KSI_TB2_REQUIRE_PULL", "1")
 
     result = run_terminal_bench_2_trial(task=task, agent_mode="noop", output_dir=str(output_root), keep_container=True)
 
@@ -865,9 +865,9 @@ def test_cleanup_timeout_does_not_mask_completed_trial(monkeypatch: pytest.Monke
             return _reward_readout_process(cmd, reward_host_path)
         return subprocess.CompletedProcess(args=cmd, returncode=0, stdout="", stderr="")
 
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_pull_with_retry", fake_pull)
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._run", fake_run)
-    monkeypatch.setenv("KCSI_TB2_REQUIRE_PULL", "1")
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_pull_with_retry", fake_pull)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._run", fake_run)
+    monkeypatch.setenv("KSI_TB2_REQUIRE_PULL", "1")
 
     # No exception must propagate out of the trial's `finally` cleanup.
     result = run_terminal_bench_2_trial(task=task, agent_mode="noop", output_dir=str(output_root))
@@ -911,9 +911,9 @@ def test_verifier_invoked_via_trusted_bash_not_planted_shim(monkeypatch: pytest.
             return _reward_readout_process(cmd, reward_host_path)
         return subprocess.CompletedProcess(args=cmd, returncode=0, stdout="", stderr="")
 
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_pull_with_retry", fake_pull)
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._run", fake_run)
-    monkeypatch.setenv("KCSI_TB2_REQUIRE_PULL", "1")
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_pull_with_retry", fake_pull)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._run", fake_run)
+    monkeypatch.setenv("KSI_TB2_REQUIRE_PULL", "1")
 
     result = run_terminal_bench_2_trial(task=task, agent_mode="noop", output_dir=str(output_root), keep_container=True)
 
@@ -997,10 +997,10 @@ def test_strict_mode_fails_closed_when_trusted_toolchain_unavailable(
             return _reward_readout_process(cmd, reward_host_path)
         return subprocess.CompletedProcess(args=cmd, returncode=0, stdout="", stderr="")
 
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_pull_with_retry", fake_pull)
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._run", fake_run)
-    monkeypatch.setenv("KCSI_TB2_REQUIRE_PULL", "1")
-    monkeypatch.delenv("KCSI_TB2_REQUIRE_TRUSTED_VERIFIER", raising=False)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_pull_with_retry", fake_pull)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._run", fake_run)
+    monkeypatch.setenv("KSI_TB2_REQUIRE_PULL", "1")
+    monkeypatch.delenv("KSI_TB2_REQUIRE_TRUSTED_VERIFIER", raising=False)
 
     result = run_terminal_bench_2_trial(task=task, agent_mode="noop", output_dir=str(output_root), keep_container=True)
 
@@ -1033,10 +1033,10 @@ def test_strict_mode_fails_closed_when_trusted_toolchain_extraction_times_out(
             raise subprocess.TimeoutExpired(cmd=cmd, timeout=timeout_sec or 0)
         return subprocess.CompletedProcess(args=cmd, returncode=0, stdout="", stderr="")
 
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_pull_with_retry", fake_pull)
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._run", fake_run)
-    monkeypatch.setenv("KCSI_TB2_REQUIRE_PULL", "1")
-    monkeypatch.delenv("KCSI_TB2_REQUIRE_TRUSTED_VERIFIER", raising=False)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_pull_with_retry", fake_pull)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._run", fake_run)
+    monkeypatch.setenv("KSI_TB2_REQUIRE_PULL", "1")
+    monkeypatch.delenv("KSI_TB2_REQUIRE_TRUSTED_VERIFIER", raising=False)
 
     result = run_terminal_bench_2_trial(task=task, agent_mode="noop", output_dir=str(output_root), keep_container=True)
 
@@ -1067,10 +1067,10 @@ def test_strict_mode_still_scores_when_toolchain_is_trusted(monkeypatch: pytest.
             return _reward_readout_process(cmd, reward_host_path)
         return subprocess.CompletedProcess(args=cmd, returncode=0, stdout="", stderr="")
 
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_pull_with_retry", fake_pull)
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._run", fake_run)
-    monkeypatch.setenv("KCSI_TB2_REQUIRE_PULL", "1")
-    monkeypatch.delenv("KCSI_TB2_REQUIRE_TRUSTED_VERIFIER", raising=False)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_pull_with_retry", fake_pull)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._run", fake_run)
+    monkeypatch.setenv("KSI_TB2_REQUIRE_PULL", "1")
+    monkeypatch.delenv("KSI_TB2_REQUIRE_TRUSTED_VERIFIER", raising=False)
 
     result = run_terminal_bench_2_trial(task=task, agent_mode="noop", output_dir=str(output_root), keep_container=True)
 
@@ -1086,7 +1086,7 @@ def test_forced_fallback_runs_legacy_when_strict_mode_explicitly_disabled(
     """#1206: explicit legacy mode preserves the never-worse-than-main fallback.
 
     An untrusted toolchain still runs the legacy verifier and scores only when
-    KCSI_TB2_REQUIRE_TRUSTED_VERIFIER is deliberately set false.
+    KSI_TB2_REQUIRE_TRUSTED_VERIFIER is deliberately set false.
     """
     task_root = _write_tb2_task(tmp_path)
     task = _tb2_task_spec(task_root)
@@ -1109,10 +1109,10 @@ def test_forced_fallback_runs_legacy_when_strict_mode_explicitly_disabled(
             return _reward_readout_process(cmd, reward_host_path)
         return subprocess.CompletedProcess(args=cmd, returncode=0, stdout="", stderr="")
 
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_pull_with_retry", fake_pull)
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._run", fake_run)
-    monkeypatch.setenv("KCSI_TB2_REQUIRE_PULL", "1")
-    monkeypatch.setenv("KCSI_TB2_REQUIRE_TRUSTED_VERIFIER", "0")
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_pull_with_retry", fake_pull)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._run", fake_run)
+    monkeypatch.setenv("KSI_TB2_REQUIRE_PULL", "1")
+    monkeypatch.setenv("KSI_TB2_REQUIRE_TRUSTED_VERIFIER", "0")
 
     result = run_terminal_bench_2_trial(task=task, agent_mode="noop", output_dir=str(output_root), keep_container=True)
 
@@ -1148,9 +1148,9 @@ def test_legitimate_solve_still_scores_resolved(monkeypatch: pytest.MonkeyPatch,
             return _reward_readout_process(cmd, reward_host_path)
         return subprocess.CompletedProcess(args=cmd, returncode=0, stdout="", stderr="")
 
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_pull_with_retry", fake_pull)
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._run", fake_run)
-    monkeypatch.setenv("KCSI_TB2_REQUIRE_PULL", "1")
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_pull_with_retry", fake_pull)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._run", fake_run)
+    monkeypatch.setenv("KSI_TB2_REQUIRE_PULL", "1")
 
     result = run_terminal_bench_2_trial(task=task, agent_mode="noop", output_dir=str(output_root), keep_container=True)
 
@@ -1189,9 +1189,9 @@ def test_verifier_never_kills_container_processes(monkeypatch: pytest.MonkeyPatc
             return _reward_readout_process(cmd, reward_host_path)
         return subprocess.CompletedProcess(args=cmd, returncode=0, stdout="", stderr="")
 
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_pull_with_retry", fake_pull)
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._run", fake_run)
-    monkeypatch.setenv("KCSI_TB2_REQUIRE_PULL", "1")
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_pull_with_retry", fake_pull)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._run", fake_run)
+    monkeypatch.setenv("KSI_TB2_REQUIRE_PULL", "1")
 
     result = run_terminal_bench_2_trial(task=task, agent_mode="noop", output_dir=str(output_root), keep_container=True)
 
@@ -1225,9 +1225,9 @@ def test_nonzero_verifier_with_reward_reports_verifier_failed(monkeypatch: pytes
             return _reward_readout_process(cmd, reward_host_path)
         return subprocess.CompletedProcess(args=cmd, returncode=0, stdout="", stderr="")
 
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_pull_with_retry", fake_pull)
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._run", fake_run)
-    monkeypatch.setenv("KCSI_TB2_REQUIRE_PULL", "1")
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_pull_with_retry", fake_pull)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._run", fake_run)
+    monkeypatch.setenv("KSI_TB2_REQUIRE_PULL", "1")
 
     result = run_terminal_bench_2_trial(task=task, agent_mode="noop", output_dir=str(output_root), keep_container=True)
 
@@ -1238,7 +1238,7 @@ def test_nonzero_verifier_with_reward_reports_verifier_failed(monkeypatch: pytes
 
 
 def test_bridge_failure_with_passing_verifier_is_not_completed(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
-    """A kcsi-bridge exception is caught (agent_exit_code=1) and is NOT terminal:
+    """A ksi-bridge exception is caught (agent_exit_code=1) and is NOT terminal:
     the verifier still runs. Such a crashed agent phase must report
     ``trial_status='agent_failed_but_verifier_ran'`` -- never 'completed' -- so
     it can't be silently counted as a clean solve. Conservative: ``resolved``
@@ -1264,14 +1264,14 @@ def test_bridge_failure_with_passing_verifier_is_not_completed(monkeypatch: pyte
             return _reward_readout_process(cmd, reward_host_path)
         return subprocess.CompletedProcess(args=cmd, returncode=0, stdout="", stderr="")
 
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_pull_with_retry", fake_pull)
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._run", fake_run)
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._run_kcsi_agent_in_tb2_container", boom)
-    monkeypatch.setenv("KCSI_TB2_REQUIRE_PULL", "1")
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_pull_with_retry", fake_pull)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._run", fake_run)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._run_ksi_agent_in_tb2_container", boom)
+    monkeypatch.setenv("KSI_TB2_REQUIRE_PULL", "1")
 
     result = run_terminal_bench_2_trial(
         task=task,
-        agent_mode="kcsi",
+        agent_mode="ksi",
         output_dir=str(output_root),
         keep_container=True,
         provider_env={"MODEL": "haiku"},
@@ -1304,9 +1304,9 @@ def test_clean_run_reads_completed_status(monkeypatch: pytest.MonkeyPatch, tmp_p
             return _reward_readout_process(cmd, reward_host_path)
         return subprocess.CompletedProcess(args=cmd, returncode=0, stdout="", stderr="")
 
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_pull_with_retry", fake_pull)
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._run", fake_run)
-    monkeypatch.setenv("KCSI_TB2_REQUIRE_PULL", "1")
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_pull_with_retry", fake_pull)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._run", fake_run)
+    monkeypatch.setenv("KSI_TB2_REQUIRE_PULL", "1")
 
     result = run_terminal_bench_2_trial(task=task, agent_mode="noop", output_dir=str(output_root), keep_container=True)
 
@@ -1342,9 +1342,9 @@ def test_trial_fails_closed_when_purge_raises(monkeypatch: pytest.MonkeyPatch, t
             return subprocess.CompletedProcess(args=cmd, returncode=1, stdout="", stderr="rm: cannot remove")
         return subprocess.CompletedProcess(args=cmd, returncode=0, stdout="", stderr="")
 
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_pull_with_retry", fake_pull)
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._run", fake_run)
-    monkeypatch.setenv("KCSI_TB2_REQUIRE_PULL", "1")
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_pull_with_retry", fake_pull)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._run", fake_run)
+    monkeypatch.setenv("KSI_TB2_REQUIRE_PULL", "1")
 
     with pytest.raises(RuntimeError, match="sanitize"):
         run_terminal_bench_2_trial(task=task, agent_mode="noop", output_dir=str(output_root), keep_container=True)
@@ -1368,9 +1368,9 @@ def test_neither_reward_file_present_scores_none_without_raise(monkeypatch: pyte
             return _reward_readout_process(cmd, reward_host_path)  # absent -> "ABSENT"
         return subprocess.CompletedProcess(args=cmd, returncode=0, stdout="", stderr="")
 
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_pull_with_retry", fake_pull)
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._run", fake_run)
-    monkeypatch.setenv("KCSI_TB2_REQUIRE_PULL", "1")
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_pull_with_retry", fake_pull)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._run", fake_run)
+    monkeypatch.setenv("KSI_TB2_REQUIRE_PULL", "1")
 
     result = run_terminal_bench_2_trial(task=task, agent_mode="noop", output_dir=str(output_root), keep_container=True)
 
@@ -1414,9 +1414,9 @@ def test_reward_scored_from_pre_removal_read_not_post_read_write(
             return proc
         return subprocess.CompletedProcess(args=cmd, returncode=0, stdout="", stderr="")
 
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_pull_with_retry", fake_pull)
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._run", fake_run)
-    monkeypatch.setenv("KCSI_TB2_REQUIRE_PULL", "1")
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_pull_with_retry", fake_pull)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._run", fake_run)
+    monkeypatch.setenv("KSI_TB2_REQUIRE_PULL", "1")
 
     result = run_terminal_bench_2_trial(task=task, agent_mode="noop", output_dir=str(output_root), keep_container=True)
 
@@ -1449,9 +1449,9 @@ def test_active_writer_during_verify_fails_closed(monkeypatch: pytest.MonkeyPatc
             return _reward_readout_process(cmd, reward_host_path, active=True)
         return subprocess.CompletedProcess(args=cmd, returncode=0, stdout="", stderr="")
 
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_pull_with_retry", fake_pull)
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._run", fake_run)
-    monkeypatch.setenv("KCSI_TB2_REQUIRE_PULL", "1")
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_pull_with_retry", fake_pull)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._run", fake_run)
+    monkeypatch.setenv("KSI_TB2_REQUIRE_PULL", "1")
 
     result = run_terminal_bench_2_trial(task=task, agent_mode="noop", output_dir=str(output_root), keep_container=True)
 
@@ -1467,10 +1467,10 @@ def _raw_readout(m1: str, m2: str, v1: str, v2: str) -> str:
 
 
 def test_read_reward_before_removal_parses_stable_value(monkeypatch: pytest.MonkeyPatch) -> None:
-    from kcsi.benchmarks.terminal_bench_2_runtime import _read_tb2_reward_before_removal
+    from ksi.benchmarks.terminal_bench_2_runtime import _read_tb2_reward_before_removal
 
     fake = _fake_docker_exec_factory(returncode=0, stdout=_raw_readout("100", "100", "1.0", "1.0"))
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_exec", fake)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_exec", fake)
 
     readout = _read_tb2_reward_before_removal(container_name="dummy")
     assert readout.present is True
@@ -1484,10 +1484,10 @@ def test_read_reward_before_removal_parses_stable_value(monkeypatch: pytest.Monk
 def test_read_reward_before_removal_flags_mtime_advance(monkeypatch: pytest.MonkeyPatch) -> None:
     """A background writer that keeps re-writing the SAME value is still caught:
     the integer-second mtime advances between the two samples."""
-    from kcsi.benchmarks.terminal_bench_2_runtime import _read_tb2_reward_before_removal
+    from ksi.benchmarks.terminal_bench_2_runtime import _read_tb2_reward_before_removal
 
     fake = _fake_docker_exec_factory(returncode=0, stdout=_raw_readout("100", "101", "1.0", "1.0"))
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_exec", fake)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_exec", fake)
 
     readout = _read_tb2_reward_before_removal(container_name="dummy")
     assert readout.active_writer is True
@@ -1495,10 +1495,10 @@ def test_read_reward_before_removal_flags_mtime_advance(monkeypatch: pytest.Monk
 
 
 def test_read_reward_before_removal_flags_content_change(monkeypatch: pytest.MonkeyPatch) -> None:
-    from kcsi.benchmarks.terminal_bench_2_runtime import _read_tb2_reward_before_removal
+    from ksi.benchmarks.terminal_bench_2_runtime import _read_tb2_reward_before_removal
 
     fake = _fake_docker_exec_factory(returncode=0, stdout=_raw_readout("100", "100", "0.0", "1.0"))
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_exec", fake)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_exec", fake)
 
     readout = _read_tb2_reward_before_removal(container_name="dummy")
     assert readout.active_writer is True
@@ -1506,10 +1506,10 @@ def test_read_reward_before_removal_flags_content_change(monkeypatch: pytest.Mon
 
 
 def test_read_reward_before_removal_absent_is_not_active_writer(monkeypatch: pytest.MonkeyPatch) -> None:
-    from kcsi.benchmarks.terminal_bench_2_runtime import _read_tb2_reward_before_removal
+    from ksi.benchmarks.terminal_bench_2_runtime import _read_tb2_reward_before_removal
 
     fake = _fake_docker_exec_factory(returncode=0, stdout="ABSENT")
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_exec", fake)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_exec", fake)
 
     readout = _read_tb2_reward_before_removal(container_name="dummy")
     assert readout.present is False
@@ -1518,10 +1518,10 @@ def test_read_reward_before_removal_absent_is_not_active_writer(monkeypatch: pyt
 
 
 def test_read_reward_before_removal_exec_failure_fails_closed(monkeypatch: pytest.MonkeyPatch) -> None:
-    from kcsi.benchmarks.terminal_bench_2_runtime import _read_tb2_reward_before_removal
+    from ksi.benchmarks.terminal_bench_2_runtime import _read_tb2_reward_before_removal
 
     fake = _fake_docker_exec_factory(returncode=1, stdout="", stderr="boom")
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_exec", fake)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_exec", fake)
 
     readout = _read_tb2_reward_before_removal(container_name="dummy")
     assert readout.active_writer is True
@@ -1535,26 +1535,26 @@ def test_resolve_tb2_max_steps_defaults_to_unlimited(tmp_path: Path) -> None:
     # Default is unlimited: the canonical Harbor harness applies no step cap,
     # and 44% of TB2 tasks declare agent.timeout_sec > 900s. A swarms-side
     # 150-step cap can bind before the wall-time and bias scores downward.
-    from kcsi.benchmarks.terminal_bench_2_runtime import _TB2_STEP_CAP_UNLIMITED
+    from ksi.benchmarks.terminal_bench_2_runtime import _TB2_STEP_CAP_UNLIMITED
 
     assert _resolve_tb2_max_steps(contract=contract, env={}) == _TB2_STEP_CAP_UNLIMITED
     # Explicit positive override is honored.
-    assert _resolve_tb2_max_steps(contract=contract, env={"KCSI_TB2_MAX_STEPS": "7"}) == 7
+    assert _resolve_tb2_max_steps(contract=contract, env={"KSI_TB2_MAX_STEPS": "7"}) == 7
     # Zero (and any non-positive) also means unlimited.
-    assert _resolve_tb2_max_steps(contract=contract, env={"KCSI_TB2_MAX_STEPS": "0"}) == _TB2_STEP_CAP_UNLIMITED
-    assert _resolve_tb2_max_steps(contract=contract, env={"KCSI_TB2_MAX_STEPS": "-1"}) == _TB2_STEP_CAP_UNLIMITED
+    assert _resolve_tb2_max_steps(contract=contract, env={"KSI_TB2_MAX_STEPS": "0"}) == _TB2_STEP_CAP_UNLIMITED
+    assert _resolve_tb2_max_steps(contract=contract, env={"KSI_TB2_MAX_STEPS": "-1"}) == _TB2_STEP_CAP_UNLIMITED
     # Invalid or empty falls back to unlimited (the new default).
-    assert _resolve_tb2_max_steps(contract=contract, env={"KCSI_TB2_MAX_STEPS": "abc"}) == _TB2_STEP_CAP_UNLIMITED
-    assert _resolve_tb2_max_steps(contract=contract, env={"KCSI_TB2_MAX_STEPS": ""}) == _TB2_STEP_CAP_UNLIMITED
+    assert _resolve_tb2_max_steps(contract=contract, env={"KSI_TB2_MAX_STEPS": "abc"}) == _TB2_STEP_CAP_UNLIMITED
+    assert _resolve_tb2_max_steps(contract=contract, env={"KSI_TB2_MAX_STEPS": ""}) == _TB2_STEP_CAP_UNLIMITED
 
 
 def test_resolve_tb2_max_steps_falls_back_to_os_environ(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     """When the provider env omits the knob, a process-level export is honored
-    (matching every other KCSI_TB2_* knob)."""
+    (matching every other KSI_TB2_* knob)."""
     task_root = _write_tb2_task(tmp_path)
     contract = resolve_terminal_bench_2_task_contract(_tb2_task_spec(task_root))
 
-    monkeypatch.setenv("KCSI_TB2_MAX_STEPS", "50")
+    monkeypatch.setenv("KSI_TB2_MAX_STEPS", "50")
     assert _resolve_tb2_max_steps(contract=contract, env={}) == 50
 
 
@@ -1565,31 +1565,31 @@ def test_resolve_tb2_max_steps_provider_env_wins_over_os_environ(
     task_root = _write_tb2_task(tmp_path)
     contract = resolve_terminal_bench_2_task_contract(_tb2_task_spec(task_root))
 
-    monkeypatch.setenv("KCSI_TB2_MAX_STEPS", "50")
-    assert _resolve_tb2_max_steps(contract=contract, env={"KCSI_TB2_MAX_STEPS": "7"}) == 7
+    monkeypatch.setenv("KSI_TB2_MAX_STEPS", "50")
+    assert _resolve_tb2_max_steps(contract=contract, env={"KSI_TB2_MAX_STEPS": "7"}) == 7
 
 
 def test_inspect_image_identity_extracts_digest_and_id() -> None:
     import json as _json
 
-    from kcsi.benchmarks.terminal_bench_2_runtime import _inspect_image_identity
+    from ksi.benchmarks.terminal_bench_2_runtime import _inspect_image_identity
 
     def fake_run(cmd, *, timeout_sec):
         target = cmd[-1]
         if target == "alexgshaw/foo:tag":
             payload = [{"RepoDigests": ["alexgshaw/foo@sha256:abc123"], "Id": "sha256:def456"}]
-        elif target == "kcsi-tb2-foo:local":
+        elif target == "ksi-tb2-foo:local":
             payload = [{"Id": "sha256:def456", "RepoDigests": []}]
         else:
             payload = []
         return subprocess.CompletedProcess(args=cmd, returncode=0, stdout=_json.dumps(payload), stderr="")
 
-    import kcsi.benchmarks.terminal_bench_2_runtime as runtime_mod
+    import ksi.benchmarks.terminal_bench_2_runtime as runtime_mod
 
     original_run = runtime_mod._run
     runtime_mod._run = fake_run
     try:
-        digest, image_id = _inspect_image_identity(pull_target="alexgshaw/foo:tag", image_tag="kcsi-tb2-foo:local")
+        digest, image_id = _inspect_image_identity(pull_target="alexgshaw/foo:tag", image_tag="ksi-tb2-foo:local")
     finally:
         runtime_mod._run = original_run
 
@@ -1600,7 +1600,7 @@ def test_inspect_image_identity_extracts_digest_and_id() -> None:
 def test_inspect_image_identity_build_path_has_empty_digest() -> None:
     import json as _json
 
-    from kcsi.benchmarks.terminal_bench_2_runtime import _inspect_image_identity
+    from ksi.benchmarks.terminal_bench_2_runtime import _inspect_image_identity
 
     def fake_run(cmd, *, timeout_sec):
         return subprocess.CompletedProcess(
@@ -1610,12 +1610,12 @@ def test_inspect_image_identity_build_path_has_empty_digest() -> None:
             stderr="",
         )
 
-    import kcsi.benchmarks.terminal_bench_2_runtime as runtime_mod
+    import ksi.benchmarks.terminal_bench_2_runtime as runtime_mod
 
     original_run = runtime_mod._run
     runtime_mod._run = fake_run
     try:
-        digest, image_id = _inspect_image_identity(pull_target="", image_tag="kcsi-tb2-foo:local")
+        digest, image_id = _inspect_image_identity(pull_target="", image_tag="ksi-tb2-foo:local")
     finally:
         runtime_mod._run = original_run
 
@@ -1624,12 +1624,12 @@ def test_inspect_image_identity_build_path_has_empty_digest() -> None:
 
 
 def test_inspect_image_identity_swallows_failures() -> None:
-    from kcsi.benchmarks.terminal_bench_2_runtime import _inspect_image_identity
+    from ksi.benchmarks.terminal_bench_2_runtime import _inspect_image_identity
 
     def fake_run(cmd, *, timeout_sec):
         return subprocess.CompletedProcess(args=cmd, returncode=1, stdout="", stderr="error: no such image")
 
-    import kcsi.benchmarks.terminal_bench_2_runtime as runtime_mod
+    import ksi.benchmarks.terminal_bench_2_runtime as runtime_mod
 
     original_run = runtime_mod._run
     runtime_mod._run = fake_run
@@ -1645,8 +1645,8 @@ def test_inspect_image_identity_swallows_failures() -> None:
 def test_require_pull_rejects_when_disable_pull_also_set(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     task_root = _write_tb2_task(tmp_path)
     task = _tb2_task_spec(task_root)
-    monkeypatch.setenv("KCSI_TB2_REQUIRE_PULL", "1")
-    monkeypatch.setenv("KCSI_TB2_DISABLE_PULL", "1")
+    monkeypatch.setenv("KSI_TB2_REQUIRE_PULL", "1")
+    monkeypatch.setenv("KSI_TB2_DISABLE_PULL", "1")
 
     with pytest.raises(RuntimeError, match="mutually exclusive"):
         run_terminal_bench_2_trial(task=task, agent_mode="noop", output_dir=str(tmp_path / "out"))
@@ -1667,9 +1667,9 @@ def test_image_acquisition_log_goes_to_stderr(
         # Tag, run, exec, rm — everything else after the pull is fine to no-op.
         return subprocess.CompletedProcess(args=cmd, returncode=0, stdout="", stderr="")
 
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_pull_with_retry", fake_pull)
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._run", fake_run)
-    monkeypatch.setenv("KCSI_TB2_REQUIRE_PULL", "1")
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_pull_with_retry", fake_pull)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._run", fake_run)
+    monkeypatch.setenv("KSI_TB2_REQUIRE_PULL", "1")
 
     # The trial will fail downstream (no real container), but the image-log
     # line should have been emitted to stderr before that. Catch broadly and
@@ -1707,9 +1707,9 @@ def test_require_pull_failed_pull_refuses_local_build(monkeypatch: pytest.Monkey
         recorded.append(list(cmd))
         return subprocess.CompletedProcess(args=cmd, returncode=0, stdout="", stderr="")
 
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_pull_with_retry", fake_pull)
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._run", fake_run)
-    monkeypatch.setenv("KCSI_TB2_REQUIRE_PULL", "1")
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_pull_with_retry", fake_pull)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._run", fake_run)
+    monkeypatch.setenv("KSI_TB2_REQUIRE_PULL", "1")
 
     output_root = tmp_path / "out"
     with pytest.raises(ContainerRegistryError, match="refusing to fall back") as caught:
@@ -1755,8 +1755,8 @@ def test_require_pull_ambiguous_registry_failure_is_retryable_at_real_raise_site
             stderr=stderr,
         )
 
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_pull_with_retry", fake_pull)
-    monkeypatch.setenv("KCSI_TB2_REQUIRE_PULL", "1")
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_pull_with_retry", fake_pull)
+    monkeypatch.setenv("KSI_TB2_REQUIRE_PULL", "1")
 
     with pytest.raises(ContainerRegistryError) as caught:
         run_terminal_bench_2_trial(task=task, agent_mode="noop", output_dir=str(tmp_path / "out"))
@@ -1792,9 +1792,9 @@ def test_run_terminal_bench_2_trial_records_task_toml_timeout_source(
             return _reward_readout_process(cmd, logs_root_seen["path"] / "verifier" / "reward.txt")
         return subprocess.CompletedProcess(args=cmd, returncode=0, stdout="", stderr="")
 
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_pull_with_retry", fake_pull)
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_run_command", fake_run_command)
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._run", fake_run)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_pull_with_retry", fake_pull)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_run_command", fake_run_command)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._run", fake_run)
 
     result = run_terminal_bench_2_trial(task=task, agent_mode="noop", output_dir=str(tmp_path / "out"))
 
@@ -1839,7 +1839,7 @@ def test_terminal_bench_2_executor_wraps_trial_result(monkeypatch: pytest.Monkey
         return _FakeResult()
 
     monkeypatch.setattr(
-        "kcsi.runtime.terminal_bench_2.run_terminal_bench_2_trial",
+        "ksi.runtime.terminal_bench_2.run_terminal_bench_2_trial",
         fake_run_terminal_bench_2_trial,
     )
 
@@ -1874,7 +1874,7 @@ def test_terminal_bench_2_executor_forwards_agent_seed_package(monkeypatch: pyte
         return _FakeResult()
 
     monkeypatch.setattr(
-        "kcsi.runtime.terminal_bench_2.run_terminal_bench_2_trial",
+        "ksi.runtime.terminal_bench_2.run_terminal_bench_2_trial",
         fake_run_terminal_bench_2_trial,
     )
 
@@ -1902,7 +1902,7 @@ def test_terminal_bench_2_executor_forwards_memory_seed_raw_attempts(monkeypatch
         return _FakeResult()
 
     monkeypatch.setattr(
-        "kcsi.runtime.terminal_bench_2.run_terminal_bench_2_trial",
+        "ksi.runtime.terminal_bench_2.run_terminal_bench_2_trial",
         fake_run_terminal_bench_2_trial,
     )
 
@@ -1925,7 +1925,7 @@ def test_terminal_bench_2_executor_delegates_non_tb2_tasks() -> None:
             captured["closed"] = True
 
     fallback = _FallbackRuntime()
-    executor = TerminalBench2Executor(agent_mode="kcsi", fallback_runtime=fallback)
+    executor = TerminalBench2Executor(agent_mode="ksi", fallback_runtime=fallback)
 
     result = executor.run_task(generation=4, agent_id="agent-9", task=forum_task)
 
@@ -1938,7 +1938,7 @@ def test_terminal_bench_2_executor_delegates_non_tb2_tasks() -> None:
     assert captured["closed"] is True
 
 
-def test_run_kcsi_agent_in_tb2_container_records_shell_trace(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+def test_run_ksi_agent_in_tb2_container_records_shell_trace(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     task_root = _write_tb2_task(tmp_path)
     task = _tb2_task_spec(task_root)
     contract = resolve_terminal_bench_2_task_contract(task)
@@ -1991,15 +1991,15 @@ def test_run_kcsi_agent_in_tb2_container_records_shell_trace(monkeypatch: pytest
             stderr="",
         )
 
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime.build_llm_caller", fake_build_llm_caller)
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_exec", fake_docker_exec)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime.build_llm_caller", fake_build_llm_caller)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_exec", fake_docker_exec)
 
-    result = _run_kcsi_agent_in_tb2_container(
+    result = _run_ksi_agent_in_tb2_container(
         task=task,
         contract=contract,
         container_name="tb2-container",
         workspace_root=workspace_root,
-        provider_env={"MODEL_PROVIDER": "openai", "MODEL": "gpt-5.4-mini", "KCSI_TB2_MAX_STEPS": "3"},
+        provider_env={"MODEL_PROVIDER": "openai", "MODEL": "gpt-5.4-mini", "KSI_TB2_MAX_STEPS": "3"},
         generation=2,
         agent_id="agent-1",
     )
@@ -2012,7 +2012,7 @@ def test_run_kcsi_agent_in_tb2_container_records_shell_trace(monkeypatch: pytest
     assert "instruction.md" in result.transcript
 
 
-def test_run_kcsi_agent_in_tb2_container_recovers_from_invalid_model_reply(
+def test_run_ksi_agent_in_tb2_container_recovers_from_invalid_model_reply(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
     task_root = _write_tb2_task(tmp_path)
@@ -2045,15 +2045,15 @@ def test_run_kcsi_agent_in_tb2_container_recovers_from_invalid_model_reply(
             stderr="",
         )
 
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime.build_llm_caller", fake_build_llm_caller)
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_exec", fake_docker_exec)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime.build_llm_caller", fake_build_llm_caller)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_exec", fake_docker_exec)
 
-    result = _run_kcsi_agent_in_tb2_container(
+    result = _run_ksi_agent_in_tb2_container(
         task=task,
         contract=contract,
         container_name="tb2-container",
         workspace_root=workspace_root,
-        provider_env={"MODEL_PROVIDER": "openai", "MODEL": "gpt-5.4-mini", "KCSI_TB2_MAX_STEPS": "4"},
+        provider_env={"MODEL_PROVIDER": "openai", "MODEL": "gpt-5.4-mini", "KSI_TB2_MAX_STEPS": "4"},
         generation=2,
         agent_id="agent-1",
     )
@@ -2076,7 +2076,7 @@ def test_tb2_trim_oldest_history_drops_oldest_third() -> None:
     assert tiny == [{"i": 1}]
 
 
-def test_run_kcsi_agent_in_tb2_container_trims_history_on_prompt_too_long(
+def test_run_ksi_agent_in_tb2_container_trims_history_on_prompt_too_long(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
     """A provider 'prompt is too long' error mid-run must trim history and
@@ -2112,15 +2112,15 @@ def test_run_kcsi_agent_in_tb2_container_trims_history_on_prompt_too_long(
     def fake_docker_exec(*, container_name: str, command: str, timeout_sec: float):
         return subprocess.CompletedProcess(args=["docker", "exec"], returncode=0, stdout="step\n", stderr="")
 
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime.build_llm_caller", lambda **kw: _FakeCaller())
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_exec", fake_docker_exec)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime.build_llm_caller", lambda **kw: _FakeCaller())
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_exec", fake_docker_exec)
 
-    result = _run_kcsi_agent_in_tb2_container(
+    result = _run_ksi_agent_in_tb2_container(
         task=task,
         contract=contract,
         container_name="tb2-container",
         workspace_root=workspace_root,
-        provider_env={"MODEL_PROVIDER": "openai", "MODEL": "gpt-5.4-mini", "KCSI_TB2_MAX_STEPS": "20"},
+        provider_env={"MODEL_PROVIDER": "openai", "MODEL": "gpt-5.4-mini", "KSI_TB2_MAX_STEPS": "20"},
         generation=1,
         agent_id="agent-1",
     )
@@ -2135,7 +2135,7 @@ def test_run_kcsi_agent_in_tb2_container_trims_history_on_prompt_too_long(
     assert prompt_history_sizes[-2:] == [5, 4]
 
 
-def test_run_kcsi_agent_in_tb2_container_prompt_too_long_untrimmable_is_graceful(
+def test_run_ksi_agent_in_tb2_container_prompt_too_long_untrimmable_is_graceful(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
     """When history is too small to trim, an overflow degrades to a graceful
@@ -2150,14 +2150,14 @@ def test_run_kcsi_agent_in_tb2_container_prompt_too_long_untrimmable_is_graceful
             # Overflow on the very first turn (empty history — nothing to trim).
             raise RuntimeError("prompt is too long: 250000 tokens > 200000 maximum")
 
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime.build_llm_caller", lambda **kw: _FakeCaller())
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime.build_llm_caller", lambda **kw: _FakeCaller())
 
-    result = _run_kcsi_agent_in_tb2_container(
+    result = _run_ksi_agent_in_tb2_container(
         task=task,
         contract=contract,
         container_name="tb2-container",
         workspace_root=workspace_root,
-        provider_env={"MODEL_PROVIDER": "openai", "MODEL": "gpt-5.4-mini", "KCSI_TB2_MAX_STEPS": "20"},
+        provider_env={"MODEL_PROVIDER": "openai", "MODEL": "gpt-5.4-mini", "KSI_TB2_MAX_STEPS": "20"},
         generation=1,
         agent_id="agent-1",
     )
@@ -2166,7 +2166,7 @@ def test_run_kcsi_agent_in_tb2_container_prompt_too_long_untrimmable_is_graceful
     assert result.model_output == result.error_text
 
 
-def test_run_kcsi_agent_in_tb2_container_surfaces_cap_hit_when_no_final(
+def test_run_ksi_agent_in_tb2_container_surfaces_cap_hit_when_no_final(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
     task_root = _write_tb2_task(tmp_path)
@@ -2194,15 +2194,15 @@ def test_run_kcsi_agent_in_tb2_container_surfaces_cap_hit_when_no_final(
             stderr="",
         )
 
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime.build_llm_caller", fake_build_llm_caller)
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_exec", fake_docker_exec)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime.build_llm_caller", fake_build_llm_caller)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_exec", fake_docker_exec)
 
-    result = _run_kcsi_agent_in_tb2_container(
+    result = _run_ksi_agent_in_tb2_container(
         task=task,
         contract=contract,
         container_name="tb2-container",
         workspace_root=workspace_root,
-        provider_env={"MODEL_PROVIDER": "openai", "MODEL": "gpt-5.4-mini", "KCSI_TB2_MAX_STEPS": "3"},
+        provider_env={"MODEL_PROVIDER": "openai", "MODEL": "gpt-5.4-mini", "KSI_TB2_MAX_STEPS": "3"},
         generation=1,
         agent_id="agent-1",
     )
@@ -2213,9 +2213,7 @@ def test_run_kcsi_agent_in_tb2_container_surfaces_cap_hit_when_no_final(
     assert len(result.tool_trace) == 3
 
 
-def test_run_kcsi_agent_in_tb2_container_surfaces_deadline_exit(
-    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
-) -> None:
+def test_run_ksi_agent_in_tb2_container_surfaces_deadline_exit(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     """When the wall-clock deadline runs out before the agent emits 'final',
     error_text records the deadline exit (distinct from cap-hit and from
     voluntary termination)."""
@@ -2227,7 +2225,7 @@ def test_run_kcsi_agent_in_tb2_container_surfaces_deadline_exit(
     # Step the fake clock by an enormous amount on each call, blowing past
     # `deadline = monotonic() + agent_timeout_sec` immediately on the second call.
     clock = iter([0.0, 1e9, 1e9, 1e9, 1e9, 1e9, 1e9])
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime.time.monotonic", lambda: next(clock))
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime.time.monotonic", lambda: next(clock))
 
     class _FakeCaller:
         def call(self, system: str, user: str, **kwargs):
@@ -2235,9 +2233,9 @@ def test_run_kcsi_agent_in_tb2_container_surfaces_deadline_exit(
                 text='{"action":"shell","command":"echo x","timeout_sec":5,"summary":"step"}', usage=TokenUsage()
             )
 
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime.build_llm_caller", lambda **kw: _FakeCaller())
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime.build_llm_caller", lambda **kw: _FakeCaller())
 
-    result = _run_kcsi_agent_in_tb2_container(
+    result = _run_ksi_agent_in_tb2_container(
         task=task,
         contract=contract,
         container_name="tb2-container",
@@ -2250,7 +2248,7 @@ def test_run_kcsi_agent_in_tb2_container_surfaces_deadline_exit(
     assert result.model_output == result.error_text
 
 
-def test_run_kcsi_agent_in_tb2_container_preserves_timed_out_command_trace(
+def test_run_ksi_agent_in_tb2_container_preserves_timed_out_command_trace(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
     task_root = _write_tb2_task(tmp_path)
@@ -2279,15 +2277,15 @@ def test_run_kcsi_agent_in_tb2_container_preserves_timed_out_command_trace(
     def fake_docker_exec(*, container_name: str, command: str, timeout_sec: float):
         raise subprocess.TimeoutExpired(cmd=["docker", "exec"], timeout=timeout_sec)
 
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime.build_llm_caller", fake_build_llm_caller)
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_exec", fake_docker_exec)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime.build_llm_caller", fake_build_llm_caller)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_exec", fake_docker_exec)
 
-    result = _run_kcsi_agent_in_tb2_container(
+    result = _run_ksi_agent_in_tb2_container(
         task=task,
         contract=contract,
         container_name="tb2-container",
         workspace_root=workspace_root,
-        provider_env={"MODEL_PROVIDER": "openai", "MODEL": "gpt-5.4-mini", "KCSI_TB2_MAX_STEPS": "3"},
+        provider_env={"MODEL_PROVIDER": "openai", "MODEL": "gpt-5.4-mini", "KSI_TB2_MAX_STEPS": "3"},
         generation=2,
         agent_id="agent-1",
     )
@@ -2299,7 +2297,7 @@ def test_run_kcsi_agent_in_tb2_container_preserves_timed_out_command_trace(
 
 
 def test_handle_tb2_edit_rejects_non_unique_old_string(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
-    from kcsi.benchmarks.terminal_bench_2_runtime import _handle_tb2_edit
+    from ksi.benchmarks.terminal_bench_2_runtime import _handle_tb2_edit
 
     file_content = "x = 1\ny = 1\nz = 1\n"
 
@@ -2310,8 +2308,8 @@ def test_handle_tb2_edit_rejects_non_unique_old_string(monkeypatch: pytest.Monke
     def fake_run(cmd, *, timeout_sec=None):
         return subprocess.CompletedProcess(args=cmd, returncode=0, stdout="", stderr="")
 
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_cp_from_container", fake_cp_from)
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._run", fake_run)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_cp_from_container", fake_cp_from)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._run", fake_run)
 
     history, _ = _handle_tb2_edit(
         action={
@@ -2328,7 +2326,7 @@ def test_handle_tb2_edit_rejects_non_unique_old_string(monkeypatch: pytest.Monke
 
 
 def test_handle_tb2_edit_allows_non_unique_with_replace_all(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
-    from kcsi.benchmarks.terminal_bench_2_runtime import _handle_tb2_edit
+    from ksi.benchmarks.terminal_bench_2_runtime import _handle_tb2_edit
 
     captured_dst_content: dict[str, str] = {}
     file_content = "x = 1\ny = 1\nz = 1\n"
@@ -2345,8 +2343,8 @@ def test_handle_tb2_edit_allows_non_unique_with_replace_all(monkeypatch: pytest.
                 captured_dst_content["written"] = local.read_text(encoding="utf-8")
         return subprocess.CompletedProcess(args=cmd, returncode=0, stdout="", stderr="")
 
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_cp_from_container", fake_cp_from)
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._run", fake_run)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_cp_from_container", fake_cp_from)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._run", fake_run)
 
     history, _ = _handle_tb2_edit(
         action={
@@ -2368,7 +2366,7 @@ def test_handle_tb2_edit_preserves_crlf_line_endings(monkeypatch: pytest.MonkeyP
     """Editing a CRLF file must not silently convert untouched lines to LF.
     read_text/write_text apply universal-newline translation; the handler reads
     and writes bytes to preserve "\\r\\n" exactly."""
-    from kcsi.benchmarks.terminal_bench_2_runtime import _handle_tb2_edit
+    from ksi.benchmarks.terminal_bench_2_runtime import _handle_tb2_edit
 
     captured: dict[str, bytes] = {}
     original_bytes = b"line1\r\nline2\r\n"
@@ -2384,8 +2382,8 @@ def test_handle_tb2_edit_preserves_crlf_line_endings(monkeypatch: pytest.MonkeyP
                 captured["written"] = local.read_bytes()
         return subprocess.CompletedProcess(args=cmd, returncode=0, stdout="", stderr="")
 
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_cp_from_container", fake_cp_from)
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._run", fake_run)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_cp_from_container", fake_cp_from)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._run", fake_run)
 
     history, _ = _handle_tb2_edit(
         action={"path": "/work/file.txt", "old_string": "line2", "new_string": "LINE2"},
@@ -2401,7 +2399,7 @@ def test_handle_tb2_edit_preserves_crlf_line_endings(monkeypatch: pytest.MonkeyP
 def test_handle_tb2_edit_rejects_non_utf8_file(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     """A non-UTF-8 file cannot be substring-edited as text; the handler must
     reject it with exit 22 and a hint to use the shell action."""
-    from kcsi.benchmarks.terminal_bench_2_runtime import _handle_tb2_edit
+    from ksi.benchmarks.terminal_bench_2_runtime import _handle_tb2_edit
 
     written: dict[str, bytes] = {}
 
@@ -2416,8 +2414,8 @@ def test_handle_tb2_edit_rejects_non_utf8_file(monkeypatch: pytest.MonkeyPatch, 
                 written["written"] = local.read_bytes()
         return subprocess.CompletedProcess(args=cmd, returncode=0, stdout="", stderr="")
 
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_cp_from_container", fake_cp_from)
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._run", fake_run)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_cp_from_container", fake_cp_from)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._run", fake_run)
 
     history, _ = _handle_tb2_edit(
         action={"path": "/work/bin.dat", "old_string": "x", "new_string": "y"},
@@ -2436,7 +2434,7 @@ def test_handle_tb2_edit_missing_old_string_does_not_write_back(
 ) -> None:
     """old_string absent from the file -> exit 23 and the file is left untouched
     (no docker cp back into the container)."""
-    from kcsi.benchmarks.terminal_bench_2_runtime import _handle_tb2_edit
+    from ksi.benchmarks.terminal_bench_2_runtime import _handle_tb2_edit
 
     written: dict[str, bytes] = {}
 
@@ -2451,8 +2449,8 @@ def test_handle_tb2_edit_missing_old_string_does_not_write_back(
                 written["written"] = local.read_bytes()
         return subprocess.CompletedProcess(args=cmd, returncode=0, stdout="", stderr="")
 
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_cp_from_container", fake_cp_from)
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._run", fake_run)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_cp_from_container", fake_cp_from)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._run", fake_run)
 
     history, _ = _handle_tb2_edit(
         action={"path": "/work/file.txt", "old_string": "gamma", "new_string": "delta"},
@@ -2467,7 +2465,7 @@ def test_handle_tb2_edit_missing_old_string_does_not_write_back(
 
 
 def test_handle_tb2_edit_rejects_identical_old_new() -> None:
-    from kcsi.benchmarks.terminal_bench_2_runtime import _handle_tb2_edit
+    from ksi.benchmarks.terminal_bench_2_runtime import _handle_tb2_edit
 
     history, _ = _handle_tb2_edit(
         action={
@@ -2485,17 +2483,17 @@ def test_handle_tb2_edit_rejects_identical_old_new() -> None:
 
 def test_resolve_tb2_max_steps_explicit_zero_is_unlimited_sentinel(tmp_path: Path) -> None:
     """0 is the documented sentinel for unlimited; ensure it stays distinct from negatives."""
-    from kcsi.benchmarks.terminal_bench_2_runtime import _TB2_STEP_CAP_UNLIMITED
+    from ksi.benchmarks.terminal_bench_2_runtime import _TB2_STEP_CAP_UNLIMITED
 
     task_root = _write_tb2_task(tmp_path)
     contract = resolve_terminal_bench_2_task_contract(_tb2_task_spec(task_root))
 
-    assert _resolve_tb2_max_steps(contract=contract, env={"KCSI_TB2_MAX_STEPS": "0"}) == _TB2_STEP_CAP_UNLIMITED
+    assert _resolve_tb2_max_steps(contract=contract, env={"KSI_TB2_MAX_STEPS": "0"}) == _TB2_STEP_CAP_UNLIMITED
     # Positive small value is honored verbatim.
-    assert _resolve_tb2_max_steps(contract=contract, env={"KCSI_TB2_MAX_STEPS": "3"}) == 3
+    assert _resolve_tb2_max_steps(contract=contract, env={"KSI_TB2_MAX_STEPS": "3"}) == 3
     # Negative values are rejected and fall through to the default (unlimited),
     # rather than being silently aliased to the 0-sentinel.
-    assert _resolve_tb2_max_steps(contract=contract, env={"KCSI_TB2_MAX_STEPS": "-5"}) == _TB2_STEP_CAP_UNLIMITED
+    assert _resolve_tb2_max_steps(contract=contract, env={"KSI_TB2_MAX_STEPS": "-5"}) == _TB2_STEP_CAP_UNLIMITED
 
 
 def time_monotonic() -> float:
@@ -2527,7 +2525,7 @@ def _fake_docker_exec_factory(*, returncode: int = 0, stdout: str = "", stderr: 
 
 
 def test_handle_tb2_read_rejects_missing_path() -> None:
-    from kcsi.benchmarks.terminal_bench_2_runtime import _handle_tb2_read
+    from ksi.benchmarks.terminal_bench_2_runtime import _handle_tb2_read
 
     history, _ = _handle_tb2_read(
         action={"path": ""},
@@ -2540,10 +2538,10 @@ def test_handle_tb2_read_rejects_missing_path() -> None:
 
 
 def test_handle_tb2_read_passes_offset_limit_to_awk(monkeypatch: pytest.MonkeyPatch) -> None:
-    from kcsi.benchmarks.terminal_bench_2_runtime import _handle_tb2_read
+    from ksi.benchmarks.terminal_bench_2_runtime import _handle_tb2_read
 
     fake = _fake_docker_exec_factory(returncode=0, stdout="hello\nworld\n")
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_exec", fake)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_exec", fake)
 
     history, _ = _handle_tb2_read(
         action={"path": "/work/file.py", "offset": 10, "limit": 5},
@@ -2561,10 +2559,10 @@ def test_handle_tb2_read_passes_offset_limit_to_awk(monkeypatch: pytest.MonkeyPa
 
 
 def test_handle_tb2_read_clamps_limit_to_2000(monkeypatch: pytest.MonkeyPatch) -> None:
-    from kcsi.benchmarks.terminal_bench_2_runtime import _handle_tb2_read
+    from ksi.benchmarks.terminal_bench_2_runtime import _handle_tb2_read
 
     fake = _fake_docker_exec_factory(returncode=0)
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_exec", fake)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_exec", fake)
 
     history, _ = _handle_tb2_read(
         action={"path": "/work/file.py", "limit": 999_999},
@@ -2576,7 +2574,7 @@ def test_handle_tb2_read_clamps_limit_to_2000(monkeypatch: pytest.MonkeyPatch) -
 
 
 def test_handle_tb2_write_rejects_missing_path() -> None:
-    from kcsi.benchmarks.terminal_bench_2_runtime import _handle_tb2_write
+    from ksi.benchmarks.terminal_bench_2_runtime import _handle_tb2_write
 
     history, _ = _handle_tb2_write(
         action={"content": "hello"},
@@ -2589,11 +2587,11 @@ def test_handle_tb2_write_rejects_missing_path() -> None:
 
 
 def test_handle_tb2_write_mkdir_parent_then_cp(monkeypatch: pytest.MonkeyPatch) -> None:
-    from kcsi.benchmarks.terminal_bench_2_runtime import _handle_tb2_write
+    from ksi.benchmarks.terminal_bench_2_runtime import _handle_tb2_write
 
     captured_dst_content: dict[str, str] = {}
     fake_exec = _fake_docker_exec_factory(returncode=0, stdout="")
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_exec", fake_exec)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_exec", fake_exec)
 
     def fake_run(cmd, *, timeout_sec=None):
         if len(cmd) >= 4 and cmd[0] == "docker" and cmd[1] == "cp":
@@ -2602,7 +2600,7 @@ def test_handle_tb2_write_mkdir_parent_then_cp(monkeypatch: pytest.MonkeyPatch) 
                 captured_dst_content["written"] = local.read_text(encoding="utf-8")
         return subprocess.CompletedProcess(args=cmd, returncode=0, stdout="", stderr="")
 
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._run", fake_run)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._run", fake_run)
 
     history, _ = _handle_tb2_write(
         action={"path": "/work/sub/file.py", "content": "x = 1\n"},
@@ -2619,7 +2617,7 @@ def test_handle_tb2_write_mkdir_parent_then_cp(monkeypatch: pytest.MonkeyPatch) 
 
 
 def test_handle_tb2_glob_requires_pattern() -> None:
-    from kcsi.benchmarks.terminal_bench_2_runtime import _handle_tb2_glob
+    from ksi.benchmarks.terminal_bench_2_runtime import _handle_tb2_glob
 
     history, _ = _handle_tb2_glob(
         action={"path": "/work"},
@@ -2632,10 +2630,10 @@ def test_handle_tb2_glob_requires_pattern() -> None:
 
 
 def test_handle_tb2_glob_uses_find_name(monkeypatch: pytest.MonkeyPatch) -> None:
-    from kcsi.benchmarks.terminal_bench_2_runtime import _handle_tb2_glob
+    from ksi.benchmarks.terminal_bench_2_runtime import _handle_tb2_glob
 
     fake = _fake_docker_exec_factory(returncode=0, stdout="/work/a.py\n/work/b.py\n")
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_exec", fake)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_exec", fake)
 
     history, _ = _handle_tb2_glob(
         action={"path": "/work", "pattern": "*.py"},
@@ -2656,10 +2654,10 @@ def test_handle_tb2_glob_guards_nonexistent_path(monkeypatch: pytest.MonkeyPatch
     """A nonexistent path must surface as a real error (exit 2 via the
     `__tb2_glob_error__` existence guard), not be silently indistinguishable
     from "no matches"."""
-    from kcsi.benchmarks.terminal_bench_2_runtime import _handle_tb2_glob
+    from ksi.benchmarks.terminal_bench_2_runtime import _handle_tb2_glob
 
     fake = _fake_docker_exec_factory(returncode=0, stdout="")
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_exec", fake)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_exec", fake)
 
     _ = _handle_tb2_glob(
         action={"path": "/nope", "pattern": "*.py"},
@@ -2673,7 +2671,7 @@ def test_handle_tb2_glob_guards_nonexistent_path(monkeypatch: pytest.MonkeyPatch
 
 
 def test_handle_tb2_grep_requires_pattern() -> None:
-    from kcsi.benchmarks.terminal_bench_2_runtime import _handle_tb2_grep
+    from ksi.benchmarks.terminal_bench_2_runtime import _handle_tb2_grep
 
     history, _ = _handle_tb2_grep(
         action={"path": "/work"},
@@ -2689,10 +2687,10 @@ def test_handle_tb2_grep_no_matches_returns_zero(monkeypatch: pytest.MonkeyPatch
     """grep exit 1 with empty stdout/stderr is the documented "no matches" case;
     surface it as exit 0 with a helpful stdout so the agent doesn't misread it
     as a tool error."""
-    from kcsi.benchmarks.terminal_bench_2_runtime import _handle_tb2_grep
+    from ksi.benchmarks.terminal_bench_2_runtime import _handle_tb2_grep
 
     fake = _fake_docker_exec_factory(returncode=1, stdout="", stderr="")
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_exec", fake)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_exec", fake)
 
     history, _ = _handle_tb2_grep(
         action={"pattern": "nonexistent", "path": "/work"},
@@ -2711,10 +2709,10 @@ def test_handle_tb2_grep_no_matches_returns_zero(monkeypatch: pytest.MonkeyPatch
 def test_handle_tb2_grep_real_error_preserves_stderr(monkeypatch: pytest.MonkeyPatch) -> None:
     """grep exit 2 (real error like invalid regex) must NOT be collapsed to
     "(no matches)"; the agent needs the stderr message to recover."""
-    from kcsi.benchmarks.terminal_bench_2_runtime import _handle_tb2_grep
+    from ksi.benchmarks.terminal_bench_2_runtime import _handle_tb2_grep
 
     fake = _fake_docker_exec_factory(returncode=2, stdout="", stderr="grep: Invalid regular expression")
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_exec", fake)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_exec", fake)
 
     history, _ = _handle_tb2_grep(
         action={"pattern": "[invalid", "path": "/work"},
@@ -2736,14 +2734,14 @@ def test_handle_tb2_grep_exit2_with_output_is_partial_success(
     """Recursive grep returns exit 2 when SOME files/dirs are unreadable even
     though it found matches (common when path defaults to "/"). Non-empty
     stdout means partial results, which must NOT look like a hard failure."""
-    from kcsi.benchmarks.terminal_bench_2_runtime import _handle_tb2_grep
+    from ksi.benchmarks.terminal_bench_2_runtime import _handle_tb2_grep
 
     fake = _fake_docker_exec_factory(
         returncode=2,
         stdout="/etc/hosts:1:127.0.0.1 localhost\n",
         stderr="grep: /proc/1/root: Permission denied",
     )
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_exec", fake)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_exec", fake)
 
     history, _ = _handle_tb2_grep(
         action={"pattern": "localhost", "path": "/"},
@@ -2758,10 +2756,10 @@ def test_handle_tb2_grep_exit2_with_output_is_partial_success(
 def test_handle_tb2_grep_uses_s_flag_for_permission_noise(monkeypatch: pytest.MonkeyPatch) -> None:
     """grep `-s` suppresses per-file permission-denied noise without silencing
     real errors. Verify the flag is present in the constructed command."""
-    from kcsi.benchmarks.terminal_bench_2_runtime import _handle_tb2_grep
+    from ksi.benchmarks.terminal_bench_2_runtime import _handle_tb2_grep
 
     fake = _fake_docker_exec_factory(returncode=0, stdout="/work/file.py:1:hit\n")
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_exec", fake)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_exec", fake)
 
     _ = _handle_tb2_grep(
         action={"pattern": "hit", "path": "/work", "output_mode": "content"},
@@ -2786,7 +2784,7 @@ def test_handle_tb2_edit_rejects_oversized_file(monkeypatch: pytest.MonkeyPatch,
     """edit reads the whole file into memory for substring substitution; a
     multi-GB file would blow Python's heap. Files above `_TB2_EDIT_MAX_BYTES`
     must be rejected with exit code 25 and a hint to use shell+sed."""
-    from kcsi.benchmarks.terminal_bench_2_runtime import _TB2_EDIT_MAX_BYTES, _handle_tb2_edit
+    from ksi.benchmarks.terminal_bench_2_runtime import _TB2_EDIT_MAX_BYTES, _handle_tb2_edit
 
     # Simulate a file just over the cap.
     oversize_bytes = _TB2_EDIT_MAX_BYTES + 1
@@ -2801,8 +2799,8 @@ def test_handle_tb2_edit_rejects_oversized_file(monkeypatch: pytest.MonkeyPatch,
     def fake_run(cmd, *, timeout_sec=None):
         return subprocess.CompletedProcess(args=cmd, returncode=0, stdout="", stderr="")
 
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._docker_cp_from_container", fake_cp_from)
-    monkeypatch.setattr("kcsi.benchmarks.terminal_bench_2_runtime._run", fake_run)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._docker_cp_from_container", fake_cp_from)
+    monkeypatch.setattr("ksi.benchmarks.terminal_bench_2_runtime._run", fake_run)
 
     history, _ = _handle_tb2_edit(
         action={
@@ -2821,25 +2819,25 @@ def test_handle_tb2_edit_rejects_oversized_file(monkeypatch: pytest.MonkeyPatch,
 
 
 def test_native_timeout_scale_env_widens_ceiling(monkeypatch: pytest.MonkeyPatch) -> None:
-    """KCSI_TB2_NATIVE_TIMEOUT_SCALE must scale (and floor at 1.0) the
+    """KSI_TB2_NATIVE_TIMEOUT_SCALE must scale (and floor at 1.0) the
     per-handler ceiling. Below-1.0 values must not narrow it."""
-    from kcsi.benchmarks.terminal_bench_2_runtime import (
+    from ksi.benchmarks.terminal_bench_2_runtime import (
         _TB2_NATIVE_TIMEOUT_CEILING_SEC,
         _tb2_native_timeout_ceiling,
     )
 
-    monkeypatch.delenv("KCSI_TB2_NATIVE_TIMEOUT_SCALE", raising=False)
+    monkeypatch.delenv("KSI_TB2_NATIVE_TIMEOUT_SCALE", raising=False)
     assert _tb2_native_timeout_ceiling() == _TB2_NATIVE_TIMEOUT_CEILING_SEC
 
-    monkeypatch.setenv("KCSI_TB2_NATIVE_TIMEOUT_SCALE", "2.5")
+    monkeypatch.setenv("KSI_TB2_NATIVE_TIMEOUT_SCALE", "2.5")
     assert _tb2_native_timeout_ceiling() == _TB2_NATIVE_TIMEOUT_CEILING_SEC * 2.5
 
     # Below 1.0 must not narrow the ceiling.
-    monkeypatch.setenv("KCSI_TB2_NATIVE_TIMEOUT_SCALE", "0.1")
+    monkeypatch.setenv("KSI_TB2_NATIVE_TIMEOUT_SCALE", "0.1")
     assert _tb2_native_timeout_ceiling() == _TB2_NATIVE_TIMEOUT_CEILING_SEC
 
     # Bogus value falls through to 1.0.
-    monkeypatch.setenv("KCSI_TB2_NATIVE_TIMEOUT_SCALE", "abc")
+    monkeypatch.setenv("KSI_TB2_NATIVE_TIMEOUT_SCALE", "abc")
     assert _tb2_native_timeout_ceiling() == _TB2_NATIVE_TIMEOUT_CEILING_SEC
 
 
@@ -2858,7 +2856,7 @@ def test_tb2_cache_blocks_are_append_only_across_turns():
     """Each turn appends exactly one history block and leaves every earlier
     block byte-identical, so the previous turn's cached prefix is a prefix of
     this turn's — the invariant that makes the moving cache breakpoint read."""
-    from kcsi.runtime.terminal_bench_2_trial import _tb2_bridge_cache_blocks
+    from ksi.runtime.terminal_bench_2_trial import _tb2_bridge_cache_blocks
 
     task = TaskSpec(id="tb2-t1", repo="", prompt="do the thing")
     common = dict(
@@ -2891,7 +2889,7 @@ def test_tb2_cache_blocks_concatenate_with_clean_separators():
     next block's first line ("...out 1Step 2 (shell):"). Reconstruct the exact
     model-visible string with an empty-string join and assert every boundary is
     cleanly separated (issue #1252 item 1)."""
-    from kcsi.runtime.terminal_bench_2_trial import _tb2_bridge_cache_blocks, _tb2_bridge_tail
+    from ksi.runtime.terminal_bench_2_trial import _tb2_bridge_cache_blocks, _tb2_bridge_tail
 
     task = TaskSpec(id="tb2-t1", repo="", prompt="do the thing")
     history = [_tb2_step(1), _tb2_step(2)]
@@ -2915,7 +2913,7 @@ def test_tb2_cache_blocks_concatenate_with_clean_separators():
 def test_tb2_tail_carries_varying_fields_only():
     """The tail holds the per-turn step counter + latest observation and the
     call-to-action — and nothing that belongs in the cached prefix."""
-    from kcsi.runtime.terminal_bench_2_trial import _tb2_bridge_tail
+    from ksi.runtime.terminal_bench_2_trial import _tb2_bridge_tail
 
     tail = _tb2_bridge_tail(step_index=7, max_steps=0, last_observation="LATEST OBS")
     assert "Bridge step: 7/0" in tail
@@ -2923,11 +2921,11 @@ def test_tb2_tail_carries_varying_fields_only():
     assert "Return the next JSON action now." in tail
     # Stable guidance must NOT leak into the varying tail.
     assert "Recent shell history:" not in tail
-    assert "KCSI execution guidance:" not in tail
+    assert "KSI execution guidance:" not in tail
 
 
 def test_tb2_empty_history_is_single_header_block():
-    from kcsi.runtime.terminal_bench_2_trial import _tb2_bridge_cache_blocks
+    from ksi.runtime.terminal_bench_2_trial import _tb2_bridge_cache_blocks
 
     blocks = _tb2_bridge_cache_blocks(
         task=TaskSpec(id="t", repo="", prompt="p"),

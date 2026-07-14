@@ -8,8 +8,8 @@ other way around.
 
 from __future__ import annotations
 
-from kcsi.distillation import prompts as dp
-from kcsi.forum import prompt as fp
+from ksi.distillation import prompts as dp
+from ksi.forum import prompt as fp
 
 
 def test_forum_prompt_cap_constants_pinned():

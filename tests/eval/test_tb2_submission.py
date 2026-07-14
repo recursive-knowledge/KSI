@@ -7,8 +7,8 @@ from pathlib import Path
 
 import pytest
 
-from kcsi.benchmarks.tb2_submission import (
-    KcsiTb2Attempt,
+from ksi.benchmarks.tb2_submission import (
+    KsiTb2Attempt,
     SubmissionMetadata,
     attempt_is_unscored,
     build_harbor_config,
@@ -17,7 +17,7 @@ from kcsi.benchmarks.tb2_submission import (
     load_tb2_attempts_from_db,
     validate_submission,
 )
-from kcsi.benchmarks.terminal_bench_2 import (
+from ksi.benchmarks.terminal_bench_2 import (
     TB2_VERIFIER_FAIL_CLOSED_STATUS,
     TB2_VERIFIER_MISSING_STATUS,
 )
@@ -25,9 +25,9 @@ from kcsi.benchmarks.terminal_bench_2 import (
 
 def _metadata() -> SubmissionMetadata:
     return SubmissionMetadata(
-        agent_url="https://github.com/example/kcsi",
-        agent_display_name="KCSI",
-        agent_org_display_name="KCSI Lab",
+        agent_url="https://github.com/example/ksi",
+        agent_display_name="KSI",
+        agent_org_display_name="KSI Lab",
         model_name="claude-haiku-4-5",
         model_provider="anthropic",
         model_display_name="Claude Haiku 4.5",
@@ -43,7 +43,7 @@ def _attempt(
     reward: float | None = 0.0,
     attempt_no: int = 1,
     trial_status: str | None = None,
-) -> KcsiTb2Attempt:
+) -> KsiTb2Attempt:
     meta: dict = {
         "task_source": "terminal_bench_2",
         "reward": reward,
@@ -53,7 +53,7 @@ def _attempt(
     }
     if trial_status is not None:
         meta["trial_status"] = trial_status
-    return KcsiTb2Attempt(
+    return KsiTb2Attempt(
         task_id=task_id,
         generation=generation,
         attempt_no=attempt_no,
@@ -126,7 +126,7 @@ def test_build_submission_writes_compliant_tree(tmp_path: Path) -> None:
 
     assert (root / "metadata.yaml").is_file()
     metadata_text = (root / "metadata.yaml").read_text(encoding="utf-8")
-    assert 'agent_display_name: "KCSI"' in metadata_text
+    assert 'agent_display_name: "KSI"' in metadata_text
     assert "model_name: claude-haiku-4-5" in metadata_text
 
     # 5 job folders (gens 1-5), each with 3 task trials
@@ -151,10 +151,10 @@ def test_validate_submission_flags_missing_trials(tmp_path: Path) -> None:
     # Drop two generations of one task to drop below the 5-trial floor
     attempts = [a for a in attempts if not (a.task_id == "t1" and a.generation in (4, 5))]
     metadata = _metadata()
-    by_gen: dict[int, list[KcsiTb2Attempt]] = {}
+    by_gen: dict[int, list[KsiTb2Attempt]] = {}
     for a in attempts:
         by_gen.setdefault(a.generation, []).append(a)
-    root = tmp_path / "submissions" / "terminal-bench" / "2.0" / "KCSI__Claude-Haiku-4.5"
+    root = tmp_path / "submissions" / "terminal-bench" / "2.0" / "KSI__Claude-Haiku-4.5"
     root.mkdir(parents=True)
     (root / "metadata.yaml").write_text("agent_url: x\n", encoding="utf-8")
 
@@ -286,12 +286,12 @@ def _write_submission_tree(tmp_path: Path, *, mutate_config=None) -> Path:
     """
     task_ids = ["task-a", "task-b"]
     metadata = _metadata()
-    by_gen: dict[int, list[KcsiTb2Attempt]] = {}
+    by_gen: dict[int, list[KsiTb2Attempt]] = {}
     for gen in range(1, 6):
         for task in task_ids:
             by_gen.setdefault(gen, []).append(_attempt(task, gen))
 
-    root = tmp_path / "submissions" / "terminal-bench" / "2.0" / "KCSI__Claude-Haiku-4.5"
+    root = tmp_path / "submissions" / "terminal-bench" / "2.0" / "KSI__Claude-Haiku-4.5"
     root.mkdir(parents=True)
     (root / "metadata.yaml").write_text("agent_url: x\n", encoding="utf-8")
 
@@ -394,7 +394,7 @@ def test_build_submission_excludes_unscored_attempts(tmp_path: Path) -> None:
     # task-a has 5 genuine scored attempts (reward 0.0) across gens 1-5, plus one
     # UNSCORED attempt (reward=None) in gen 1. The unscored attempt must NOT be
     # written as a trial, and the genuine 0.0 attempts must export as reward "0".
-    attempts: list[KcsiTb2Attempt] = []
+    attempts: list[KsiTb2Attempt] = []
     for gen in range(1, 6):
         attempts.append(_attempt("task-a", gen, reward=0.0, attempt_no=1))
     attempts.append(_attempt("task-a", 1, reward=None, attempt_no=2))
@@ -414,7 +414,7 @@ def test_build_submission_excludes_unscored_attempts(tmp_path: Path) -> None:
 def test_build_submission_rejects_task_with_no_scored_trials_after_filtering(tmp_path: Path) -> None:
     # A mixed export with one valid task and one all-unscored task must not
     # silently drop the all-unscored task and then pass local validation.
-    attempts: list[KcsiTb2Attempt] = []
+    attempts: list[KsiTb2Attempt] = []
     for gen in range(1, 6):
         attempts.append(_attempt("scored-task", gen, reward=0.0))
         attempts.append(_attempt("all-unscored-task", gen, reward=None))
@@ -426,7 +426,7 @@ def test_build_submission_rejects_task_with_no_scored_trials_after_filtering(tmp
 def test_build_submission_excludes_fail_closed_status(tmp_path: Path) -> None:
     # Fail-closed / missing-verifier statuses are unscored even if a reward
     # number is present in runtime_meta — they must be excluded from the export.
-    attempts: list[KcsiTb2Attempt] = []
+    attempts: list[KsiTb2Attempt] = []
     for gen in range(1, 6):
         attempts.append(_attempt("task-a", gen, reward=1.0, attempt_no=1))
     # A gen-1 attempt whose verifier refused to run (strict fail-closed).

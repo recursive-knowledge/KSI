@@ -12,10 +12,10 @@
  * downstream — was never tested with realistic transcript content.
  *
  * Downstream scoring path:
- *   - src/kcsi/benchmarks/polyglot_harness.py:411-413
+ *   - src/ksi/benchmarks/polyglot_harness.py:411-413
  *       `extract_solution_files(model_output, language=language)`
  *       parses fenced ``` <lang> blocks (or `// file: <name>` named blocks)
- *   - src/kcsi/benchmarks/swebench_pro.py:273-274
+ *   - src/ksi/benchmarks/swebench_pro.py:273-274
  *       `extract_patch(model_output or "")` parses unified-diff blocks
  *
  * So a recovered run can score >0 IF the agent's last assistant text contained
@@ -283,7 +283,7 @@ function maybeRecoverFromEmptyScheduledOutcome(ctx, recoverImpl) {
 }
 
 // ── JS port of `extract_solution_files` (Pattern-2 fallback) ────────────
-// Mirrors the regex in src/kcsi/benchmarks/polyglot_harness.py:351-387 for
+// Mirrors the regex in src/ksi/benchmarks/polyglot_harness.py:351-387 for
 // language='python' (fence tag is `python`). We intentionally do NOT port
 // Pattern-1 (named-file blocks) because the typical Haiku polyglot answer
 // uses bare ```python ... ``` blocks. Pattern-2 is what scores on the
@@ -310,7 +310,7 @@ function writeJsonl(filePath, entries) {
 }
 
 function makeTempRoot() {
-  return fs.mkdtempSync(path.join(os.tmpdir(), "kcsi-iter-drain-"));
+  return fs.mkdtempSync(path.join(os.tmpdir(), "ksi-iter-drain-"));
 }
 
 // Canonical polyglot Python answer the agent produces in its FINAL assistant
@@ -489,7 +489,7 @@ describe("iterator_drain_pending_tools — realistic Haiku polyglot transcript",
     // path) to confirm the recovered text actually parses into a
     // {filename: content} dict — i.e. polyglot_harness will see a
     // non-empty solution and proceed past the no_solution short-circuit
-    // at src/kcsi/benchmarks/polyglot_harness.py:415-422.
+    // at src/ksi/benchmarks/polyglot_harness.py:415-422.
     const solutionFiles = extractPythonSolutionFromFences(
       outcome.envelope.result,
     );

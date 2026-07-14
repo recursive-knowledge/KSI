@@ -6,9 +6,9 @@ task-mode round-robin assignment remains.
 
 from unittest.mock import MagicMock
 
-from kcsi.models import GenerationConfig, TaskSpec
-from kcsi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
-from kcsi.tokens import LLMResponse, TokenUsage
+from ksi.models import GenerationConfig, TaskSpec
+from ksi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
+from ksi.tokens import LLMResponse, TokenUsage
 
 
 class _DummyLLM:

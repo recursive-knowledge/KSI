@@ -22,7 +22,7 @@ dataset.
 | [`scripts/`](./scripts/) | Data-prep entry points (`dataprep/`, `arc_prep/`) and compatibility wrappers | See [BENCHMARK_PREPARE.md](./docs/BENCHMARK_PREPARE.md) |
 | [`docs/`](./docs/) | Benchmark-specific policy docs | `BENCHMARK_PREPARE.md`, `web_tools_policy.md`, `tb2_native_tools.md` |
 | `run_arc.sh`, `run_polyglot.sh`, `run_swebench_pro.sh`, `run_terminal_bench_2.sh` | Run presets — one LLM per invocation over the CLI | See **Run presets** below |
-| `common.sh` | Shared helpers sourced by the run presets (and `scripts/run_kcsi.sh`) | Not run directly |
+| `common.sh` | Shared helpers sourced by the run presets (and `scripts/run_ksi.sh`) | Not run directly |
 | `egress_smoke.sh`, `polyglot_test_feedback_smoke.sh` | Live e2e smoke scripts (require Docker + provider creds) | Not part of a benchmark run |
 
 ## Data preparation
@@ -36,7 +36,7 @@ Terminal-Bench 2 submodule checkout). The underlying scripts live under
 
 ## Run presets
 
-Four bash wrappers assemble `kcsi.cli` flag lists for a maintained,
+Four bash wrappers assemble `ksi.cli` flag lists for a maintained,
 one-LLM-per-invocation run of each benchmark:
 
 ```bash
@@ -49,7 +49,7 @@ bash benchmarks/run_terminal_bench_2.sh <haiku|openai> [swarm|noforum ...] [--no
 Set `DRY_RUN=true` to print the composed CLI command without executing it.
 Each wrapper's own header comment documents its arguments and environment
 variables. For ad-hoc runs (any dataset, auto-detected task source), use
-[`scripts/run_kcsi.sh`](../scripts/run_kcsi.sh) instead.
+[`scripts/run_ksi.sh`](../scripts/run_ksi.sh) instead.
 
 ## Quickstart demo (synthetic, no dataset required)
 
@@ -57,7 +57,7 @@ The bundled `examples/quickstart/arc_demo/` tasks are synthetic and are not
 part of any official benchmark — no data preparation needed:
 
 ```bash
-uv run python -m kcsi.cli --task-source arc --tasks-path examples/quickstart/arc_demo ...
+uv run python -m ksi.cli --task-source arc --tasks-path examples/quickstart/arc_demo ...
 ```
 
 The primary fresh-clone quickstart uses the custom-task demo documented in
@@ -72,7 +72,7 @@ and derive the runtime DB as a sibling unless explicit paths are passed. The
 run presets pass `--output-json results/<artifact-name>.json` and explicit
 repo-root SQLite sidecars such as `./<artifact-name>_knowledge.sqlite`; the
 Terminal-Bench preset also writes `./<artifact-name>_runtime.sqlite`.
-`scripts/run_kcsi.sh` instead scopes everything under `results/<name>/`.
+`scripts/run_ksi.sh` instead scopes everything under `results/<name>/`.
 Execution traces land under `analysis/traces/<experiment-name>/`. See
 [../docs/artifacts.md](../docs/artifacts.md) for the full report layout and
 cleanup workflow.
@@ -80,7 +80,7 @@ cleanup workflow.
 ## Licensing & attribution
 
 The task-map manifests committed under `benchmarks/*/task_maps/*.json` are
-KCSI-authored (explicit task-ID subsets, seeds, and provenance metadata) —
+KSI-authored (explicit task-ID subsets, seeds, and provenance metadata) —
 they are not redistributed upstream benchmark data. Benchmark **datasets**
 themselves are not committed; they are fetched at prep time from their own
 upstream sources (ARC-AGI, ARC-AGI-2, the Polyglot benchmark, SWE-bench Pro,

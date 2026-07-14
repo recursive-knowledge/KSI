@@ -1,10 +1,10 @@
 # Frequently asked questions
 
-Common questions about KCSI — from first-time setup through research use.
+Common questions about KSI — from first-time setup through research use.
 
-## What is KCSI in one sentence?
+## What is KSI in one sentence?
 
-KCSI (Knowledge-Centric Self-Improvement) is a benchmark framework that treats
+KSI (Knowledge-centric Self-Improvement) is a benchmark framework that treats
 agents as disposable workers and keeps improvement in a persistent shared
 knowledge substrate rather than in any individual agent's memory or identity.
 Transient agents run in sandboxed Docker containers, write attempts and forum
@@ -13,7 +13,7 @@ later generations from those distilled bundles.
 
 ## What problem does it solve — when should I use it?
 
-KCSI addresses the question of where improvement should live in an agentic
+KSI addresses the question of where improvement should live in an agentic
 system. Its core thesis is that improvement should reside in durable shared
 knowledge rather than in any individual agent; that an agent's workstream
 should be an on-demand capability, not a persistent identity; and that the
@@ -24,7 +24,7 @@ principled, reproducible substrate for that improvement.
 
 ## When should I NOT use this?
 
-KCSI's overhead — Docker sandboxing, a SQLite knowledge substrate, multi-phase
+KSI's overhead — Docker sandboxing, a SQLite knowledge substrate, multi-phase
 forum/distill/seed generations — pays off when you're studying or running
 *multiple generations of self-improvement across a task population*. It's
 probably the wrong tool if any of these apply: you need a single agent to
@@ -40,7 +40,7 @@ image build and a few cents of API usage to try.
 ## How is this different from just running an agent in a loop?
 
 A naive agent loop accumulates knowledge only inside the agent's context window,
-which is discarded when the session ends. KCSI keeps improvement in a durable,
+which is discarded when the session ends. KSI keeps improvement in a durable,
 queryable SQLite knowledge substrate that persists across generations and is
 shared by all agents; agents are disposable workers that are replaced and
 re-seeded from distilled guidance at each generation boundary. This means
@@ -50,19 +50,19 @@ for a full description of the per-generation loop.
 
 ## Do I really need Docker?
 
-Yes. Every agent attempt runs in a sandboxed `kcsi-agent:bench` container for
+Yes. Every agent attempt runs in a sandboxed `ksi-agent:bench` container for
 isolation and reproducibility — the container controls what tools the agent can
 call, what files it can read, and what outputs it can produce. Build the image
 once with `bash container/build.sh --bench` (or let `bash scripts/quickstart.sh`
 do it on first run); after that, container startup is the only Docker cost per
-task. If Docker is not running or the image is missing, `uv run kcsi-doctor`
+task. If Docker is not running or the image is missing, `uv run ksi-doctor`
 will tell you exactly what to fix.
 
 ## What models and providers can I use? Do I need an API key?
 
-You supply your own API key. KCSI supports Anthropic models (Haiku, Sonnet,
+You supply your own API key. KSI supports Anthropic models (Haiku, Sonnet,
 Opus) and OpenAI models through provider profiles stored under
-`configs/kcsi/`. The bundled profile templates are:
+`configs/ksi/`. The bundled profile templates are:
 
 | Template | Model |
 |----------|-------|
@@ -73,7 +73,7 @@ Opus) and OpenAI models through provider profiles stored under
 | `.env.openai.template` | `gpt-5.4-mini` (with `REASONING_EFFORT=medium`) |
 
 Copy the template for your provider, fill in your key, and pass the path with
-`--provider-profile configs/kcsi/.env.haiku` (or equivalent).
+`--provider-profile configs/ksi/.env.haiku` (or equivalent).
 
 ## What does a run cost?
 
@@ -89,14 +89,14 @@ command and DB paths without launching anything.
 
 A run writes to several locations by default:
 
-- **Log:** `/tmp/kcsi-experiments/<experiment>.log`
+- **Log:** `/tmp/ksi-experiments/<experiment>.log`
 - **Knowledge DB:** `runtime_state/knowledge/<experiment>/<experiment>_knowledge.sqlite`
 - **Runtime DB (optional):** matching `<stem>_runtime.sqlite` audit sidecar
 - **Traces:** `analysis/traces/<experiment>/`
 - **Result summaries:** `results/<experiment>.json` or campaign-specific files
   under `results/`
 
-Wrapper scripts under `benchmarks/` (and `scripts/run_kcsi.sh`) write to
+Wrapper scripts under `benchmarks/` (and `scripts/run_ksi.sh`) write to
 experiment-specific paths; run any wrapper with `DRY_RUN=true` to see the
 exact paths before launching. See [artifacts.md](artifacts.md) for analysis
 helper commands.
@@ -128,7 +128,7 @@ See the [Glossary](glossary.md) for precise definitions of all phases.
 
 ## What benchmarks are supported out of the box?
 
-The following task sources and their paired evaluators ship with KCSI:
+The following task sources and their paired evaluators ship with KSI:
 
 | Benchmark | `--task-source` | `--evaluator` |
 |-----------|-----------------|----------------|
@@ -138,20 +138,20 @@ The following task sources and their paired evaluators ship with KCSI:
 | Terminal-Bench 2 | `terminal_bench_2` | `terminal_bench_2` |
 
 The bundled `examples/quickstart/arc_demo/` tasks are synthetic and are not
-part of any official benchmark. See [BENCHMARK_PREPARE.md](https://github.com/recursive-knowledge/KCSI/blob/main/benchmarks/docs/BENCHMARK_PREPARE.md)
+part of any official benchmark. See [BENCHMARK_PREPARE.md](https://github.com/recursive-knowledge/KSI/blob/main/benchmarks/docs/BENCHMARK_PREPARE.md)
 for dataset download instructions.
 
 ## Can I add my own benchmark or evaluator?
 
 Yes. Task sources and evaluators are registry-backed: add a `register_task_source`
-or `register_evaluator` call and KCSI picks it up with no edits to core dispatch
+or `register_evaluator` call and KSI picks it up with no edits to core dispatch
 code. See [extending.md](extending.md) for the extension overview,
 [adding_a_benchmark.md](adding_a_benchmark.md) for the task-source seam, and
 [adding_an_evaluator.md](adding_an_evaluator.md) for the evaluator seam.
 
-## Can I run KCSI from Python instead of the CLI?
+## Can I run KSI from Python instead of the CLI?
 
-Yes. `kcsi.run(...)` is the programmatic entry point and accepts the same
+Yes. `ksi.run(...)` is the programmatic entry point and accepts the same
 configuration as the CLI flags through a `GenerationConfig` dataclass (single
 source of truth). A complete runnable example is at
 `examples/programmatic/run_arc_demo.py`. See [programmatic_api.md](programmatic_api.md)
@@ -175,24 +175,24 @@ accumulating more attempts. See
 
 ## My run failed or produced an empty knowledge DB — where do I start?
 
-Run `uv run kcsi-doctor` first; it prints a checklist of everything a run
+Run `uv run ksi-doctor` first; it prints a checklist of everything a run
 needs and the exact command to fix each gap. The most common causes are: Docker
-is not running, the `kcsi-agent:bench` image has not been built (`bash
+is not running, the `ksi-agent:bench` image has not been built (`bash
 container/build.sh --bench`), or the API key in your provider profile is
 missing or invalid. If the image builds but containers are slow to start, see
 [runtime-startup-performance.md](runtime-startup-performance.md). If attempts
 are completing but the knowledge DB stays empty, check the run log at
-`/tmp/kcsi-experiments/<experiment>.log` for `KnowledgeStore initialization`
+`/tmp/ksi-experiments/<experiment>.log` for `KnowledgeStore initialization`
 errors.
 
 ## Quick troubleshooting reference
 
-For anything not covered by `uv run kcsi-doctor` or the entry above, check the
+For anything not covered by `uv run ksi-doctor` or the entry above, check the
 symptom against its first diagnostic step:
 
 | Symptom | First check |
 |---------|--------------|
-| Image not found | `docker images kcsi-agent:bench` |
+| Image not found | `docker images ksi-agent:bench` |
 | Slow container startup | [runtime-startup-performance.md](runtime-startup-performance.md) |
 | Semantic vector search not active | Expected by default (FTS5 is the default). Only if you passed `--require-vector`: `uv sync --extra memory` and set `HF_TOKEN` |
 | Empty knowledge DB | Confirm attempts are completing and `KnowledgeStore` initialization succeeded (check the run log for errors) |

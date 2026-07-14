@@ -28,14 +28,14 @@ Each task-map JSON should record:
 Use the map with:
 
 ```bash
-uv run python -m kcsi.cli \
+uv run python -m ksi.cli \
   --task-source arc \
   --tasks-path benchmarks/arc2/source/data/training \
   --task-ids-file benchmarks/arc2/task_maps/<selection>.json \
   --task-map-path benchmarks/arc2/task_maps/<selection>.json \
   --runtime container \
   --evaluator arc_session \
-  --provider-profile configs/kcsi/.env.openai
+  --provider-profile configs/ksi/.env.openai
 ```
 
 Validate committed ARC maps before campaign runs:

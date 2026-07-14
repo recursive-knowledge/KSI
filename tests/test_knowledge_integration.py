@@ -12,17 +12,17 @@ import threading
 
 import pytest
 
-from kcsi.forum import build_per_task_discussion_parts
-from kcsi.memory.forum_bus import ForumBus
-from kcsi.memory.knowledge_store import KnowledgeStore
-from kcsi.memory.mcp_server import (
+from ksi.forum import build_per_task_discussion_parts
+from ksi.memory.forum_bus import ForumBus
+from ksi.memory.knowledge_store import KnowledgeStore
+from ksi.memory.mcp_server import (
     handle_forum_post,
     handle_forum_signal_done,
     handle_knowledge,
 )
-from kcsi.models import GenerationConfig, TaskTrace
-from kcsi.orchestrator.engine import _drain_forum_bus
-from kcsi.tokens import TokenUsage
+from ksi.models import GenerationConfig, TaskTrace
+from ksi.orchestrator.engine import _drain_forum_bus
+from ksi.tokens import TokenUsage
 
 # ---------------------------------------------------------------------------
 # Helpers

@@ -49,10 +49,10 @@ from __future__ import annotations
 import threading
 import time
 
-from kcsi.cli import SqlitePersistence
-from kcsi.memory.store import MemoryStore
-from kcsi.models import TaskTrace
-from kcsi.tokens import TokenUsage
+from ksi.cli import SqlitePersistence
+from ksi.memory.store import MemoryStore
+from ksi.models import TaskTrace
+from ksi.tokens import TokenUsage
 
 N = 12  # >=10 concurrent writes per side
 

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from kcsi.models import TaskSpec
-from kcsi.prompts import build_execution_prompt, build_task_markdown
+from ksi.models import TaskSpec
+from ksi.prompts import build_execution_prompt, build_task_markdown
 
 
 def test_polyglot_prompt_contract_surfaces_verification_command() -> None:

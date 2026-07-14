@@ -1,6 +1,6 @@
 import json
 
-from kcsi.orchestrator.engine import _build_attempt_event
+from ksi.orchestrator.engine import _build_attempt_event
 
 
 class TestAttemptEventTestDetailsLeakedModeOptIn:
@@ -283,7 +283,7 @@ class TestApproachDiagnosisUpstreamStrict:
         }
 
     def test_strict_diagnosis_omits_test_names(self):
-        from kcsi.orchestrator.engine import _build_approach_diagnosis
+        from ksi.orchestrator.engine import _build_approach_diagnosis
 
         text = _build_approach_diagnosis(
             trace=self._trace(),
@@ -306,7 +306,7 @@ class TestApproachDiagnosisUpstreamStrict:
         assert "now passing (good): 1" in text
 
     def test_seeded_diagnosis_keeps_test_names(self):
-        from kcsi.orchestrator.engine import _build_approach_diagnosis
+        from ksi.orchestrator.engine import _build_approach_diagnosis
 
         text = _build_approach_diagnosis(
             trace=self._trace(),
@@ -321,7 +321,7 @@ class TestApproachDiagnosisUpstreamStrict:
     def test_tb2_diagnosis_omits_hidden_verifier_tails_but_keeps_scalars(self):
         from types import SimpleNamespace
 
-        from kcsi.orchestrator.engine import _build_approach_diagnosis
+        from ksi.orchestrator.engine import _build_approach_diagnosis
 
         text = _build_approach_diagnosis(
             trace=SimpleNamespace(
@@ -355,7 +355,7 @@ class TestApproachDiagnosisUpstreamStrict:
     def test_arc_diagnosis_omits_hidden_trial_details(self):
         from types import SimpleNamespace
 
-        from kcsi.orchestrator.engine import _build_approach_diagnosis
+        from ksi.orchestrator.engine import _build_approach_diagnosis
 
         text = _build_approach_diagnosis(
             trace=SimpleNamespace(

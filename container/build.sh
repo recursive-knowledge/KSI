@@ -1,5 +1,5 @@
 #!/bin/bash
-# Active build entrypoint for KCSI container images.
+# Active build entrypoint for KSI container images.
 
 set -euo pipefail
 
@@ -7,14 +7,14 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 DOCKERFILES_DIR="$REPO_ROOT/container"
 
-PRIMARY_IMAGE_NAME="kcsi-agent"
+PRIMARY_IMAGE_NAME="ksi-agent"
 DOCKERFILE="$DOCKERFILES_DIR/Dockerfile"
 TAG="latest"
 
 # Unknown args starting with `-` are forwarded to `docker build`
 # (e.g. --no-cache, --pull, --progress=plain). Previously every non-`--bench`
 # arg was treated as the tag, so `bash container/build.sh --no-cache` produced
-# `kcsi-agent:--no-cache` and docker rejected the reference.
+# `ksi-agent:--no-cache` and docker rejected the reference.
 EXTRA_BUILD_ARGS=()
 
 for arg in "$@"; do
@@ -27,7 +27,7 @@ done
 
 CONTAINER_RUNTIME="${CONTAINER_RUNTIME:-docker}"
 
-echo "Building KCSI agent container image..."
+echo "Building KSI agent container image..."
 echo "Primary image: ${PRIMARY_IMAGE_NAME}:${TAG}"
 echo "Dockerfile: ${DOCKERFILE#$REPO_ROOT/}"
 if ((${#EXTRA_BUILD_ARGS[@]} > 0)); then

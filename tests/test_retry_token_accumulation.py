@@ -17,18 +17,18 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-from kcsi.models import AgentState, GenerationConfig, TaskSpec
-from kcsi.orchestrator.engine import (
+from ksi.models import AgentState, GenerationConfig, TaskSpec
+from ksi.orchestrator.engine import (
     GenerationalOrchestrator,
     NoopPersistence,
     _accumulate_failed_attempt_tokens,
     _run_retryable_forum_task,
     _runtime_retry_meta,
 )
-from kcsi.orchestrator.execution_phase import EngineExecutionPhaseService
-from kcsi.runtime.normalize import SilentAgentRuntimeError
-from kcsi.runtime.types import RuntimeResult
-from kcsi.tokens import TokenUsage
+from ksi.orchestrator.execution_phase import EngineExecutionPhaseService
+from ksi.runtime.normalize import SilentAgentRuntimeError
+from ksi.runtime.types import RuntimeResult
+from ksi.tokens import TokenUsage
 
 
 def _per_turn_sum_meta(input_tokens: int, output_tokens: int, cache_read: int = 0) -> dict:
@@ -76,7 +76,7 @@ def test_accumulate_failed_attempt_tokens_logs_dropped_extractions(caplog) -> No
             raise RuntimeError("boom")
 
     metas = [_RaisingDict(_per_turn_sum_meta(input_tokens=5, output_tokens=3))]
-    with caplog.at_level(logging.WARNING, logger="kcsi.orchestrator.task_retry"):
+    with caplog.at_level(logging.WARNING, logger="ksi.orchestrator.task_retry"):
         total = _accumulate_failed_attempt_tokens(metas)
     assert total.total == 0
     assert any("dropped 1/1" in record.message for record in caplog.records)
@@ -95,7 +95,7 @@ def test_accumulate_failed_attempt_tokens_log_dropped_false_suppresses_warning(c
             raise RuntimeError("boom")
 
     metas = [_RaisingDict(_per_turn_sum_meta(input_tokens=5, output_tokens=3))]
-    with caplog.at_level(logging.WARNING, logger="kcsi.orchestrator.task_retry"):
+    with caplog.at_level(logging.WARNING, logger="ksi.orchestrator.task_retry"):
         total = _accumulate_failed_attempt_tokens(metas, log_dropped=False)
     assert total.total == 0
     assert not any("dropped" in record.message for record in caplog.records)
@@ -154,7 +154,7 @@ def test_runtime_retry_meta_plus_direct_accumulate_logs_dropped_once(caplog) -> 
     attempt_errors = [{"attempt": 1, "max_attempts": 2, "error_type": "X", "error": "x"}]
     metas = [_RaisingOnTokenExtractionDict(_per_turn_sum_meta(input_tokens=5, output_tokens=3))]
 
-    with caplog.at_level(logging.WARNING, logger="kcsi.orchestrator.task_retry"):
+    with caplog.at_level(logging.WARNING, logger="ksi.orchestrator.task_retry"):
         meta = _runtime_retry_meta(
             attempt_errors,
             terminal_failure=False,

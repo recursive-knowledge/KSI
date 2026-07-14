@@ -1,4 +1,4 @@
-"""Tests for kcsi.benchmarks.polyglot_harness — extraction and evaluator."""
+"""Tests for ksi.benchmarks.polyglot_harness — extraction and evaluator."""
 
 from __future__ import annotations
 
@@ -11,8 +11,8 @@ from pathlib import Path
 
 import pytest
 
-import kcsi.benchmarks.polyglot_harness as polyglot_harness
-from kcsi.benchmarks.polyglot_harness import (
+import ksi.benchmarks.polyglot_harness as polyglot_harness
+from ksi.benchmarks.polyglot_harness import (
     PolyglotHarnessEvaluator,
     _polyglot_environment_metadata,
     _restore_host_ownership,
@@ -21,7 +21,7 @@ from kcsi.benchmarks.polyglot_harness import (
     _validate_test_command,
     extract_solution_files,
 )
-from kcsi.models import TaskSpec
+from ksi.models import TaskSpec
 
 # -----------------------------------------------------------------------
 # extract_solution_files
@@ -110,7 +110,7 @@ def test_solution_files_from_workspace_excludes_test_and_build_files_on_retry_ro
     """The mid-loop barrier callback's runtime_meta must resolve to a repo dir
     whose _solution_files_from_workspace call still excludes test_files/build_files
     -- this must hold on EVERY retry round, not just attempt 1."""
-    from kcsi.benchmarks.polyglot_harness import _solution_files_from_workspace
+    from ksi.benchmarks.polyglot_harness import _solution_files_from_workspace
 
     workspace_dir = tmp_path / "ws"
     workspace_dir.mkdir()
@@ -277,7 +277,7 @@ class TestPolyglotHarnessEvaluator:
                     0,
                     stdout=(
                         '{"Id":"sha256:abc123",'
-                        '"RepoDigests":["kcsi-polyglot-eval@sha256:def456"],'
+                        '"RepoDigests":["ksi-polyglot-eval@sha256:def456"],'
                         '"Config":{"Labels":{'
                         '"org.knowledgecentric.polyglot.recipe":"polyglot-hyperagents-base-20260422-rust-pin",'
                         '"org.knowledgecentric.polyglot.recipe_base_image":"buildpack-deps:jammy",'
@@ -309,10 +309,10 @@ class TestPolyglotHarnessEvaluator:
         second = ev.evaluate(task=task, model_output="still no code")
 
         env = result["polyglot_environment"]
-        assert env["runner"] == "kcsi"
+        assert env["runner"] == "ksi"
         assert env["docker_image"] == "poly-img"
         assert env["docker_image_id"] == "sha256:abc123"
-        assert env["docker_repo_digests"] == ["kcsi-polyglot-eval@sha256:def456"]
+        assert env["docker_repo_digests"] == ["ksi-polyglot-eval@sha256:def456"]
         assert env["recipe"] == "polyglot-hyperagents-base-20260422-rust-pin"
         assert env["recipe_base_image"] == "buildpack-deps:jammy"
         assert env["recipe_source"] == "baselines/hyperagents/domains/polyglot/dockerfiles.py:_DOCKERFILE_BASE"
@@ -418,7 +418,7 @@ class TestPolyglotHarnessEvaluator:
         docker_run = calls[0]
         container_name = docker_run[docker_run.index("--name") + 1]
         labels = [docker_run[idx + 1] for idx, part in enumerate(docker_run[:-1]) if part == "--label"]
-        assert "org.knowledgecentric.kcsi.eval=polyglot" in labels
+        assert "org.knowledgecentric.ksi.eval=polyglot" in labels
         # Historical MockingJay-era alias stays for external cleanup tooling.
         assert "org.mockingjay.swarms.eval=polyglot" in labels
         assert result["status"] == "timeout"
@@ -706,7 +706,7 @@ class TestProtectedOfficialFiles:
         """Characterization: solution dict with CMakeLists.txt + a real source
         file -> CMakeLists.txt dropped (with warning), source file kept."""
         ev = PolyglotHarnessEvaluator(skip_docker=True)
-        with caplog.at_level("WARNING", logger="kcsi.benchmarks.polyglot_harness"):
+        with caplog.at_level("WARNING", logger="ksi.benchmarks.polyglot_harness"):
             result = ev.evaluate(
                 task=self._cpp_task(),
                 model_output="",
@@ -730,7 +730,7 @@ class TestProtectedOfficialFiles:
             "```cpp\n// file: diamond_test.cpp\n// self-passing test\n```\n"
             "```cpp\n// file: diamond.cpp\n// real source\n```\n"
         )
-        with caplog.at_level("WARNING", logger="kcsi.benchmarks.polyglot_harness"):
+        with caplog.at_level("WARNING", logger="ksi.benchmarks.polyglot_harness"):
             result = ev.evaluate(task=self._cpp_task(), model_output=output)
         assert result["status"] == "skip_docker"
         assert result["extracted_files"] == ["diamond.cpp"]
@@ -1373,7 +1373,7 @@ def _polyglot_image_available(docker_image: str) -> bool:
 def test_real_docker_scoring_matches_expected_outcome(model_output: str, expected_resolved: bool) -> None:
     """Replay a minimal Python exercise through the real ``docker run`` scoring path.
 
-    Exercises the code at src/kcsi/benchmarks/polyglot_harness.py's `_run_in_docker`
+    Exercises the code at src/ksi/benchmarks/polyglot_harness.py's `_run_in_docker`
     (subprocess.run -> proc.returncode == 0), which every skip_docker=True
     test in this file bypasses entirely.
     """
@@ -1382,7 +1382,7 @@ def test_real_docker_scoring_matches_expected_outcome(model_output: str, expecte
     if not _polyglot_image_available(_DOCKER_IMAGE):
         pytest.skip(
             f"{_DOCKER_IMAGE} image not built; run: "
-            'uv run python -c "from kcsi.benchmarks.polyglot_docker import build_image; build_image()"'
+            'uv run python -c "from ksi.benchmarks.polyglot_docker import build_image; build_image()"'
         )
 
     task = TaskSpec(
@@ -1415,7 +1415,7 @@ def test_real_docker_cpp_library_only_cmake_is_not_resolved() -> None:
     if not _polyglot_image_available(_DOCKER_IMAGE):
         pytest.skip(
             f"{_DOCKER_IMAGE} image not built; run: "
-            'uv run python -c "from kcsi.benchmarks.polyglot_docker import build_image; build_image()"'
+            'uv run python -c "from ksi.benchmarks.polyglot_docker import build_image; build_image()"'
         )
 
     task = TaskSpec(
@@ -1464,7 +1464,7 @@ def test_real_docker_rust_toolchain_is_pinned() -> None:
     if not _polyglot_image_available(_DOCKER_IMAGE):
         pytest.skip(
             f"{_DOCKER_IMAGE} image not built; run: "
-            'uv run python -c "from kcsi.benchmarks.polyglot_docker import build_image; build_image()"'
+            'uv run python -c "from ksi.benchmarks.polyglot_docker import build_image; build_image()"'
         )
 
     # Use ``sh -c`` (NOT ``sh -lc``): a login shell sources /etc/profile which

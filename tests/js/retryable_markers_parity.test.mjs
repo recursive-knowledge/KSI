@@ -1,7 +1,7 @@
 // Parity guard for the TypeScript view of the shared retryable-error markers.
 //
 // Issue #648 centralised the markers in runtime_runner/shared/retryable_markers.json,
-// consumed by both Python (kcsi/errors.py, pinned by tests/test_retryable_markers.py)
+// consumed by both Python (ksi/errors.py, pinned by tests/test_retryable_markers.py)
 // and TypeScript (runtime_runner/agent-runner/src/retryable_markers.ts). The TS side
 // keeps an inline VENDORED fallback (it reads the JSON via fs at runtime, but must not
 // crash if the file is missing). That fallback is a hand-maintained copy and can silently

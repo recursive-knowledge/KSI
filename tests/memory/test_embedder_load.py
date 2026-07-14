@@ -1,7 +1,7 @@
 """Smoke test: embedding model loads cleanly on the pinned stack.
 
 Guards against a silent misload — the try/except in
-``src/kcsi/memory/embeddings.py`` only warns on failure, so a broken
+``src/ksi/memory/embeddings.py`` only warns on failure, so a broken
 ``sentence-transformers`` upgrade can silently degrade vector search to
 FTS-only for an entire campaign (see commit history for the 4.x Pooling
 break that motivated the version pins).
@@ -30,7 +30,7 @@ def test_embedder_loads_eagerly() -> None:
     release and the cached model config raises immediately rather than
     silently flipping ``is_ready`` to False behind a warning.
     """
-    from kcsi.memory.embeddings import Embedder
+    from ksi.memory.embeddings import Embedder
 
     embedder = Embedder(background=False)
     assert embedder.is_ready, (

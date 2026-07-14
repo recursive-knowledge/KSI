@@ -39,7 +39,7 @@ const workspaceTs = path.join(repoRoot, 'runtime_runner', 'src', 'workspace.ts')
 const tsxAvailable = fs.existsSync(tsxBin);
 
 function runFixture(script, env = {}) {
-  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'kcsi-stamp-test-'));
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ksi-stamp-test-'));
   try {
     const res = spawnSync(
       tsxBin,
@@ -105,7 +105,7 @@ describe('workspace stamp-file optimization (F1) — behavioral', () => {
   }
 
   it('first seed copies the repo and writes a stamp', () => {
-    const tmpSrc = fs.mkdtempSync(path.join(os.tmpdir(), 'kcsi-stamp-src-'));
+    const tmpSrc = fs.mkdtempSync(path.join(os.tmpdir(), 'ksi-stamp-src-'));
     fs.writeFileSync(path.join(tmpSrc, 'data.txt'), 'original');
     try {
       const script = makeFixtureScript(tmpSrc, `
@@ -130,7 +130,7 @@ log.push({ step: 1, dataContent: fs.readFileSync(path.join(repoDst, 'data.txt'),
   });
 
   it('second seed with wipe=false and unchanged source SKIPS the copy', () => {
-    const tmpSrc = fs.mkdtempSync(path.join(os.tmpdir(), 'kcsi-stamp-src-'));
+    const tmpSrc = fs.mkdtempSync(path.join(os.tmpdir(), 'ksi-stamp-src-'));
     fs.writeFileSync(path.join(tmpSrc, 'data.txt'), 'original');
     try {
       const script = makeFixtureScript(tmpSrc, `
@@ -158,7 +158,7 @@ log.push({ step: 'seed2', sentinelContent: fs.existsSync(sentinelPath) ? fs.read
   });
 
   it('source content change invalidates the stamp and triggers re-copy', () => {
-    const tmpSrc = fs.mkdtempSync(path.join(os.tmpdir(), 'kcsi-stamp-src-'));
+    const tmpSrc = fs.mkdtempSync(path.join(os.tmpdir(), 'ksi-stamp-src-'));
     fs.writeFileSync(path.join(tmpSrc, 'data.txt'), 'original');
     try {
       const script = makeFixtureScript(tmpSrc, `
@@ -192,7 +192,7 @@ log.push({ step: 'seed2', dataContent: fs.readFileSync(path.join(repoDst, 'data.
     // parent dir mtime doesn't always propagate on ext4. With the old
     // mtime-only stamp this would silently miss the addition; with the
     // fingerprint walk it must be detected.
-    const tmpSrc = fs.mkdtempSync(path.join(os.tmpdir(), 'kcsi-stamp-src-'));
+    const tmpSrc = fs.mkdtempSync(path.join(os.tmpdir(), 'ksi-stamp-src-'));
     fs.writeFileSync(path.join(tmpSrc, 'data.txt'), 'original');
     try {
       const script = makeFixtureScript(tmpSrc, `
@@ -221,7 +221,7 @@ log.push({ step: 'seed2', extraExists: fs.existsSync(path.join(repoDst, 'extra.t
   });
 
   it('wipe=true ALWAYS re-copies regardless of stamp', () => {
-    const tmpSrc = fs.mkdtempSync(path.join(os.tmpdir(), 'kcsi-stamp-src-'));
+    const tmpSrc = fs.mkdtempSync(path.join(os.tmpdir(), 'ksi-stamp-src-'));
     fs.writeFileSync(path.join(tmpSrc, 'data.txt'), 'original');
     try {
       const script = makeFixtureScript(tmpSrc, `

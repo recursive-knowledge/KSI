@@ -1,17 +1,17 @@
-"""Drive a kcsi run from Python instead of the CLI.
+"""Drive a ksi run from Python instead of the CLI.
 
 This is a programmatic ARC-format demo: it runs one bundled synthetic ARC task
-through `kcsi.run(...)`. The primary quickstart now uses
+through `ksi.run(...)`. The primary quickstart now uses
 `examples/custom_tasks/`; use `examples/custom_tasks/run.py` for the
 programmatic equivalent of that workflow. This example needs the same
-prerequisites as the CLI (Docker running, the `kcsi-agent:bench` image built,
+prerequisites as the CLI (Docker running, the `ksi-agent:bench` image built,
 runtime_runner Node deps installed, and a provider API key in the environment).
 
 Run:
     uv run python examples/programmatic/run_arc_demo.py
 
 The point is the wiring, not the result: you build the config + runtime +
-evaluator + LLM yourself and hand them to `kcsi.run`, with no argparse and no
+evaluator + LLM yourself and hand them to `ksi.run`, with no argparse and no
 CLI in the loop.
 """
 
@@ -20,11 +20,11 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-import kcsi
-from kcsi.benchmarks import ArcSessionEvaluator
-from kcsi.runtime import KcsiContainerExecutor
-from kcsi.runtime.llm import build_llm_caller
-from kcsi.tasks.loaders import load_tasks_for_source
+import ksi
+from ksi.benchmarks import ArcSessionEvaluator
+from ksi.runtime import KsiContainerExecutor
+from ksi.runtime.llm import build_llm_caller
+from ksi.tasks.loaders import load_tasks_for_source
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEMO_TASKS = REPO_ROOT / "examples" / "quickstart" / "arc_demo" / "demo_recolor.json"
@@ -35,7 +35,7 @@ def main() -> None:
     tasks = load_tasks_for_source(task_source="arc", tasks_path=DEMO_TASKS)
 
     # 2. Configure the run (same knobs as the CLI flags).
-    config = kcsi.GenerationConfig(
+    config = ksi.GenerationConfig(
         num_generations=1,
         num_agents=1,
         experiment_name="programmatic_arc_demo",
@@ -47,7 +47,7 @@ def main() -> None:
     model = os.environ.get("MODEL", "claude-sonnet-4-6")
     llm = build_llm_caller(provider=provider, model=model)
     evaluator = ArcSessionEvaluator()
-    runtime = KcsiContainerExecutor(
+    runtime = KsiContainerExecutor(
         # Default host runner command; mirror `--container-command` if you override it.
         command=["npx", "--yes", "--prefix", "runtime_runner", "tsx", "runtime_runner/src/main.ts"],
         working_dir=str(REPO_ROOT),
@@ -56,7 +56,7 @@ def main() -> None:
     )
 
     # 4. Run. Returns one TaskTrace per attempt.
-    traces = kcsi.run(config, tasks, runtime=runtime, evaluator=evaluator, llm=llm)
+    traces = ksi.run(config, tasks, runtime=runtime, evaluator=evaluator, llm=llm)
     print(f"completed {len(traces)} trace(s)")
     for trace in traces:
         print(f"  task={trace.task_id} native_score={trace.native_score} eval={trace.eval_result}")

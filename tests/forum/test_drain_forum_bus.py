@@ -6,10 +6,10 @@ from pathlib import Path
 
 import pytest
 
-from kcsi.memory.forum_bus import ForumBus
-from kcsi.memory.knowledge_store import KnowledgeStore
-from kcsi.memory.store import MemoryStore
-from kcsi.orchestrator.engine import _coerce_post_ref, _drain_forum_bus
+from ksi.memory.forum_bus import ForumBus
+from ksi.memory.knowledge_store import KnowledgeStore
+from ksi.memory.store import MemoryStore
+from ksi.orchestrator.engine import _coerce_post_ref, _drain_forum_bus
 
 
 def _make_knowledge_store(tmp_path: Path) -> KnowledgeStore:
@@ -90,7 +90,7 @@ class TestDrainForumBus:
         cross-task distiller (which reads query_task(CROSS_TASK_SENTINEL)) finds
         it. Mirrors the done-signal path and the documented drain contract
         (forum_phase.py: "Drains land under CROSS_TASK_SENTINEL")."""
-        from kcsi.memory.knowledge_store import CROSS_TASK_SENTINEL
+        from ksi.memory.knowledge_store import CROSS_TASK_SENTINEL
 
         bus = _make_forum_bus(tmp_path)
         ks = _make_knowledge_store(tmp_path)
@@ -121,7 +121,7 @@ class TestDrainForumBus:
     def test_per_task_post_keeps_real_task_id(self, tmp_path):
         """Non-regression: per-task forum posts must keep their real task_id
         (the sentinel override is scoped to source_phase='cross_task_forum')."""
-        from kcsi.memory.knowledge_store import CROSS_TASK_SENTINEL
+        from ksi.memory.knowledge_store import CROSS_TASK_SENTINEL
 
         bus = _make_forum_bus(tmp_path)
         ks = _make_knowledge_store(tmp_path)
@@ -564,7 +564,7 @@ class TestDrainForumBus:
         so analytics can distinguish cross-task completions from per-task
         completions. Previously the drain filter skipped these rows entirely,
         causing ~70% undercount of forum_signal_done signals in sweeps."""
-        from kcsi.memory.knowledge_store import CROSS_TASK_SENTINEL
+        from ksi.memory.knowledge_store import CROSS_TASK_SENTINEL
 
         bus = _make_forum_bus(tmp_path)
         ks = _make_knowledge_store(tmp_path)
@@ -603,7 +603,7 @@ class TestDrainForumBus:
         """A per-task done event (non-empty ``task_ids``) must NOT also write
         a row under ``CROSS_TASK_SENTINEL`` — only cross-task signals land
         under the sentinel so analytics can separate the two scopes cleanly."""
-        from kcsi.memory.knowledge_store import CROSS_TASK_SENTINEL
+        from ksi.memory.knowledge_store import CROSS_TASK_SENTINEL
 
         bus = _make_forum_bus(tmp_path)
         ks = _make_knowledge_store(tmp_path)
@@ -767,7 +767,7 @@ class TestDrainForumBus:
 class TestHandleForumPostBusOnly:
     def test_writes_to_forum_bus_only(self, tmp_path):
         """handle_forum_post should write to ForumBus, NOT KnowledgeStore."""
-        from kcsi.memory.mcp_server import handle_forum_post
+        from ksi.memory.mcp_server import handle_forum_post
 
         bus = _make_forum_bus(tmp_path)
         ks = _make_knowledge_store(tmp_path)
@@ -797,7 +797,7 @@ class TestHandleForumPostBusOnly:
             ks.close()
 
     def test_returns_event_id_from_bus(self, tmp_path):
-        from kcsi.memory.mcp_server import handle_forum_post
+        from ksi.memory.mcp_server import handle_forum_post
 
         bus = _make_forum_bus(tmp_path)
         result = handle_forum_post(
@@ -812,7 +812,7 @@ class TestHandleForumPostBusOnly:
         assert result["entry_id"].startswith("fb-")
 
     def test_no_bus_returns_none_entry_id(self, tmp_path):
-        from kcsi.memory.mcp_server import handle_forum_post
+        from ksi.memory.mcp_server import handle_forum_post
 
         result = handle_forum_post(
             knowledge_store=None,
@@ -842,7 +842,7 @@ class TestHandleForumPostDedup:
     def test_second_post_same_agent_task_round_rejected(self, tmp_path):
         """A second forum_post from the same agent for the same task_id and
         round_num must be rejected, not silently accepted as a duplicate."""
-        from kcsi.memory.mcp_server import handle_forum_post
+        from ksi.memory.mcp_server import handle_forum_post
 
         bus = _make_forum_bus(tmp_path)
         first = handle_forum_post(
@@ -874,7 +874,7 @@ class TestHandleForumPostDedup:
 
     def test_single_post_per_agent_task_round_still_works(self, tmp_path):
         """Non-regression: a normal single post per agent/task/round is unaffected."""
-        from kcsi.memory.mcp_server import handle_forum_post
+        from ksi.memory.mcp_server import handle_forum_post
 
         bus = _make_forum_bus(tmp_path)
         result = handle_forum_post(
@@ -893,7 +893,7 @@ class TestHandleForumPostDedup:
     def test_same_agent_different_round_not_blocked(self, tmp_path):
         """The dedup guard is scoped to (agent, task_id, round) — a later round
         from the same agent on the same task is a fresh post, not a duplicate."""
-        from kcsi.memory.mcp_server import handle_forum_post
+        from ksi.memory.mcp_server import handle_forum_post
 
         bus = _make_forum_bus(tmp_path)
         handle_forum_post(
@@ -921,7 +921,7 @@ class TestHandleForumPostDedup:
     def test_same_agent_different_task_not_blocked(self, tmp_path):
         """The dedup guard is per task_id — the same agent posting to a second
         task in the same round is expected behavior, not a duplicate."""
-        from kcsi.memory.mcp_server import handle_forum_post
+        from ksi.memory.mcp_server import handle_forum_post
 
         bus = _make_forum_bus(tmp_path)
         handle_forum_post(
@@ -948,7 +948,7 @@ class TestHandleForumPostDedup:
 
     def test_different_agent_same_task_round_not_blocked(self, tmp_path):
         """Non-regression: the guard is per-agent, not global to the page."""
-        from kcsi.memory.mcp_server import handle_forum_post
+        from ksi.memory.mcp_server import handle_forum_post
 
         bus = _make_forum_bus(tmp_path)
         handle_forum_post(
@@ -980,7 +980,7 @@ class TestHandleForumPostDedup:
         event as a still-live "already posted" — otherwise every legitimate
         post-mortem retry for a task that succeeded earlier in the same
         forum-task attempt is permanently rejected."""
-        from kcsi.memory.mcp_server import handle_forum_post
+        from ksi.memory.mcp_server import handle_forum_post
 
         bus = _make_forum_bus(tmp_path)
         first = handle_forum_post(
@@ -1141,7 +1141,7 @@ class TestHandleForumPostCoercion:
     """
 
     def test_string_null_parent_post_id_normalized_at_mcp_layer(self, tmp_path):
-        from kcsi.memory.mcp_server import handle_forum_post
+        from ksi.memory.mcp_server import handle_forum_post
 
         bus = _make_forum_bus(tmp_path)
         result = handle_forum_post(
@@ -1162,7 +1162,7 @@ class TestHandleForumPostCoercion:
         assert "reply_to" not in payload
 
     def test_quoted_integer_parent_post_id_normalized_at_mcp_layer(self, tmp_path):
-        from kcsi.memory.mcp_server import handle_forum_post
+        from ksi.memory.mcp_server import handle_forum_post
 
         bus = _make_forum_bus(tmp_path)
         handle_forum_post(

@@ -8,7 +8,7 @@ presets live under [`benchmarks/`](../benchmarks/README.md) instead.
 
 | Path | Purpose |
 |------|---------|
-| `run_kcsi.sh` | Single-entry launcher that auto-detects the right harness from a dataset path. |
+| `run_ksi.sh` | Single-entry launcher that auto-detects the right harness from a dataset path. |
 | `setup_all.sh` | End-to-end local setup (dependencies, container images, benchmark source trees). |
 | `quickstart.sh` | Minimal quickstart smoke. |
 | `rebuild_container_if_needed.sh` | Rebuilds the agent container image when its inputs changed. |

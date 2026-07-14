@@ -20,11 +20,11 @@ import tempfile
 from pathlib import Path
 from types import SimpleNamespace
 
-from kcsi.memory.knowledge_store import (
+from ksi.memory.knowledge_store import (
     CROSS_TASK_SENTINEL,
     KnowledgeStore,
 )
-from kcsi.orchestrator.engine import GenerationalOrchestrator
+from ksi.orchestrator.engine import GenerationalOrchestrator
 
 # ---------------------------------------------------------------------------
 # load_distillation — stamps _knowledge_id

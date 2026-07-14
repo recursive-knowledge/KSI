@@ -23,9 +23,9 @@ bash scripts/quickstart.sh
 ```
 
 The script self-bootstraps everything it needs: it synthesizes a provider profile from your key,
-builds the `kcsi-agent:bench` image on first run (this takes a few minutes), installs the host
+builds the `ksi-agent:bench` image on first run (this takes a few minutes), installs the host
 Node dependencies, then runs one generation over the three bundled tasks under
-[`examples/custom_tasks/`](https://github.com/recursive-knowledge/KCSI/tree/main/examples/custom_tasks)
+[`examples/custom_tasks/`](https://github.com/recursive-knowledge/KSI/tree/main/examples/custom_tasks)
 (`fizzbuzz`, `reverse-words`, `anagram-groups`) — each graded by running `python3 tests.py`
 against the agent's attempt.
 
@@ -35,16 +35,16 @@ the setup without its smoke-test phase.
 
 If it fails partway, see the FAQ's
 [troubleshooting entry](faq.md#my-run-failed-or-produced-an-empty-knowledge-db-where-do-i-start) —
-`uv run kcsi-doctor` covers the most common causes (Docker not running, the
+`uv run ksi-doctor` covers the most common causes (Docker not running, the
 image not built, a missing/invalid API key).
 
 ## Check readiness (optional)
 
 ```bash
-uv run kcsi-doctor
+uv run ksi-doctor
 ```
 
-Prints a ✓/✗ checklist covering Docker availability, the `kcsi-agent:bench` image, host Node
+Prints a ✓/✗ checklist covering Docker availability, the `ksi-agent:bench` image, host Node
 dependencies, and a provider profile with a real key — plus the exact command to fix anything
 missing.
 
@@ -54,7 +54,7 @@ The run logs each attempt and its score as it progresses. When it finishes, resu
 
 | Artifact | Path |
 |----------|------|
-| Run log | `/tmp/kcsi-experiments/<experiment>.log` |
+| Run log | `/tmp/ksi-experiments/<experiment>.log` |
 | Knowledge DB | `runtime_state/knowledge/<experiment>/<experiment>_knowledge.sqlite` |
 | Runtime audit DB (optional) | sibling `<experiment>_runtime.sqlite` |
 | Score summary (optional — only when `--output-json` is set) | `results/<experiment>.json` |
@@ -67,21 +67,21 @@ quickstart itself doesn't pass `--output-json`, so it won't produce a
 summary written to disk.
 
 The direct CLI defaults traces to `analysis/traces/<experiment>/`; set
-`KCSI_TRACE_DIR` before launching if your environment needs a different trace
+`KSI_TRACE_DIR` before launching if your environment needs a different trace
 root.
 
 Here's a real excerpt (trimmed of full timestamps) from an actual quickstart run against
-`claude-haiku-4-5-20251001` (the `configs/kcsi/.env.haiku` profile the quickstart synthesizes by
+`claude-haiku-4-5-20251001` (the `configs/ksi/.env.haiku` profile the quickstart synthesizes by
 default) — task names, `solved=3/3`, and the `[tokens]` line's fields are stable across runs, but
 elapsed times and token counts are not, since they depend on the model and how the agent solves
 each task:
 
 ```text
-INFO kcsi.orchestrator.execution_phase: [gen 1] task=reverse-words agent=agent-1 done elapsed=27.4s score=1.0000
-INFO kcsi.orchestrator.execution_phase: [gen 1] task=fizzbuzz agent=agent-0 done elapsed=28.1s score=1.0000
-INFO kcsi.orchestrator.execution_phase: [gen 1] task=anagram-groups agent=agent-2 done elapsed=33.0s score=1.0000
-INFO kcsi.orchestrator.engine: completed traces=3 tasks=3 solved=3/3 (100.0%)
-INFO kcsi.orchestrator.persistence: [tokens] total=418,329 cached_input=346,149 uncached_input=9,129 output=5,090 cache_create=57,961
+INFO ksi.orchestrator.execution_phase: [gen 1] task=reverse-words agent=agent-1 done elapsed=27.4s score=1.0000
+INFO ksi.orchestrator.execution_phase: [gen 1] task=fizzbuzz agent=agent-0 done elapsed=28.1s score=1.0000
+INFO ksi.orchestrator.execution_phase: [gen 1] task=anagram-groups agent=agent-2 done elapsed=33.0s score=1.0000
+INFO ksi.orchestrator.engine: completed traces=3 tasks=3 solved=3/3 (100.0%)
+INFO ksi.orchestrator.persistence: [tokens] total=418,329 cached_input=346,149 uncached_input=9,129 output=5,090 cache_create=57,961
 ```
 
 **Knowledge DB check** — every solved attempt writes an `entry_type='attempt'`
@@ -103,7 +103,7 @@ environment is set up correctly.
 
 ## What just happened?
 
-KCSI runs a knowledge-refinement loop across generations:
+KSI runs a knowledge-refinement loop across generations:
 
 1. A population of agents each attempt the tasks in isolated containers.
 2. They record every attempt in the knowledge database.
@@ -118,21 +118,21 @@ KCSI runs a knowledge-refinement loop across generations:
   above just generated for you:
 
   ```bash
-  uv run python -m kcsi.cli \
+  uv run python -m ksi.cli \
     --task-source custom \
     --tasks-path examples/custom_tasks/tasks.jsonl \
     --evaluator command \
-    --provider-profile configs/kcsi/.env.quickstart
+    --provider-profile configs/ksi/.env.quickstart
   ```
 
   For a durable profile instead of the quickstart's throwaway one, copy
-  `configs/kcsi/.env.haiku.template` to `configs/kcsi/.env.haiku` and add
+  `configs/ksi/.env.haiku.template` to `configs/ksi/.env.haiku` and add
   your key. Full contract: [your_own_tasks.md](your_own_tasks.md).
 
 - **Run a reference benchmark instead** — ARC-AGI, SWE-bench Pro, Polyglot,
-  Terminal-Bench 2: [benchmarks/README.md](https://github.com/recursive-knowledge/KCSI/blob/main/benchmarks/README.md)
+  Terminal-Bench 2: [benchmarks/README.md](https://github.com/recursive-knowledge/KSI/blob/main/benchmarks/README.md)
 - **Scale up** — flags that matter for more tasks and more generations: [experiments.md](experiments.md)
-- **Drive it from Python** — `kcsi.run(...)`, no CLI: [programmatic_api.md](programmatic_api.md)
+- **Drive it from Python** — `ksi.run(...)`, no CLI: [programmatic_api.md](programmatic_api.md)
 - **Understand the design** — runtime, DB ownership, execution path: [architecture.md](architecture.md)
 - **Common questions** — [faq.md](faq.md)
 - **Term definitions** — forum, distillation, seeding, and more: [glossary.md](glossary.md)

@@ -2,8 +2,8 @@
 
 A benchmark supplies its execution prompt, TASK.md, and distillation domain
 hint via ``TaskSourceSpec`` fields alone — no edits to the hardcoded
-``if kind == ...`` chains in ``src/kcsi/prompts/__init__.py`` or any table in
-``src/kcsi/distillation/prompts.py``. These tests pin that (a) the
+``if kind == ...`` chains in ``src/ksi/prompts/__init__.py`` or any table in
+``src/ksi/distillation/prompts.py``. These tests pin that (a) the
 spec-attached callable/string is used when present, (b) the built-in sources
 carry their domain hint on the spec, and (c) a source with no hint falls back
 to the generic hint.
@@ -13,15 +13,15 @@ from __future__ import annotations
 
 import pytest
 
-from kcsi.benchmarks.sources import _DISTILL_HINT_ARC
-from kcsi.distillation.prompts import (
+from ksi.benchmarks.sources import _DISTILL_HINT_ARC
+from ksi.distillation.prompts import (
     _GENERIC_DOMAIN_HINT,
     _domain_hint,
     build_cross_task_distill_prompt,
 )
-from kcsi.models import TaskSpec
-from kcsi.prompts import build_execution_prompt, build_task_markdown
-from kcsi.tasks.registry import REGISTRY, TaskSourceSpec, register_task_source
+from ksi.models import TaskSpec
+from ksi.prompts import build_execution_prompt, build_task_markdown
+from ksi.tasks.registry import REGISTRY, TaskSourceSpec, register_task_source
 
 
 def _task(task_source: str) -> TaskSpec:

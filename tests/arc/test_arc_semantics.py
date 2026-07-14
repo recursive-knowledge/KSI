@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from kcsi.memory.arc_semantics import (
+from ksi.memory.arc_semantics import (
     compare_grids,
     normalize_grid,
 )

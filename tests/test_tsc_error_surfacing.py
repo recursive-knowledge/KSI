@@ -39,7 +39,7 @@ from pathlib import Path
 import pytest
 from conftest import REPO_ROOT
 
-from kcsi.runtime.normalize import extract_tsc_compile_error
+from ksi.runtime.normalize import extract_tsc_compile_error
 
 FAKE_TSC_ERROR = (
     "src/index.ts(42,15): error TS2322: Type 'string' is not assignable to type 'number'.\n"
@@ -175,7 +175,7 @@ def test_entrypoint_prints_tsc_diagnostic_on_compile_failure(tmp_path):
         **os.environ,
         "PATH": f"{bin_dir}:{os.environ.get('PATH', '')}",
         # Let the entrypoint cd into our fake runner root.
-        "KCSI_RUNNER_ROOT": str(app_dir),
+        "KSI_RUNNER_ROOT": str(app_dir),
     }
 
     # We pipe an empty stdin so `cat > /tmp/input.json` (the last step of the

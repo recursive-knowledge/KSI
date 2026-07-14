@@ -250,7 +250,7 @@ function writeJsonl(filePath, entries) {
 }
 
 function makeTempRoot() {
-  return fs.mkdtempSync(path.join(os.tmpdir(), "kcsi-sess-recov-"));
+  return fs.mkdtempSync(path.join(os.tmpdir(), "ksi-sess-recov-"));
 }
 
 // ── Tests ─────────────────────────────────────────────────────────────────
@@ -467,7 +467,7 @@ describe("silent-exit envelope emission", () => {
 // A 2026-04-20 SWE-bench Pro trace was scored `no_patch` despite `model_output`
 // containing a real-looking diff, because the 167KB `model_output` was
 // suspected to be the *entire raw JSONL session transcript* (JSON-escaped) —
-// which src/kcsi/eval/patch_extract.py::extract_patch() correctly fails to
+// which src/ksi/eval/patch_extract.py::extract_patch() correctly fails to
 // parse a clean diff from, since a raw JSONL dump never has a *line* that
 // literally starts with "diff --git " (the diff text is embedded inside an
 // escaped JSON string value on one long transcript line).

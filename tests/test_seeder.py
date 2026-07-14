@@ -1,6 +1,6 @@
 """Tests for population seeding."""
 
-from kcsi.seeding.seeder import PopulationSeeder
+from ksi.seeding.seeder import PopulationSeeder
 
 
 def test_seed_without_labels():

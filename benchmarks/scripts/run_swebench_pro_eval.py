@@ -16,7 +16,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from kcsi.benchmarks.swebench_pro_external import (
+from ksi.benchmarks.swebench_pro_external import (
     DEFAULT_EVALUATOR_RELATIVE,
     EVALUATOR_REVISION,
     REVISION_MARKER,

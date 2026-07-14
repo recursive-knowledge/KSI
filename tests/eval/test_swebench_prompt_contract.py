@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import pytest
 
-from kcsi.models import TaskSpec
-from kcsi.prompts import build_execution_prompt, build_task_markdown
-from kcsi.runtime.seeding import workspace_task_files
+from ksi.models import TaskSpec
+from ksi.prompts import build_execution_prompt, build_task_markdown
+from ksi.runtime.seeding import workspace_task_files
 
 
 def test_swebench_pro_prompt_contract_matches_patch_flow() -> None:
@@ -189,7 +189,7 @@ def test_swebench_workspace_task_files_include_instance_test_wrapper_when_seeded
 def test_swebench_workspace_task_files_ignores_dataset_scripts_dir(tmp_path, monkeypatch) -> None:
     """Dataset-controlled `swebench_scripts_dir` must NOT override the scripts
     root. Honoring it would let a malicious dataset row point the seeder at
-    any path the kcsi user can read, embedding arbitrary script content
+    any path the ksi user can read, embedding arbitrary script content
     into the agent's TASK.md and shell."""
     instance_id = "instance_demo__repo-790"
     attacker_dir = tmp_path / "attacker" / instance_id

@@ -6,7 +6,7 @@ import json
 import sqlite3
 from pathlib import Path
 
-from kcsi.memory.knowledge_store import KnowledgeStore
+from ksi.memory.knowledge_store import KnowledgeStore
 
 # ---------------------------------------------------------------------------
 # Helpers: create legacy DB files with the old schema
@@ -400,7 +400,7 @@ class TestMissingSourceFiles:
 class TestMigrateMemoryCLI:
     def test_parser_accepts_migrate_memory_flag(self):
         """Verify --migrate-memory is a valid CLI argument."""
-        from kcsi.cli import build_parser
+        from ksi.cli import build_parser
 
         parser = build_parser()
         # Parse with minimal required args plus --migrate-memory
@@ -418,7 +418,7 @@ class TestMigrateMemoryCLI:
 
     def test_parser_default_is_none(self):
         """Without --migrate-memory, the value defaults to None."""
-        from kcsi.cli import build_parser
+        from ksi.cli import build_parser
 
         parser = build_parser()
         args = parser.parse_args(

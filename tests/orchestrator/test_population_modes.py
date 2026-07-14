@@ -2,13 +2,13 @@
 
 import pytest
 
-from kcsi.discussion.prompts import extract_json
-from kcsi.models import GenerationConfig
-from kcsi.orchestrator.population import (
+from ksi.discussion.prompts import extract_json
+from ksi.models import GenerationConfig
+from ksi.orchestrator.population import (
     TaskStrategy,
     make_strategy,
 )
-from kcsi.seeding.seeder import PopulationSeeder
+from ksi.seeding.seeder import PopulationSeeder
 
 
 def test_task_mode_cross_task_bundle_and_task_labels():

@@ -20,8 +20,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-from kcsi.cli import _build_tb2_results_summary, _serialize_trace_with_retry_summary
-from kcsi.models import TaskTrace, TokenUsage
+from ksi.cli import _build_tb2_results_summary, _serialize_trace_with_retry_summary
+from ksi.models import TaskTrace, TokenUsage
 
 # ---------------------------------------------------------------------------
 # _serialize_trace_with_retry_summary — pure function

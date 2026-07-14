@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from kcsi.eval.noop import NoopEvaluator
-from kcsi.models import TaskSpec
+from ksi.eval.noop import NoopEvaluator
+from ksi.models import TaskSpec
 
 
 class TestNoopEvaluator:

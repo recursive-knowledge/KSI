@@ -5,8 +5,8 @@ import threading
 
 import pytest
 
-import kcsi.memory.store as store_module
-from kcsi.memory.store import MemoryStore
+import ksi.memory.store as store_module
+from ksi.memory.store import MemoryStore
 
 
 def test_forum_tables_created(tmp_path):

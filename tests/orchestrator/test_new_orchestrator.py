@@ -5,10 +5,10 @@ from unittest.mock import MagicMock
 
 from conftest import _build_mock_evaluator, _build_mock_llm, _build_mock_runtime
 
-from kcsi.models import AgentState, GenerationConfig, Insight, TaskSpec, TaskTrace
-from kcsi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
-from kcsi.runtime.types import RuntimeResult
-from kcsi.tokens import LLMResponse, TokenUsage
+from ksi.models import AgentState, GenerationConfig, Insight, TaskSpec, TaskTrace
+from ksi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
+from ksi.runtime.types import RuntimeResult
+from ksi.tokens import LLMResponse, TokenUsage
 
 
 def test_single_generation_runs(make_tasks, mock_runtime, mock_evaluator, mock_llm):

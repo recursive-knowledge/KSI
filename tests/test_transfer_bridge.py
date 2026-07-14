@@ -1,4 +1,4 @@
-"""Tests for the KCSI_TRANSFER_BRIDGE flag (success-derived transfer bridge).
+"""Tests for the KSI_TRANSFER_BRIDGE flag (success-derived transfer bridge).
 
 Covers the transfer-bridge design spec:
 - resolver semantics (default off);
@@ -18,20 +18,20 @@ from pathlib import Path
 
 import pytest
 
-from kcsi.distillation import DistillInput, PerTaskBundle, distill
-from kcsi.distillation.cross_task import _select_cross_posts_for_budget, distill_cross_task
-from kcsi.distillation.distiller import (
+from ksi.distillation import DistillInput, PerTaskBundle, distill
+from ksi.distillation.cross_task import _select_cross_posts_for_budget, distill_cross_task
+from ksi.distillation.distiller import (
     _collect_per_task_transferables,
     _transfer_bridge_enabled,
 )
-from kcsi.distillation.per_task import truncate_at_boundary
-from kcsi.distillation.prompts import (
+from ksi.distillation.per_task import truncate_at_boundary
+from ksi.distillation.prompts import (
     _TRANSFERABLES_DIRECTIVE,
     _TRANSFERABLES_SECTION_TITLE,
     build_cross_task_distill_prompt,
     build_per_task_distill_prompt,
 )
-from kcsi.memory.knowledge_store import CROSS_TASK_SENTINEL, KnowledgeStore
+from ksi.memory.knowledge_store import CROSS_TASK_SENTINEL, KnowledgeStore
 from tests.orchestrator_phase_helpers import run_distill
 
 _WIN_DIRECTIVE_MARK = "This task was SOLVED this generation"
@@ -93,16 +93,16 @@ class _QueryCountingStore:
 
 @pytest.mark.parametrize("raw", ["1", "true", "TRUE", "yes", "On"])
 def test_transfer_bridge_resolver_on_values(monkeypatch, raw):
-    monkeypatch.setenv("KCSI_TRANSFER_BRIDGE", raw)
+    monkeypatch.setenv("KSI_TRANSFER_BRIDGE", raw)
     assert _transfer_bridge_enabled() is True
 
 
 @pytest.mark.parametrize("raw", [None, "", "0", "off", "false", "bridge"])
 def test_transfer_bridge_resolver_off_values(monkeypatch, raw):
     if raw is None:
-        monkeypatch.delenv("KCSI_TRANSFER_BRIDGE", raising=False)
+        monkeypatch.delenv("KSI_TRANSFER_BRIDGE", raising=False)
     else:
-        monkeypatch.setenv("KCSI_TRANSFER_BRIDGE", raw)
+        monkeypatch.setenv("KSI_TRANSFER_BRIDGE", raw)
     assert _transfer_bridge_enabled() is False
 
 
@@ -112,7 +112,7 @@ def test_transfer_bridge_resolver_off_values(monkeypatch, raw):
 
 
 def test_flag_off_no_win_calls_no_section_no_extra_queries(monkeypatch):
-    monkeypatch.delenv("KCSI_TRANSFER_BRIDGE", raising=False)
+    monkeypatch.delenv("KSI_TRANSFER_BRIDGE", raising=False)
     with tempfile.TemporaryDirectory() as tmp:
         ks = _QueryCountingStore(_seed_two_task_db(Path(tmp)))
         captured: list[tuple[str, str]] = []
@@ -147,7 +147,7 @@ def test_flag_off_no_win_calls_no_section_no_extra_queries(monkeypatch):
 
 
 def test_flag_on_newly_solved_triggers_one_win_mode_distill(monkeypatch):
-    monkeypatch.setenv("KCSI_TRANSFER_BRIDGE", "1")
+    monkeypatch.setenv("KSI_TRANSFER_BRIDGE", "1")
     with tempfile.TemporaryDirectory() as tmp:
         ks = _seed_two_task_db(Path(tmp))
         captured: list[tuple[str, str]] = []
@@ -179,7 +179,7 @@ def test_flag_on_newly_solved_triggers_one_win_mode_distill(monkeypatch):
 
 def test_flag_on_newly_solved_intersected_with_task_ids(monkeypatch):
     """A task id outside inp.task_ids (e.g. a hold-out) never gets a win call."""
-    monkeypatch.setenv("KCSI_TRANSFER_BRIDGE", "1")
+    monkeypatch.setenv("KSI_TRANSFER_BRIDGE", "1")
     with tempfile.TemporaryDirectory() as tmp:
         ks = _seed_two_task_db(Path(tmp))
         captured: list[str] = []
@@ -419,7 +419,7 @@ def test_budget_estimator_counts_transferables_section():
 
 
 def test_flag_on_cross_task_prompt_carries_fresh_win_transferables(monkeypatch):
-    monkeypatch.setenv("KCSI_TRANSFER_BRIDGE", "1")
+    monkeypatch.setenv("KSI_TRANSFER_BRIDGE", "1")
     with tempfile.TemporaryDirectory() as tmp:
         ks = _seed_two_task_db(Path(tmp))
         captured: list[str] = []
@@ -454,7 +454,7 @@ _PRODUCED_LOG_MARK = "per-task bundle(s)"
 def test_attempted_accounting_counts_win_tasks(monkeypatch, caplog):
     """1 unsolved + 2 win tasks, one win fails: the no-bundle delta counts the
     failed win task and never goes negative."""
-    monkeypatch.setenv("KCSI_TRANSFER_BRIDGE", "1")
+    monkeypatch.setenv("KSI_TRANSFER_BRIDGE", "1")
     with tempfile.TemporaryDirectory() as tmp:
         ks = KnowledgeStore(str(Path(tmp) / "k.sqlite"), default_experiment="exp")
         ks.record_attempt(task_id="t_u", agent_id="a1", generation=0, model_output="failed", native_score=0.0)
@@ -466,7 +466,7 @@ def test_attempted_accounting_counts_win_tasks(monkeypatch, caplog):
                 return "not json"  # this win distill fails
             return _bundle_json(["x"])
 
-        with caplog.at_level(logging.INFO, logger="kcsi.distillation.distiller"):
+        with caplog.at_level(logging.INFO, logger="ksi.distillation.distiller"):
             out = distill(
                 DistillInput(
                     generation=0,
@@ -486,12 +486,12 @@ def test_attempted_accounting_counts_win_tasks(monkeypatch, caplog):
 def test_only_win_tasks_total_failure_still_warns(monkeypatch, caplog):
     """All tasks solved (target empty, only win distills ran) and every win
     fails: the silent-degradation WARNING still fires."""
-    monkeypatch.setenv("KCSI_TRANSFER_BRIDGE", "1")
+    monkeypatch.setenv("KSI_TRANSFER_BRIDGE", "1")
     with tempfile.TemporaryDirectory() as tmp:
         ks = KnowledgeStore(str(Path(tmp) / "k.sqlite"), default_experiment="exp")
         ks.record_attempt(task_id="t_w", agent_id="a1", generation=0, model_output="won", native_score=1.0)
 
-        with caplog.at_level(logging.INFO, logger="kcsi.distillation.distiller"):
+        with caplog.at_level(logging.INFO, logger="ksi.distillation.distiller"):
             out = distill(
                 DistillInput(
                     generation=0,
@@ -517,9 +517,9 @@ def test_only_win_tasks_total_failure_still_warns(monkeypatch, caplog):
 def _make_engine_orch(tmp_path, *, drop_solved: bool):
     from unittest.mock import MagicMock
 
-    from kcsi.models import GenerationConfig
-    from kcsi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
-    from kcsi.tokens import LLMResponse, TokenUsage
+    from ksi.models import GenerationConfig
+    from ksi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
+    from ksi.tokens import LLMResponse, TokenUsage
 
     llm = MagicMock()
     llm.call.return_value = LLMResponse(text=_bundle_json(), usage=TokenUsage(input_tokens=1, output_tokens=1))
@@ -542,8 +542,8 @@ def _make_engine_orch(tmp_path, *, drop_solved: bool):
 def test_engine_gates_newly_solved_on_drop_solved(tmp_path, monkeypatch, drop_solved):
     """With --no-drop-solved a solved task stays dispatched every generation,
     so win extraction would re-run unbounded — the engine must pass None."""
-    import kcsi.distillation as dist_pkg
-    from kcsi.distillation import DistillOutput
+    import ksi.distillation as dist_pkg
+    from ksi.distillation import DistillOutput
 
     orch = _make_engine_orch(tmp_path, drop_solved=drop_solved)
     orch._knowledge.record_attempt(task_id="t1", agent_id="a1", generation=0, model_output="won", native_score=1.0)
@@ -560,8 +560,8 @@ def test_engine_gates_newly_solved_on_drop_solved(tmp_path, monkeypatch, drop_so
 
 
 def test_no_drop_solved_keeps_solved_tasks_as_cross_task_targets(tmp_path, monkeypatch):
-    import kcsi.distillation as dist_pkg
-    from kcsi.distillation import DistillOutput
+    import ksi.distillation as dist_pkg
+    from ksi.distillation import DistillOutput
 
     orch = _make_engine_orch(tmp_path, drop_solved=False)
     orch._tasks_by_id = {
@@ -589,9 +589,9 @@ def test_no_drop_solved_keeps_solved_tasks_as_cross_task_targets(tmp_path, monke
 
 
 def test_distill_phase_leaves_missing_target_prompts_absent(tmp_path, monkeypatch):
-    import kcsi.distillation as dist_pkg
-    from kcsi.distillation import DistillOutput
-    from kcsi.models import TaskSpec
+    import ksi.distillation as dist_pkg
+    from ksi.distillation import DistillOutput
+    from ksi.models import TaskSpec
 
     orch = _make_engine_orch(tmp_path, drop_solved=True)
     orch._tasks_by_id = {"t1": TaskSpec(id="t1", prompt="prompt one")}

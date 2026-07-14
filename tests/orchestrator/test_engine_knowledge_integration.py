@@ -7,8 +7,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from kcsi.models import GenerationConfig, Insight, TaskTrace
-from kcsi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
+from ksi.models import GenerationConfig, Insight, TaskTrace
+from ksi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
 
 # ---------------------------------------------------------------------------
 # 1. _knowledge is None when knowledge DB is not set
@@ -60,8 +60,8 @@ def test_no_memory_keeps_knowledge_store_but_disables_agent_memory(tmp_path, moc
 
 def test_resume_uses_knowledge_store_not_stale_runtime_sidecar(tmp_path, mock_runtime, mock_evaluator, mock_llm):
     """When both DBs exist, KnowledgeStore is authoritative for resume state."""
-    from kcsi.memory.knowledge_store import KnowledgeStore
-    from kcsi.memory.store import MemoryStore
+    from ksi.memory.knowledge_store import KnowledgeStore
+    from ksi.memory.store import MemoryStore
 
     knowledge_db_path = str(tmp_path / "resume_knowledge.sqlite")
     runtime_db_path = str(tmp_path / "resume_runtime.sqlite")
@@ -225,7 +225,7 @@ def test_require_vector_fails_when_knowledge_vec_degrades(
     )
     config.require_vector = True
 
-    with patch("kcsi.memory.knowledge_store.KnowledgeStore", FakeKnowledgeStore):
+    with patch("ksi.memory.knowledge_store.KnowledgeStore", FakeKnowledgeStore):
         with pytest.raises(RuntimeError, match="Vector memory is required"):
             GenerationalOrchestrator(
                 config=config,
@@ -578,7 +578,7 @@ def test_knowledge_store_init_failure_is_fatal(tmp_path, mock_runtime, mock_eval
 
     # Patch at the source module so the lazy import inside __init__ picks it up
     with patch(
-        "kcsi.memory.knowledge_store.KnowledgeStore.__init__",
+        "ksi.memory.knowledge_store.KnowledgeStore.__init__",
         side_effect=RuntimeError("init boom"),
     ):
         with pytest.raises(RuntimeError, match="KnowledgeStore initialization failed"):
@@ -787,7 +787,7 @@ def test_early_knowledge_failure_late_path_still_records_attempt(
 
     # Re-open the DB in a fresh handle (engine.run()'s finally-block closed
     # the original) and verify the late path actually recorded the attempt.
-    from kcsi.memory.knowledge_store import KnowledgeStore
+    from ksi.memory.knowledge_store import KnowledgeStore
 
     verify_store = KnowledgeStore(db_path, default_experiment="late_path_test")
     try:

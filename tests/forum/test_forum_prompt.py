@@ -2,7 +2,7 @@
 
 
 def test_per_task_prompt_encourages_threaded_replies():
-    from kcsi.forum import build_per_task_discussion_parts
+    from ksi.forum import build_per_task_discussion_parts
 
     p = build_per_task_discussion_parts(
         agent_id="a1",
@@ -20,7 +20,7 @@ def test_per_task_prompt_encourages_threaded_replies():
 
 def test_cross_task_prompt_builder_exists():
     """V2: builder takes phase1_context + cross_task_history (no per_task_posts)."""
-    from kcsi.forum import build_cross_task_discussion_parts
+    from ksi.forum import build_cross_task_discussion_parts
 
     p = build_cross_task_discussion_parts(
         agent_id="a1",
@@ -38,7 +38,7 @@ def test_cross_task_prompt_renders_history_chronologically():
     truncation. Truncating breaks prompt-cache prefix stability across
     generations.
     """
-    from kcsi.forum import build_cross_task_discussion_parts
+    from ksi.forum import build_cross_task_discussion_parts
 
     history = [{"id": i, "generation": 1 + (i // 50), "agent_id": "a1", "text": f"post-{i}"} for i in range(100)]
     prompt = build_cross_task_discussion_parts(

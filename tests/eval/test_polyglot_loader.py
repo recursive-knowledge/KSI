@@ -7,8 +7,8 @@ from pathlib import Path
 
 import pytest
 
-from kcsi.benchmarks.loaders import _load_polyglot_tasks
-from kcsi.tasks.loaders import SUPPORTED_TASK_SOURCES, load_tasks_for_source
+from ksi.benchmarks.loaders import _load_polyglot_tasks
+from ksi.tasks.loaders import SUPPORTED_TASK_SOURCES, load_tasks_for_source
 
 
 def test_polyglot_in_supported_sources():

@@ -1,6 +1,6 @@
 /**
  * Guards for the JSON process-boundary validators added in #859:
- *   - main.ts          : assertKcsiPayload, coerceOptionalNumber, coerceOptionalString
+ *   - main.ts          : assertKsiPayload, coerceOptionalNumber, coerceOptionalString
  *   - container_output.ts : isContainerOutput
  *
  * The repo's JS harness runs Node directly (no tsc step), so we keep inline JS
@@ -36,7 +36,7 @@ const CONTAINER_OUTPUT_STATUSES = new Set([
   "recovered_from_session",
 ]);
 
-function assertKcsiPayload(value, filePath) {
+function assertKsiPayload(value, filePath) {
   function fail(pathName, expectation) {
     die(`payload at ${filePath} ${pathName} must be ${expectation}`);
   }
@@ -237,7 +237,7 @@ function isContainerOutput(value) {
 
 describe("json-boundary guards: copies mirror the TS source", () => {
   for (const [name, tsSource, label] of [
-    ["assertKcsiPayload", mainTs, "main.ts"],
+    ["assertKsiPayload", mainTs, "main.ts"],
     ["coerceOptionalNumber", mainTs, "main.ts"],
     ["coerceOptionalString", mainTs, "main.ts"],
     ["isContainerOutput", containerOutputTs, "container_output.ts"],
@@ -259,12 +259,12 @@ describe("json-boundary guards: copies mirror the TS source", () => {
   });
 });
 
-// ── Behavior: assertKcsiPayload ──────────────────────────────────────────────
+// ── Behavior: assertKsiPayload ──────────────────────────────────────────────
 
-describe("assertKcsiPayload", () => {
+describe("assertKsiPayload", () => {
   it("accepts a well-formed payload", () => {
     assert.doesNotThrow(() =>
-      assertKcsiPayload(
+      assertKsiPayload(
         {
           generation: 1,
           agent_id: "a1",
@@ -414,7 +414,7 @@ describe("assertKcsiPayload", () => {
   ]) {
     it(`rejects ${label}`, () => {
       assert.throws(
-        () => assertKcsiPayload(payload, "p.json"),
+        () => assertKsiPayload(payload, "p.json"),
         (err) => err instanceof Error && err.message.includes(needle),
       );
     });

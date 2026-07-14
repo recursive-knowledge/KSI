@@ -1,7 +1,7 @@
-from kcsi.discussion.concreteness import (
+from ksi.discussion.concreteness import (
     assert_anti_meta_rules_present as _assert_anti_meta_rules_present,
 )
-from kcsi.distillation.prompts import (
+from ksi.distillation.prompts import (
     _ATTEMPT_OUTPUT_EXCERPT_CHARS,
     build_cross_task_distill_prompt,
     build_per_task_distill_prompt,
@@ -14,7 +14,7 @@ from kcsi.distillation.prompts import (
 # tests below pin the new prompt so regressions (e.g. a future refactor
 # silently dropping the STRICT rules block) trip CI instead of silently
 # re-polluting the bundle. The shared `_assert_anti_meta_rules_present`
-# helper lives in src/kcsi/discussion/concreteness.py — single source of truth
+# helper lives in src/ksi/discussion/concreteness.py — single source of truth
 # alongside the block content.
 
 
@@ -24,7 +24,7 @@ def _full(prompt_tuple: tuple[str, str]) -> str:
     Most assertions in this file are about content visibility, not about
     which message it lives in. Stable content was moved from user → system
     in the prompt-cache prefix-stability change (see
-    `_build_distill_system` in `src/kcsi/distillation/prompts.py`); using
+    `_build_distill_system` in `src/ksi/distillation/prompts.py`); using
     this helper keeps those visibility assertions robust to future moves
     in either direction. Tests that specifically pin "this content must
     be in system for cache eligibility" assert against the system half

@@ -1,7 +1,7 @@
 import pytest
 
-from kcsi.distillation.per_task import _as_int_list
-from kcsi.distillation.types import (
+from ksi.distillation.per_task import _as_int_list
+from ksi.distillation.types import (
     CROSS_TASK_INSIGHT_FIELDS,
     CrossTaskBundle,
     PerTaskBundle,
@@ -43,8 +43,8 @@ def test_cross_task_insight_fields_single_source_of_truth():
     literal. A future drift in field names/order then fails loudly here instead
     of silently desyncing distillation/embedding/dedup.
     """
-    from kcsi.distillation import per_task
-    from kcsi.orchestrator import distillation_phase, kt_adapter
+    from ksi.distillation import per_task
+    from ksi.orchestrator import distillation_phase, kt_adapter
 
     # per_task aliases the canonical tuple object directly.
     assert per_task._BUNDLE_ITEM_FIELDS is CROSS_TASK_INSIGHT_FIELDS

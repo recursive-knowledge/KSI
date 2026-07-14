@@ -1,4 +1,4 @@
-# KCSI agent container — benchmark variant
+# KSI agent container — benchmark variant
 # Lighter image for ARC / SWE-bench / Polyglot benchmark runs
 
 # Base image pinned by digest for reproducible builds (tag kept for readability).
@@ -135,7 +135,7 @@ RUN curl -fsSL "https://services.gradle.org/distributions/gradle-${GRADLE_VERSIO
 # `npx jest` resolve without a registry fetch (issue #1090: under egress
 # isolation, #923, a per-task `npm install jest` would be blocked the same
 # way the pre-#1061 `pip install pytest` self-heal was). Version-pinned to
-# match the kcsi-polyglot-eval grading image's recipe (src/kcsi/eval/
+# match the ksi-polyglot-eval grading image's recipe (src/ksi/eval/
 # polyglot_docker.py's HyperAgents pb.base template) so the agent's own
 # compile/type-check smoke pass and the grader agree. Lint-only packages
 # (eslint, @exercism/eslint-config-javascript, @types/*) are omitted — they
@@ -188,7 +188,7 @@ RUN npx tsc --outDir /tmp/dist \
  && ln -sfn /app/node_modules /tmp/dist/node_modules
 
 # Single source of truth for retryable-error markers, shared with the Python
-# orchestrator (src/kcsi/errors.py). retryable_markers.ts reads this at runtime
+# orchestrator (src/ksi/errors.py). retryable_markers.ts reads this at runtime
 # via fs from `path.dirname(import.meta.url)` of the COMPILED module, which is
 # /tmp/dist (tsc --outDir /tmp/dist; the runner executes `node /tmp/dist/
 # index.js`). tsc does NOT copy .json into outDir, so the file must be placed
@@ -217,7 +217,7 @@ RUN chown -R node:node /workspace \
  # swebench in the 2026-04-28 audit sweep.
  && mkdir -p /home/node/.cache/claude-cli-nodejs \
  && mkdir -p /home/node/.cargo \
- # The image's `node` user is uid 1000, but kcsi launches the container with
+ # The image's `node` user is uid 1000, but ksi launches the container with
  # `--user 1011:1011` — chown alone wouldn't grant that uid write access.
  # 0777 is fine here: every container is per-task ephemeral and gets `--rm`'d,
  # and the parent /home/node is already 0777 above for the same reason.

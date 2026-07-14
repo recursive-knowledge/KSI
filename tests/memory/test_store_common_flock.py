@@ -2,7 +2,7 @@
 
 The 60s flock-acquire timeout used to log a warning and proceed WITHOUT the
 only cross-process lock. It now raises ``TimeoutError`` by default, with an
-opt-in ``KCSI_FLOCK_TIMEOUT_PROCEED=1`` escape hatch that restores the legacy
+opt-in ``KSI_FLOCK_TIMEOUT_PROCEED=1`` escape hatch that restores the legacy
 degrade-over-abort behavior.
 """
 
@@ -11,8 +11,8 @@ import threading
 
 import pytest
 
-from kcsi.memory import _store_common
-from kcsi.memory._store_common import _flock_timeout_should_proceed, _locked_guard
+from ksi.memory import _store_common
+from ksi.memory._store_common import _flock_timeout_should_proceed, _locked_guard
 
 fcntl = _store_common.fcntl
 
@@ -37,12 +37,12 @@ def _force_deadline_passed(monkeypatch):
 
 def test_flock_timeout_should_proceed_env(monkeypatch):
     for val in ("1", "true", "TRUE", "yes", "on", " on "):
-        monkeypatch.setenv("KCSI_FLOCK_TIMEOUT_PROCEED", val)
+        monkeypatch.setenv("KSI_FLOCK_TIMEOUT_PROCEED", val)
         assert _flock_timeout_should_proceed() is True
     for val in ("0", "false", "", "no", "off", "garbage"):
-        monkeypatch.setenv("KCSI_FLOCK_TIMEOUT_PROCEED", val)
+        monkeypatch.setenv("KSI_FLOCK_TIMEOUT_PROCEED", val)
         assert _flock_timeout_should_proceed() is False
-    monkeypatch.delenv("KCSI_FLOCK_TIMEOUT_PROCEED", raising=False)
+    monkeypatch.delenv("KSI_FLOCK_TIMEOUT_PROCEED", raising=False)
     assert _flock_timeout_should_proceed() is False
 
 
@@ -53,7 +53,7 @@ def test_flock_timeout_raises_by_default(tmp_path, monkeypatch):
     fcntl.flock(holder.fileno(), fcntl.LOCK_EX)
     contender = open(lock_path, "w")
     try:
-        monkeypatch.delenv("KCSI_FLOCK_TIMEOUT_PROCEED", raising=False)
+        monkeypatch.delenv("KSI_FLOCK_TIMEOUT_PROCEED", raising=False)
         _force_deadline_passed(monkeypatch)
         with pytest.raises(TimeoutError, match="advisory flock not acquired"):
             with _locked_guard(**_guard_args(contender)):
@@ -71,7 +71,7 @@ def test_flock_timeout_proceeds_with_env_optin(tmp_path, monkeypatch):
     fcntl.flock(holder.fileno(), fcntl.LOCK_EX)
     contender = open(lock_path, "w")
     try:
-        monkeypatch.setenv("KCSI_FLOCK_TIMEOUT_PROCEED", "1")
+        monkeypatch.setenv("KSI_FLOCK_TIMEOUT_PROCEED", "1")
         _force_deadline_passed(monkeypatch)
         entered = False
         with _locked_guard(**_guard_args(contender)):

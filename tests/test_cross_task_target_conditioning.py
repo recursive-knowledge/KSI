@@ -13,9 +13,9 @@ import json
 import tempfile
 from pathlib import Path
 
-from kcsi.distillation import DistillInput, distill
-from kcsi.memory.knowledge_store import CROSS_TASK_SENTINEL, KnowledgeStore
-from kcsi.seeding.seeder import PopulationSeeder
+from ksi.distillation import DistillInput, distill
+from ksi.memory.knowledge_store import CROSS_TASK_SENTINEL, KnowledgeStore
+from ksi.seeding.seeder import PopulationSeeder
 
 
 def _fake_llm(system_prompt: str, user_prompt: str) -> str:

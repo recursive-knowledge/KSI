@@ -58,7 +58,7 @@ function removePathIfExists(targetPath: string): void {
 }
 
 export function sessionStateRoot(): string {
-  const configured = (process.env.KCSI_SESSION_STATE_ROOT || '').trim();
+  const configured = (process.env.KSI_SESSION_STATE_ROOT || '').trim();
   if (configured) {
     return path.resolve(configured);
   }
@@ -77,7 +77,7 @@ function sessionStateDirForAgent(agentId: string): string {
 
 export function sessionStatePath(agentId: string): string {
   const root = path.resolve(sessionStateRoot());
-  return path.join(root, sessionStateDirForAgent(agentId), '.kcsi_session.json');
+  return path.join(root, sessionStateDirForAgent(agentId), '.ksi_session.json');
 }
 
 export function loadSessionForAgent(agentId: string): string | undefined {

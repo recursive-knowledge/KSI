@@ -97,10 +97,10 @@ function stripClaudeSidechainEntries(raw: string, absPath: string): string {
 
 export function collectNativeSessionMemory(workspaceKey: string): string {
   if (!workspaceKey) return '';
-  const maxChars = envInt('KCSI_NATIVE_MEMORY_MAX_CHARS', 240_000);
-  const maxFiles = envInt('KCSI_NATIVE_MEMORY_MAX_FILES', 8);
+  const maxChars = envInt('KSI_NATIVE_MEMORY_MAX_CHARS', 240_000);
+  const maxFiles = envInt('KSI_NATIVE_MEMORY_MAX_FILES', 8);
   const maxCharsPerFile = envInt(
-    'KCSI_NATIVE_MEMORY_MAX_CHARS_PER_FILE',
+    'KSI_NATIVE_MEMORY_MAX_CHARS_PER_FILE',
     60_000,
   );
   if (maxChars <= 0) return '';

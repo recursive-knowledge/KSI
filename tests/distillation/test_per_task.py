@@ -1,13 +1,13 @@
 import json
 
-from kcsi.distillation.per_task import (
+from ksi.distillation.per_task import (
     _as_insight_list,
     _parse_json,
     dedupe_bundle_items,
     distill_one_task,
     truncate_at_boundary,
 )
-from kcsi.distillation.types import PerTaskBundle
+from ksi.distillation.types import PerTaskBundle
 
 
 def test_distill_one_task_builds_bundle_from_llm_json():

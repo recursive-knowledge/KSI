@@ -7,7 +7,7 @@ These tests pin that the batched result is byte-identical to calling
 the ``generation`` / ``entry_types`` filters.
 """
 
-from kcsi.memory.knowledge_store import KnowledgeStore
+from ksi.memory.knowledge_store import KnowledgeStore
 
 
 def _seed_store(store: KnowledgeStore) -> list[str]:

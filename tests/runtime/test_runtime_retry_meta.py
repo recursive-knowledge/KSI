@@ -1,4 +1,4 @@
-"""Unit tests for ``kcsi.orchestrator.engine._runtime_retry_meta``.
+"""Unit tests for ``ksi.orchestrator.engine._runtime_retry_meta``.
 
 Context
 -------
@@ -26,7 +26,7 @@ from __future__ import annotations
 
 import pytest
 
-from kcsi.orchestrator.engine import _runtime_retry_meta
+from ksi.orchestrator.engine import _runtime_retry_meta
 
 
 def _attempt_error(idx: int, *, err: str = "SDK query loop drained") -> dict:

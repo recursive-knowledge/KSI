@@ -571,7 +571,7 @@ function writeJsonl(filePath, entries) {
 }
 
 function makeTempRoot() {
-  return fs.mkdtempSync(path.join(os.tmpdir(), "kcsi-empty-result-"));
+  return fs.mkdtempSync(path.join(os.tmpdir(), "ksi-empty-result-"));
 }
 
 function baseCtx(overrides = {}) {

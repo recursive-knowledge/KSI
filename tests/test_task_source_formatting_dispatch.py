@@ -12,7 +12,7 @@ spec hook + dispatch exist.
 
 from types import SimpleNamespace as NS
 
-from kcsi.orchestrator.engine import _build_approach_diagnosis
+from ksi.orchestrator.engine import _build_approach_diagnosis
 
 
 def _trace(**kw):
@@ -217,7 +217,7 @@ def test_unknown_source_falls_back_to_generic():
 def test_custom_task_source_formatter_is_dispatched():
     """A registered source's ``approach_diagnosis`` hook drives the per-source
     lines, with no ``task_source ==`` edit in the engine."""
-    from kcsi.tasks import registry
+    from ksi.tasks import registry
 
     def _fmt(*, trace, eval_result, outcome, seed_test_files):
         return [f"CUSTOM diag for {eval_result.get('status')}"]

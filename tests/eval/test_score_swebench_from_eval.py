@@ -5,14 +5,14 @@ The function is normally exercised only through engine dispatch
 scorer directly to pin every branch, including the ``task=None`` default that
 silently skips the ``run_summary`` leg and falls through to ``return 0.0``.
 
-Function under test: ``src/kcsi/orchestrator/scoring.py``
+Function under test: ``src/ksi/orchestrator/scoring.py``
 ``score_swebench_from_eval(eval_result, *, task=None)`` (lines 45-115).
 """
 
 from __future__ import annotations
 
-from kcsi.models import TaskSpec
-from kcsi.orchestrator.scoring import score_swebench_from_eval
+from ksi.models import TaskSpec
+from ksi.orchestrator.scoring import score_swebench_from_eval
 
 
 def _task(task_id: str = "task-1") -> TaskSpec:

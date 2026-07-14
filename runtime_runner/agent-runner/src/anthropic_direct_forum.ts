@@ -26,7 +26,7 @@ const MCP_REQUEST_TIMEOUT_MS = 60_000;
 /**
  * Barrier name used by the cross-task R0->R1 shared-container round-trip.
  * Centralized so the host-side BarrierWatcher uses the same identifier
- * (see ``src/kcsi/orchestrator/engine.py`` cross-task forum phase). These
+ * (see ``src/ksi/orchestrator/engine.py`` cross-task forum phase). These
  * two literals MUST agree.
  */
 export const CROSS_TASK_R1_BARRIER_NAME = 'cross_task_r1';
@@ -165,7 +165,7 @@ class McpStdioClient {
     await this.request('initialize', {
       protocolVersion: '2024-11-05',
       capabilities: {},
-      clientInfo: { name: 'kcsi-direct-forum', version: '1.0.0' },
+      clientInfo: { name: 'ksi-direct-forum', version: '1.0.0' },
     });
     this.notify('notifications/initialized', {});
     const listed = await this.request('tools/list', {});
@@ -262,7 +262,7 @@ export function buildMemoryMcpEnv(
     MEMORY_EXPERIMENT: containerInput.memoryMcp.experiment ?? '',
     EXPERIMENT_NAME: process.env.EXPERIMENT_NAME || containerInput.memoryMcp.experiment || '',
     MEMORY_ENABLE_SEMANTIC_SEARCH: sdkEnv.MEMORY_ENABLE_SEMANTIC_SEARCH || '1',
-    KCSI_EMBEDDING_MODEL: sdkEnv.KCSI_EMBEDDING_MODEL || 'google/embeddinggemma-300m',
+    KSI_EMBEDDING_MODEL: sdkEnv.KSI_EMBEDDING_MODEL || 'google/embeddinggemma-300m',
     USE_TF: sdkEnv.USE_TF || '0',
     TOKENIZERS_PARALLELISM: sdkEnv.TOKENIZERS_PARALLELISM || 'false',
     HF_HOME: sdkEnv.HF_HOME || '/home/node/.cache/huggingface',
@@ -343,7 +343,7 @@ function buildSystemPrompt(): string {
  * + N−1 reads instead of N writes). The agent's identity is delivered in
  * the variable suffix instead — the Python `variable_suffix` opens with
  * the `You are agent {id} …` line (see `build_cross_task_discussion_parts`
- * in `src/kcsi/forum/prompt.py`), so nothing is lost. `generation` is
+ * in `src/ksi/forum/prompt.py`), so nothing is lost. `generation` is
  * retained because it is the same for every agent in a generation, so it
  * does not break cross-agent prefix stability.
  *
@@ -670,12 +670,12 @@ export async function runAnthropicDirectForumQuery(
   const maxTurns = Math.max(
     1,
     Number(
-      sdkEnv.KCSI_ANTHROPIC_DIRECT_FORUM_MAX_TURNS ||
-        sdkEnv.KCSI_CLAUDE_MAX_TURNS ||
+      sdkEnv.KSI_ANTHROPIC_DIRECT_FORUM_MAX_TURNS ||
+        sdkEnv.KSI_CLAUDE_MAX_TURNS ||
         25,
     ),
   );
-  const maxTokens = Math.max(256, Number(sdkEnv.KCSI_ANTHROPIC_MAX_TOKENS || 4096));
+  const maxTokens = Math.max(256, Number(sdkEnv.KSI_ANTHROPIC_MAX_TOKENS || 4096));
   const mcpClient = new McpStdioClient(
     'python3',
     ['/app/memory/mcp_server.py'],

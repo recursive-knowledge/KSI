@@ -2,13 +2,13 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from kcsi.models import GenerationConfig, TaskSpec
-from kcsi.orchestrator.claim_phase import (
+from ksi.models import GenerationConfig, TaskSpec
+from ksi.orchestrator.claim_phase import (
     ClaimCollaborators,
     ClaimPhaseService,
     EngineClaimPhaseService,
 )
-from kcsi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
+from ksi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
 from tests.orchestrator_phase_decoupling_guard import functions_referencing_engine
 
 
@@ -28,7 +28,7 @@ def test_engine_claim_phase_service_satisfies_protocol():
 
 
 def test_claim_body_has_no_engine_access():
-    from kcsi.orchestrator import claim_phase
+    from ksi.orchestrator import claim_phase
 
     offenders = functions_referencing_engine(claim_phase.__file__)
     assert offenders <= {"_collaborators"}, offenders

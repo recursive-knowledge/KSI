@@ -16,11 +16,11 @@ pins that *once visible*, the per-task builder wiring surfaces it.
 from pathlib import Path
 from unittest.mock import MagicMock
 
-from kcsi.memory.knowledge_store import KnowledgeStore
-from kcsi.models import GenerationConfig, TaskTrace
-from kcsi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
-from kcsi.runtime.types import RuntimeResult
-from kcsi.tokens import LLMResponse, TokenUsage
+from ksi.memory.knowledge_store import KnowledgeStore
+from ksi.models import GenerationConfig, TaskTrace
+from ksi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
+from ksi.runtime.types import RuntimeResult
+from ksi.tokens import LLMResponse, TokenUsage
 from tests.orchestrator_phase_helpers import per_task_forum
 
 
@@ -54,9 +54,9 @@ def test_round1_prompt_includes_same_gen_round0_peer_post(tmp_path):
         text="ROUND0_PEER_POST_MARKER",
         round_num=0,
         source_phase="per_task_forum",
-        # Matches GenerationConfig.experiment_name's default ("kcsi") since
+        # Matches GenerationConfig.experiment_name's default ("ksi") since
         # the test below doesn't override it.
-        experiment="kcsi",
+        experiment="ksi",
     )
     store.close()
 
@@ -86,8 +86,8 @@ def test_round1_prompt_includes_same_gen_round0_peer_post(tmp_path):
         knowledge_db_path=db_path,
         per_task_forum_rounds=2,
         # Without --resume the engine auto-suffixes the experiment name on
-        # collision with the pre-seeded "kcsi" experiment above (starting
-        # fresh as "kcsi_2"), which would silently orphan the pre-seeded
+        # collision with the pre-seeded "ksi" experiment above (starting
+        # fresh as "ksi_2"), which would silently orphan the pre-seeded
         # peer post from this run's queries.
         resume=True,
     )

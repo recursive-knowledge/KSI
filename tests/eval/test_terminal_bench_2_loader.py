@@ -5,8 +5,8 @@ from pathlib import Path
 
 import pytest
 
-from kcsi.benchmarks.loaders import _resolve_tb2_source_root
-from kcsi.tasks.loaders import SUPPORTED_TASK_SOURCES, load_tasks_for_source
+from ksi.benchmarks.loaders import _resolve_tb2_source_root
+from ksi.tasks.loaders import SUPPORTED_TASK_SOURCES, load_tasks_for_source
 
 
 def test_terminal_bench_2_in_supported_sources() -> None:

@@ -5,7 +5,7 @@ from __future__ import annotations
 import subprocess
 import sys
 
-from kcsi.cli import _build_parser
+from ksi.cli import _build_parser
 
 _BASE_ARGV = ["--task-source", "polyglot", "--tasks-path", "dummy.json"]
 
@@ -13,7 +13,7 @@ _BASE_ARGV = ["--task-source", "polyglot", "--tasks-path", "dummy.json"]
 def test_new_flags_in_help():
     """The new three-phase flags should appear in --help output."""
     result = subprocess.run(
-        [sys.executable, "-m", "kcsi.cli", "--help"],
+        [sys.executable, "-m", "ksi.cli", "--help"],
         capture_output=True,
         text=True,
     )
@@ -44,7 +44,7 @@ def test_three_phase_flag_defaults():
 
 def test_distill_enabled_bare_flag():
     """Bare --distill-enabled (no value) must parse as True."""
-    from kcsi.cli import _build_parser
+    from ksi.cli import _build_parser
 
     parser = _build_parser()
     args = parser.parse_args(
@@ -61,7 +61,7 @@ def test_distill_enabled_bare_flag():
 
 def test_distill_enabled_explicit_values():
     """--distill-enabled accepts true/false/yes/no/1/0 variants."""
-    from kcsi.cli import _build_parser
+    from ksi.cli import _build_parser
 
     base = [
         "--task-source",
@@ -90,7 +90,7 @@ def test_distill_enabled_explicit_values():
 
 def test_distill_enabled_default_is_true():
     """When --distill-enabled is not passed, default is True."""
-    from kcsi.cli import _build_parser
+    from ksi.cli import _build_parser
 
     parser = _build_parser()
     args = parser.parse_args(
@@ -114,7 +114,7 @@ def test_distill_enabled_default_is_true():
 def test_per_task_forum_skip_when_monologue_flag_removed():
     """V2 removes the monologue-skip escape hatch; flag must NOT appear."""
     result = subprocess.run(
-        [sys.executable, "-m", "kcsi.cli", "--help"],
+        [sys.executable, "-m", "ksi.cli", "--help"],
         capture_output=True,
         text=True,
     )
@@ -124,7 +124,7 @@ def test_per_task_forum_skip_when_monologue_flag_removed():
 
 def test_phase1_reflection_flag_default_off():
     """Without --phase1-reflection-enabled the attribute must default to False."""
-    from kcsi.cli import _build_parser
+    from ksi.cli import _build_parser
 
     parser = _build_parser()
     args = parser.parse_args(
@@ -140,7 +140,7 @@ def test_phase1_reflection_flag_default_off():
 
 def test_phase1_reflection_flag_bare_enables():
     """Bare --phase1-reflection-enabled (no value) must parse as True."""
-    from kcsi.cli import _build_parser
+    from ksi.cli import _build_parser
 
     parser = _build_parser()
     args = parser.parse_args(
@@ -157,7 +157,7 @@ def test_phase1_reflection_flag_bare_enables():
 
 def test_phase1_reflection_flag_accepts_bool_words():
     """The flag accepts true/false/0/1/yes/no like the other bool-flag forms."""
-    from kcsi.cli import _build_parser
+    from ksi.cli import _build_parser
 
     base = [
         "--task-source",
@@ -181,7 +181,7 @@ def test_phase1_reflection_flag_accepts_bool_words():
 def test_phase1_reflection_flag_in_help():
     """The flag must show up in --help so users can discover it."""
     result = subprocess.run(
-        [sys.executable, "-m", "kcsi.cli", "--help"],
+        [sys.executable, "-m", "ksi.cli", "--help"],
         capture_output=True,
         text=True,
     )
@@ -244,7 +244,7 @@ def test_memory_db_path_rejection_message_via_subprocess():
     """End-to-end: the CLI exits non-zero and the stderr message points at
     --knowledge-db-path / --runtime-db-path."""
     result = subprocess.run(
-        [sys.executable, "-m", "kcsi.cli", "--memory-db-path", "/tmp/legacy.sqlite"],
+        [sys.executable, "-m", "ksi.cli", "--memory-db-path", "/tmp/legacy.sqlite"],
         capture_output=True,
         text=True,
     )
@@ -278,7 +278,7 @@ def test_verbose_shortcut_sets_debug():
 def test_log_level_in_help():
     """--log-level should appear in --help output."""
     result = subprocess.run(
-        [sys.executable, "-m", "kcsi.cli", "--help"],
+        [sys.executable, "-m", "ksi.cli", "--help"],
         capture_output=True,
         text=True,
     )
@@ -310,7 +310,7 @@ def test_agents_rejection_message_via_subprocess():
     """End-to-end: the CLI exits non-zero and the stderr message points at
     --max-concurrent-tasks."""
     result = subprocess.run(
-        [sys.executable, "-m", "kcsi.cli", "--agents", "5"],
+        [sys.executable, "-m", "ksi.cli", "--agents", "5"],
         capture_output=True,
         text=True,
     )

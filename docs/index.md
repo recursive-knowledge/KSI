@@ -4,19 +4,19 @@ hide:
   - toc
 ---
 
-<div class="kcsi-hero" markdown>
+<div class="ksi-hero" markdown>
 
-# Knowledge-Centric Self-Improvement
+# Knowledge-centric Self-Improvement
 
-<p class="kcsi-tagline">
+<p class="ksi-tagline">
 A generational orchestration framework: a population of disposable agents
 attempts **your own tasks**, discusses what worked, distills transferable
 knowledge, and seeds the next generation with it.
 </p>
 
-<div class="kcsi-cta" markdown>
+<div class="ksi-cta" markdown>
 [Get started :material-arrow-right:](getting-started.md){ .md-button .md-button--primary }
-[GitHub](https://github.com/recursive-knowledge/KCSI){ .md-button }
+[GitHub](https://github.com/recursive-knowledge/KSI){ .md-button }
 </div>
 
 </div>
@@ -35,7 +35,7 @@ knowledge, and seeds the next generation with it.
 
     ---
 
-    Point KCSI at any JSON/JSONL file of tasks — the record schema and the
+    Point KSI at any JSON/JSONL file of tasks — the record schema and the
     `command` evaluator's scoring contract.
 
     [:octicons-arrow-right-24: Bring your own tasks](your_own_tasks.md)
@@ -79,13 +79,13 @@ knowledge, and seeds the next generation with it.
 
     The four `register_*` entry points and the spec dataclasses.
 
-    [:octicons-arrow-right-24: Extend KCSI](extending.md)
+    [:octicons-arrow-right-24: Extend KSI](extending.md)
 
 -   :material-language-python:{ .lg } &nbsp; **Programmatic API**
 
     ---
 
-    Drive a run from Python with `kcsi.run(...)`.
+    Drive a run from Python with `ksi.run(...)`.
 
     [:octicons-arrow-right-24: API guide](programmatic_api.md)
 

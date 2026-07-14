@@ -14,8 +14,8 @@ from __future__ import annotations
 
 import json
 
-from kcsi.models import TaskSpec
-from kcsi.orchestrator import kt_adapter as ka
+from ksi.models import TaskSpec
+from ksi.orchestrator import kt_adapter as ka
 
 
 def test_arc_adapter_payload_omits_test_outputs():

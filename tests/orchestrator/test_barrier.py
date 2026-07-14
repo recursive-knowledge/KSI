@@ -10,7 +10,7 @@ from pathlib import Path
 import pytest
 from conftest import REPO_ROOT
 
-from kcsi.runtime.barrier import (
+from ksi.runtime.barrier import (
     MAX_SENTINEL_BYTES,
     BarrierEvent,
     BarrierWatcher,
@@ -309,7 +309,7 @@ def test_deferred_watcher_full_indirection_through_workspace_path_file(tmp_path:
     Previously the only ``BarrierWatcher`` test inserted the watcher
     directly against a known workspace dir — bypassing the production
     indirection where:
-      1. the host writes ``KCSI_BARRIER_WORKSPACE_FILE=<path>`` to the
+      1. the host writes ``KSI_BARRIER_WORKSPACE_FILE=<path>`` to the
          runner's env,
       2. ``main.ts`` writes the resolved workspace dir into that file,
       3. ``_DeferredWatcher`` polls for the file, reads it, and only
@@ -320,15 +320,15 @@ def test_deferred_watcher_full_indirection_through_workspace_path_file(tmp_path:
     Step (3) is exactly where the Critical-1 zombie-thread bug lived,
     and where future races between the workspace-path-file and stop()
     could regress. This test goes through the actual code path
-    end-to-end — ``KcsiContainerExecutor._launch_phase1_watcher`` —
+    end-to-end — ``KsiContainerExecutor._launch_phase1_watcher`` —
     so a regression on _resolve_workspace_dir's stop_event handling
     fails this test directly.
     """
 
     from unittest.mock import MagicMock
 
-    from kcsi.models import TaskSpec
-    from kcsi.runtime.container_host import KcsiContainerExecutor
+    from ksi.models import TaskSpec
+    from ksi.runtime.container_host import KsiContainerExecutor
 
     workspace_dir = tmp_path / "task_workspace"
     workspace_dir.mkdir(parents=True, exist_ok=True)
@@ -350,7 +350,7 @@ def test_deferred_watcher_full_indirection_through_workspace_path_file(tmp_path:
 
     evaluator.evaluate.side_effect = fake_evaluate
 
-    executor = KcsiContainerExecutor(
+    executor = KsiContainerExecutor(
         command=["fake"],
         working_dir=str(tmp_path),
         evaluator=evaluator,

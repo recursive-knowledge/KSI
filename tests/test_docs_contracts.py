@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from kcsi.models import GenerationConfig
+from ksi.models import GenerationConfig
 
 
 def test_programmatic_api_generation_config_requires_core_counts():

@@ -3,7 +3,7 @@
 import tempfile
 from pathlib import Path
 
-from kcsi.memory.knowledge_store import (
+from ksi.memory.knowledge_store import (
     CROSS_TASK_SENTINEL,
     VALID_SOURCE_PHASES,
     KnowledgeStore,

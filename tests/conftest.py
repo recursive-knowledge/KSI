@@ -6,9 +6,9 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from kcsi.models import TaskSpec
-from kcsi.runtime.types import RuntimeResult
-from kcsi.tokens import LLMResponse, TokenUsage
+from ksi.models import TaskSpec
+from ksi.runtime.types import RuntimeResult
+from ksi.tokens import LLMResponse, TokenUsage
 
 # Repo-root / fixtures anchors so test files stay depth-independent: a test
 # can `from conftest import REPO_ROOT, FIXTURES_DIR` regardless of which

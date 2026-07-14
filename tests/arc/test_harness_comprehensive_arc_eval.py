@@ -10,9 +10,9 @@ from __future__ import annotations
 
 import pytest
 
-from kcsi.benchmarks.arc_session import ArcSessionEvaluator
-from kcsi.memory.arc_semantics import normalize_grid
-from kcsi.models import TaskSpec
+from ksi.benchmarks.arc_session import ArcSessionEvaluator
+from ksi.memory.arc_semantics import normalize_grid
+from ksi.models import TaskSpec
 
 # ---------------------------------------------------------------------------
 # Helpers

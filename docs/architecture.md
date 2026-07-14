@@ -1,4 +1,4 @@
-# Knowledge-Centric Runtime Architecture
+# Knowledge-centric Runtime Architecture
 
 Current technical design for the knowledge-centric benchmark runtime. This is
 the canonical design reference; operational runbooks and wrapper details live
@@ -16,7 +16,7 @@ Component map:
 ```mermaid
 flowchart LR
     subgraph Control["Python control plane"]
-        CLI["kcsi.cli<br/>uv run python -m kcsi.cli"]
+        CLI["ksi.cli<br/>uv run python -m ksi.cli"]
         Loader["tasks.loaders<br/>arc / swebench_pro / polyglot / terminal_bench_2"]
         Engine["orchestrator.engine<br/>generation loop"]
         Eval["eval.*<br/>arc_session / swebench_pro / polyglot_harness / terminal_bench_2"]
@@ -24,13 +24,13 @@ flowchart LR
     end
 
     subgraph Host["Host runtime launcher"]
-        CHost["runtime.container_host<br/>KcsiContainerExecutor"]
+        CHost["runtime.container_host<br/>KsiContainerExecutor"]
         Main["runtime_runner/src/main.ts<br/>payload + stdout envelope"]
         Runner["runtime_runner/src/container_runner.ts<br/>docker run + mounts"]
     end
 
     subgraph Worker["Worker container"]
-        Docker[("Docker image<br/>kcsi-agent:bench")]
+        Docker[("Docker image<br/>ksi-agent:bench")]
         Agent["agent-runner/src/index.ts<br/>provider adapters"]
         MCP["memory/mcp_server.py<br/>memory / forum / ARC toolsets"]
     end
@@ -85,7 +85,7 @@ sequenceDiagram
     Host->>Host: build workspace seed, arc_tools, knowledge/runtime payload
     Host->>Main: JSON payload on stdin
     Main->>CR: runContainerAgent()
-    CR->>Dock: docker run kcsi-agent:bench with mounted DB/snapshot files
+    CR->>Dock: docker run ksi-agent:bench with mounted DB/snapshot files
 ```
 
 **In-container execution** — the agent runs, backed by MCP tools and the
@@ -240,8 +240,8 @@ Two SQLite files are used per experiment stem:
 
 | File | Owner | Responsibility |
 |------|-------|----------------|
-| `<stem>_knowledge.sqlite` | `src/kcsi/memory/knowledge_store.py` (`KnowledgeStore`) | Authoritative substrate: run identity, tasks, attempts, best task state, retrieval corpus, discussion posts, distillations, seed snapshots, FTS5, optional sqlite-vec index |
-| `<stem>_runtime.sqlite` | `src/kcsi/memory/store.py` (`MemoryStore`) | Optional audit sidecar: raw transcripts, artifacts, timing, token accounting, debug/runtime metadata, legacy memory-document views |
+| `<stem>_knowledge.sqlite` | `src/ksi/memory/knowledge_store.py` (`KnowledgeStore`) | Authoritative substrate: run identity, tasks, attempts, best task state, retrieval corpus, discussion posts, distillations, seed snapshots, FTS5, optional sqlite-vec index |
+| `<stem>_runtime.sqlite` | `src/ksi/memory/store.py` (`MemoryStore`) | Optional audit sidecar: raw transcripts, artifacts, timing, token accounting, debug/runtime metadata, legacy memory-document views |
 
 `--knowledge-db-path` sets the authoritative knowledge DB. `--runtime-db-path`
 sets the optional runtime audit DB. If omitted, the runtime DB is derived as a
@@ -289,11 +289,11 @@ Seed packages are stored in `seed_snapshots.payload_json` in the knowledge DB.
 The `vector_status` table in the knowledge DB records embedder/vector-index
 availability and embedding coverage per phase; it is the diagnostic for the
 "Semantic vector search not active" troubleshooting row and is surfaced by
-`uv run kcsi-doctor --knowledge-db <path>`.
+`uv run ksi-doctor --knowledge-db <path>`.
 
 ## 6. Knowledge Access And MCP Toolsets
 
-Containers receive tools from `src/kcsi/memory/mcp_server.py` based on the
+Containers receive tools from `src/ksi/memory/mcp_server.py` based on the
 `MCP_TOOLSET` selected by the TypeScript runner.
 
 | Toolset / phase | Tools exposed | Notes |
@@ -381,20 +381,20 @@ captured.
 
 ## 9. Provider Runtime
 
-Provider configuration is loaded from `configs/kcsi/*.env` files and
-normalized by `src/kcsi/providers.py`.
+Provider configuration is loaded from `configs/ksi/*.env` files and
+normalized by `src/ksi/providers.py`.
 
 - Claude task execution defaults to the Claude Code SDK path in
   `agent-runner/src/index.ts`. Scheduled ARC and forum tasks can use direct
   Anthropic adapters unless configured back to the Claude Code path.
 - OpenAI task execution uses `@openai/agents` in `agent-runner/src/openai.ts`.
 - Host-side reflection, lesson extraction, and distillation use
-  `src/kcsi/runtime/llm.py`, which wraps the Python Anthropic SDK or OpenAI
+  `src/ksi/runtime/llm.py`, which wraps the Python Anthropic SDK or OpenAI
   Responses API according to the provider profile.
 - Token usage is normalized into `token_phases` when the runtime DB is enabled.
 - Native session memory capture is bounded by the `--native-memory-*` limits.
 
-The benchmark image is `kcsi-agent:bench`. Rebuild it after material changes
+The benchmark image is `ksi-agent:bench`. Rebuild it after material changes
 under `runtime_runner/agent-runner/src/` when you want the image to carry a
 warm TypeScript build.
 
@@ -411,9 +411,9 @@ bridge network.
 agent container ──[internal net, no gateway]──> proxy sidecar ──[external net]──> provider APIs
 ```
 
-- `kcsi-egress-int-<run-id>` — `--internal` bridge (no default gateway; agent
+- `ksi-egress-int-<run-id>` — `--internal` bridge (no default gateway; agent
   containers cannot initiate direct outbound connections).
-- `kcsi-egress-ext-<run-id>` — normal bridge; only the proxy sidecar is attached.
+- `ksi-egress-ext-<run-id>` — normal bridge; only the proxy sidecar is attached.
 - Proxy sidecar (`egress_proxy_main.js`, compiled to `/tmp/dist/` in the bench
   image) listens on port 8080 and accepts only CONNECT tunnels to allowlisted
   hostnames on ports 443/80. Plain HTTP is rejected (405).
@@ -436,28 +436,28 @@ The allowlist is derived from the provider profile at launch time:
 | `anthropic` (default) | `api.anthropic.com` + `ANTHROPIC_BASE_URL` host (if set) |
 | `openai` | `api.openai.com` + `OPENAI_BASE_URL` host (if set) |
 
-Operator-supplied extras are appended via `KCSI_EGRESS_ALLOW=host1,host2`
+Operator-supplied extras are appended via `KSI_EGRESS_ALLOW=host1,host2`
 (comma-separated). Use this for Bedrock, Vertex, or other provider endpoints:
 
 ```bash
-KCSI_EGRESS_ALLOW=bedrock-runtime.us-east-1.amazonaws.com bash scripts/run_kcsi.sh ...
+KSI_EGRESS_ALLOW=bedrock-runtime.us-east-1.amazonaws.com bash scripts/run_ksi.sh ...
 ```
 
-**Escape hatch**: set `KCSI_EGRESS=open` to disable isolation and restore
+**Escape hatch**: set `KSI_EGRESS=open` to disable isolation and restore
 the legacy direct-bridge behavior (no internal network, no proxy). Use only for
 debugging — not for production campaigns.
 
-**Lifecycle**: Python stamps a parent-process `KCSI_RUN_ID` into every runner
+**Lifecycle**: Python stamps a parent-process `KSI_RUN_ID` into every runner
 subprocess by default, so one campaign process shares a single egress
 proxy/network pair instead of creating a pair per task. The TypeScript runner
-uses filesystem leases under `${TMPDIR:-/tmp}/kcsi-egress-leases/` to keep the
+uses filesystem leases under `${TMPDIR:-/tmp}/ksi-egress-leases/` to keep the
 shared infrastructure alive while sibling runner processes are active; the last
 live lease tears the resources down on exit/SIGTERM. Stale resources from a
 crashed session can be removed with:
 
 ```bash
-docker rm -f kcsi-egress-proxy-<run-id>
-docker network rm kcsi-egress-int-<run-id> kcsi-egress-ext-<run-id>
+docker rm -f ksi-egress-proxy-<run-id>
+docker network rm ksi-egress-int-<run-id> ksi-egress-ext-<run-id>
 ```
 
 **Smoke gate**: before flipping default-on in a new environment, run the
@@ -475,25 +475,25 @@ proxy container name still resolves.
   (SERVFAIL). A determined agent can no longer tunnel low-bandwidth data through
   DNS queries to an attacker-controlled nameserver. This is independent of
   whether a given Docker build runs its DNS forwarder host- or container-side.
-- **Stale-network reaping is conservative.** Setup scans `kcsi-egress-*`
+- **Stale-network reaping is conservative.** Setup scans `ksi-egress-*`
   networks and removes only old, unattached networks whose sibling proxy is
   gone. Recent networks are left alone so a concurrently starting sibling is not
   reaped mid-setup.
-- **`KCSI_RUN_ID` must be unique per concurrent campaign.** Run-id defaults to
-  the parent Python process (`kcsi-<pid>`); if you set `KCSI_RUN_ID` explicitly,
+- **`KSI_RUN_ID` must be unique per concurrent campaign.** Run-id defaults to
+  the parent Python process (`ksi-<pid>`); if you set `KSI_RUN_ID` explicitly,
   two concurrent campaigns sharing the same value intentionally share one
   egress proxy/network lease and must have the same provider allowlist needs.
 
 ## 11. TB2 Verifier Trust Boundary
 
 Terminal-Bench 2 (TB2) runs the agent and the task verifier **inside the same
-container**. After the agent phase finishes, KCSI injects `/tests` and invokes
+container**. After the agent phase finishes, KSI injects `/tests` and invokes
 the verifier through a trusted `/bin/bash` extracted from the pristine task
 image, with that trusted directory prepended to `PATH`. If the trusted
-toolchain cannot be established, KCSI refuses the legacy `bash /tests/test.sh`
+toolchain cannot be established, KSI refuses the legacy `bash /tests/test.sh`
 fallback and records an unscored
 `trial_status=verifier_fail_closed_untrusted_toolchain` by default. Set
-`KCSI_TB2_REQUIRE_TRUSTED_VERIFIER=0` only to reproduce legacy comparisons. The
+`KSI_TB2_REQUIRE_TRUSTED_VERIFIER=0` only to reproduce legacy comparisons. The
 resulting reward is read back from an agent-visible bind mount
 (`-v {logs_root}:/logs`; `verifier/reward.txt` → `resolved = bool(reward is not
 None and reward >= 1.0)`).
@@ -516,7 +516,7 @@ not adversarial-reward-hack-robust**: they should be read as "solve rate under a
 cooperative agent," not as a hardened, exploit-proof score.
 
 **The self-improvement loop weakens the "cooperative agent" assumption.** Unlike
-a one-shot solver, KCSI distills and seeds strategies that scored `reward >= 1.0`
+a one-shot solver, KSI distills and seeds strategies that scored `reward >= 1.0`
 into later generations. If an agent ever *accidentally* discovers a reward-path
 write (shadow `bash`, tamper `/tests`, write `/logs/verifier/reward.txt`), the
 loop selects for and amplifies it across generations rather than treating it as a
@@ -525,7 +525,7 @@ implementing the pristine verifier: watch the detection audit below for
 any reward-path *write* or `/solution` *read*, and prioritize the rebuild if one
 appears in a recorded campaign.
 
-**Hardening state.** KCSI now hardens the verifier entrypoint by injecting a
+**Hardening state.** KSI now hardens the verifier entrypoint by injecting a
 trusted shell from the pristine image and failing closed when that injection is
 unavailable. The remaining robust fix is a **pristine verifier**: run `test.sh`
 from a clean `docker commit` / fresh image of the pre-agent container with a
@@ -552,7 +552,7 @@ This mirrors the ARC mount-answer audit precedent.
 
 ## 12. Operational References
 
-- CLI flags: `uv run python -m kcsi.cli --help`
-- Run presets: [benchmarks/README.md](https://github.com/recursive-knowledge/KCSI/blob/main/benchmarks/README.md)
+- CLI flags: `uv run python -m ksi.cli --help`
+- Run presets: [benchmarks/README.md](https://github.com/recursive-knowledge/KSI/blob/main/benchmarks/README.md)
 - Startup performance notes: [docs/runtime-startup-performance.md](./runtime-startup-performance.md)
-- Egress allowlist and web-tool interaction: [benchmarks/docs/web_tools_policy.md](https://github.com/recursive-knowledge/KCSI/blob/main/benchmarks/docs/web_tools_policy.md)
+- Egress allowlist and web-tool interaction: [benchmarks/docs/web_tools_policy.md](https://github.com/recursive-knowledge/KSI/blob/main/benchmarks/docs/web_tools_policy.md)

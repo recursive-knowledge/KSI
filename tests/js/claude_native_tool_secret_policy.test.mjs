@@ -31,13 +31,13 @@ function evaluatePolicies() {
         {},
         'polyglot',
         false,
-        { ANTHROPIC_API_KEY: 'sk-ant-secret', KCSI_EGRESS: 'open' },
+        { ANTHROPIC_API_KEY: 'sk-ant-secret', KSI_EGRESS: 'open' },
       ),
       secretWithWeb: buildToolPolicy(
         {},
         'polyglot',
         false,
-        { ANTHROPIC_API_KEY: 'sk-ant-secret', KCSI_EGRESS: 'open', KCSI_ALLOW_WEB_TOOLS: '1' },
+        { ANTHROPIC_API_KEY: 'sk-ant-secret', KSI_EGRESS: 'open', KSI_ALLOW_WEB_TOOLS: '1' },
       ),
       override: buildToolPolicy(
         {},
@@ -45,8 +45,8 @@ function evaluatePolicies() {
         false,
         {
           ANTHROPIC_API_KEY: 'sk-ant-secret',
-          KCSI_EGRESS: 'open',
-          KCSI_ALLOW_UNSAFE_CLAUDE_NATIVE_TOOLS_WITH_SECRETS: '1',
+          KSI_EGRESS: 'open',
+          KSI_ALLOW_UNSAFE_CLAUDE_NATIVE_TOOLS_WITH_SECRETS: '1',
         },
       ),
       forum: buildToolPolicy({}, 'per_task_forum', true, {}),
@@ -57,11 +57,11 @@ function evaluatePolicies() {
       // Secret present but isolated egress: NOT denied (leak is contained).
       denySecretIsolated: shouldDenyNativeToolsForSdkSecrets({ HF_TOKEN: 'hf-secret' }),
       // Secret present AND egress open: denied.
-      denySecret: shouldDenyNativeToolsForSdkSecrets({ HF_TOKEN: 'hf-secret', KCSI_EGRESS: 'open' }),
+      denySecret: shouldDenyNativeToolsForSdkSecrets({ HF_TOKEN: 'hf-secret', KSI_EGRESS: 'open' }),
       denyOverride: shouldDenyNativeToolsForSdkSecrets({
         HF_TOKEN: 'hf-secret',
-        KCSI_EGRESS: 'open',
-        KCSI_ALLOW_UNSAFE_CLAUDE_NATIVE_TOOLS_WITH_SECRETS: 'true',
+        KSI_EGRESS: 'open',
+        KSI_ALLOW_UNSAFE_CLAUDE_NATIVE_TOOLS_WITH_SECRETS: 'true',
       }),
       cases,
     }));

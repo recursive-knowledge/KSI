@@ -12,7 +12,7 @@
 # rebuild round-trip instead of failing fast at commit / review time.
 #
 # This script provisions a host-side install of the container's deps in a
-# cache directory (default: $HOME/.cache/kcsi-agent-runner-typecheck) and
+# cache directory (default: $HOME/.cache/ksi-agent-runner-typecheck) and
 # runs `tsc --noEmit` against the mounted source. Deps persist between runs
 # so subsequent checks take ~2s.
 #
@@ -24,20 +24,20 @@
 #
 # Strict (fail-hard) mode:
 #   When `CI` is set to a truthy value (GitHub Actions sets `CI=true`) or
-#   `KCSI_TYPECHECK_STRICT=1`, a missing npm/node, a failed `npm ci`, or a
+#   `KSI_TYPECHECK_STRICT=1`, a missing npm/node, a failed `npm ci`, or a
 #   missing `tsc` is a HARD FAILURE (exit 1) rather than a soft skip. This
 #   prevents CI from going green without ever typechecking agent-runner/src.
 #   Outside strict mode the local soft-skip convenience is preserved.
 #
 # Env:
-#   KCSI_TYPECHECK_CACHE    override the cache dir
-#   KCSI_TYPECHECK_SKIP=1   soft skip (return 0) — honored even in strict mode
-#   KCSI_TYPECHECK_STRICT=1 force fail-hard mode (implied by CI=true)
+#   KSI_TYPECHECK_CACHE    override the cache dir
+#   KSI_TYPECHECK_SKIP=1   soft skip (return 0) — honored even in strict mode
+#   KSI_TYPECHECK_STRICT=1 force fail-hard mode (implied by CI=true)
 
 set -uo pipefail
 
-if [[ "${KCSI_TYPECHECK_SKIP:-}" == "1" ]]; then
-  echo "[typecheck_agent_runner] KCSI_TYPECHECK_SKIP=1 — skipping."
+if [[ "${KSI_TYPECHECK_SKIP:-}" == "1" ]]; then
+  echo "[typecheck_agent_runner] KSI_TYPECHECK_SKIP=1 — skipping."
   exit 0
 fi
 
@@ -47,7 +47,7 @@ STRICT=0
 case "${CI:-}" in
   1 | true | TRUE | True | yes | on) STRICT=1 ;;
 esac
-if [[ "${KCSI_TYPECHECK_STRICT:-}" == "1" ]]; then
+if [[ "${KSI_TYPECHECK_STRICT:-}" == "1" ]]; then
   STRICT=1
 fi
 
@@ -56,7 +56,7 @@ fi
 skip_or_fail() {
   local reason="$1"
   if [[ "$STRICT" == "1" ]]; then
-    echo "[typecheck_agent_runner] $reason — failing (strict/CI mode; set KCSI_TYPECHECK_SKIP=1 to bypass)." >&2
+    echo "[typecheck_agent_runner] $reason — failing (strict/CI mode; set KSI_TYPECHECK_SKIP=1 to bypass)." >&2
     exit 1
   fi
   echo "[typecheck_agent_runner] $reason — skipping typecheck." >&2
@@ -67,7 +67,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 SRC_DIR="$REPO_ROOT/runtime_runner/agent-runner/src"
 MANIFEST_DIR="$REPO_ROOT/runtime_runner/agent-runner"
-CACHE_DIR="${KCSI_TYPECHECK_CACHE:-$HOME/.cache/kcsi-agent-runner-typecheck}"
+CACHE_DIR="${KSI_TYPECHECK_CACHE:-$HOME/.cache/ksi-agent-runner-typecheck}"
 
 if [[ ! -d "$SRC_DIR" ]]; then
   skip_or_fail "$SRC_DIR not found"

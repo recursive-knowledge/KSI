@@ -65,10 +65,10 @@ export function readSecrets(): Record<string, string> {
   return out;
 }
 
-/** Resolve the Docker network mode from KCSI_DOCKER_NETWORK env var.
+/** Resolve the Docker network mode from KSI_DOCKER_NETWORK env var.
  *  Defaults to "bridge" for network isolation. Set to "host" for legacy behavior. */
 function resolveDockerNetwork(): string {
-  return (process.env.KCSI_DOCKER_NETWORK || 'bridge').trim();
+  return (process.env.KSI_DOCKER_NETWORK || 'bridge').trim();
 }
 
 /** Ensure a custom Docker network exists (no-op for built-in names like "bridge" and "host"). */
@@ -107,13 +107,13 @@ function envInt(name: string, defaultValue: number): number {
 }
 
 /** Strict positive-integer env reader for the egress readiness/reap knobs
- *  (KCSI_EGRESS_NET_READY_ATTEMPTS / _DELAY_MS / KCSI_EGRESS_REAP_GRACE_MS).
+ *  (KSI_EGRESS_NET_READY_ATTEMPTS / _DELAY_MS / KSI_EGRESS_REAP_GRACE_MS).
  *  Accepted format: digits only (/^\d+$/) that parse to >= 1. Anything else —
  *  empty, "0", "-3", and crucially duration-style or scientific values like
  *  "600s", "1e3", "300.5", "5s" — falls back to `defaultValue`. Unlike
  *  `envInt`, this does NOT use bare `Number.parseInt`, which silently
  *  TRUNCATES those forms ("600s"→600, "1e3"→1, "300.5"→300): a truncated
- *  KCSI_EGRESS_REAP_GRACE_MS="600s" would become a 600-MILLISECOND reap grace,
+ *  KSI_EGRESS_REAP_GRACE_MS="600s" would become a 600-MILLISECOND reap grace,
  *  silently re-opening the live-sibling-reaping race this guard closes, and a
  *  "0" attempts/grace would disable patience / reap mid-setup siblings. */
 function envPositiveInt(name: string, defaultValue: number): number {
@@ -129,31 +129,31 @@ function envPositiveInt(name: string, defaultValue: number): number {
  *  the Node/Python/git toolchain needs no elevated Linux capabilities and no
  *  setuid escalation path. `--pids-limit` defaults generous enough to cover
  *  legitimate build/test concurrency while still capping a fork bomb; override
- *  via KCSI_CONTAINER_PIDS_LIMIT. `--memory`/`--cpus` are NOT set unless the
- *  operator opts in via KCSI_CONTAINER_MEMORY_LIMIT/KCSI_CONTAINER_CPU_LIMIT,
+ *  via KSI_CONTAINER_PIDS_LIMIT. `--memory`/`--cpus` are NOT set unless the
+ *  operator opts in via KSI_CONTAINER_MEMORY_LIMIT/KSI_CONTAINER_CPU_LIMIT,
  *  since a wrong default could silently break larger embedding/build workloads. */
 function resourceHardeningArgs(): string[] {
-  const pidsLimit = envInt('KCSI_CONTAINER_PIDS_LIMIT', 4096);
+  const pidsLimit = envInt('KSI_CONTAINER_PIDS_LIMIT', 4096);
   const args = [
     '--cap-drop=ALL',
     '--security-opt=no-new-privileges',
     `--pids-limit=${pidsLimit}`,
   ];
-  const memoryLimit = (process.env.KCSI_CONTAINER_MEMORY_LIMIT || '').trim();
+  const memoryLimit = (process.env.KSI_CONTAINER_MEMORY_LIMIT || '').trim();
   if (memoryLimit) {
     args.push(`--memory=${memoryLimit}`);
   }
-  const cpuLimit = (process.env.KCSI_CONTAINER_CPU_LIMIT || '').trim();
+  const cpuLimit = (process.env.KSI_CONTAINER_CPU_LIMIT || '').trim();
   if (cpuLimit) {
     args.push(`--cpus=${cpuLimit}`);
   }
   return args;
 }
 
-/** Egress isolation is on by default. `KCSI_EGRESS=open` restores the legacy
+/** Egress isolation is on by default. `KSI_EGRESS=open` restores the legacy
  *  direct-bridge behavior (no internal network, no proxy). */
 function resolveEgressMode(): 'isolated' | 'open' {
-  return String(process.env.KCSI_EGRESS || '').trim().toLowerCase() === 'open'
+  return String(process.env.KSI_EGRESS || '').trim().toLowerCase() === 'open'
     ? 'open'
     : 'isolated';
 }
@@ -169,17 +169,17 @@ export function sanitizeEgressRunId(raw: unknown): string {
   return cleaned || String(process.pid);
 }
 
-const EGRESS_RUN_ID = sanitizeEgressRunId(process.env.KCSI_RUN_ID || process.pid);
+const EGRESS_RUN_ID = sanitizeEgressRunId(process.env.KSI_RUN_ID || process.pid);
 const EGRESS_PROXY_PORT = 8080;
 
 export function egressResourceNames() {
   return {
-    internalNet: `kcsi-egress-int-${EGRESS_RUN_ID}`,
-    externalNet: `kcsi-egress-ext-${EGRESS_RUN_ID}`,
-    proxyContainer: `kcsi-egress-proxy-${EGRESS_RUN_ID}`,
+    internalNet: `ksi-egress-int-${EGRESS_RUN_ID}`,
+    externalNet: `ksi-egress-ext-${EGRESS_RUN_ID}`,
+    proxyContainer: `ksi-egress-proxy-${EGRESS_RUN_ID}`,
     proxyPort: EGRESS_PROXY_PORT,
     // Agent reaches the proxy by container name via docker DNS on the internal net.
-    proxyHostAlias: `kcsi-egress-proxy-${EGRESS_RUN_ID}`,
+    proxyHostAlias: `ksi-egress-proxy-${EGRESS_RUN_ID}`,
   };
 }
 
@@ -196,7 +196,7 @@ function sleepSync(ms: number): void {
 }
 
 function egressLeaseRoot(): string {
-  return path.join(process.env.KCSI_EGRESS_LEASE_DIR || path.join(os.tmpdir(), 'kcsi-egress-leases'), EGRESS_RUN_ID);
+  return path.join(process.env.KSI_EGRESS_LEASE_DIR || path.join(os.tmpdir(), 'ksi-egress-leases'), EGRESS_RUN_ID);
 }
 
 function isErrnoException(err: unknown): err is NodeJS.ErrnoException {
@@ -393,10 +393,10 @@ export function proxyContainerRunArgs(
     'run', '-d', '--rm',
     '--name', names.proxyContainer,
     '--network', names.externalNet,
-    '--label', `kcsi.egress.allowlist-sha256=${allowlistSignature}`,
+    '--label', `ksi.egress.allowlist-sha256=${allowlistSignature}`,
     ...resourceHardeningArgs(),
-    '-e', `KCSI_EGRESS_PROXY_PORT=${names.proxyPort}`,
-    '-e', `KCSI_EGRESS_ALLOWLIST=${allowlist.join(',')}`,
+    '-e', `KSI_EGRESS_PROXY_PORT=${names.proxyPort}`,
+    '-e', `KSI_EGRESS_ALLOWLIST=${allowlist.join(',')}`,
     '--entrypoint', 'node',
     CONTAINER_IMAGE,
     '/tmp/dist/egress_proxy_main.js',
@@ -411,8 +411,8 @@ type DockerRunner = (args: string[], timeoutMs?: number) => DockerRunResult;
 // defaults that is 300+600+1200+2400+4800+5000×4 ≈ 29s of total patience
 // (vs the pre-incident 5 × 300ms ≈ 1.5s, which mass-failed 76-88% of
 // attempts when 3 concurrent campaigns created 18 network pairs at once,
-// 2026-07-03). Env-overridable via KCSI_EGRESS_NET_READY_ATTEMPTS /
-// KCSI_EGRESS_NET_READY_DELAY_MS (base delay). Both are read with the strict
+// 2026-07-03). Env-overridable via KSI_EGRESS_NET_READY_ATTEMPTS /
+// KSI_EGRESS_NET_READY_DELAY_MS (base delay). Both are read with the strict
 // `envPositiveInt` reader: only digits-only values >= 1 are accepted; anything
 // else (empty, "0", "-3", "600s", "1e3", "300.5") falls back to the default.
 const DEFAULT_NET_READY_ATTEMPTS = 10;
@@ -451,11 +451,11 @@ export function ensureEgressDockerNetwork(
   const requireInternal = opts.requireInternal ?? false;
   const attempts = Math.max(
     1,
-    opts.attempts ?? envPositiveInt('KCSI_EGRESS_NET_READY_ATTEMPTS', DEFAULT_NET_READY_ATTEMPTS),
+    opts.attempts ?? envPositiveInt('KSI_EGRESS_NET_READY_ATTEMPTS', DEFAULT_NET_READY_ATTEMPTS),
   );
   const delayMs = Math.max(
     0,
-    opts.delayMs ?? envPositiveInt('KCSI_EGRESS_NET_READY_DELAY_MS', DEFAULT_NET_READY_DELAY_MS),
+    opts.delayMs ?? envPositiveInt('KSI_EGRESS_NET_READY_DELAY_MS', DEFAULT_NET_READY_DELAY_MS),
   );
   const runDocker = opts.runDocker ?? dockerSync;
   const sleeper = opts.sleeper ?? sleepSync;
@@ -479,9 +479,9 @@ export function ensureEgressDockerNetwork(
   );
 }
 
-const EGRESS_NETWORK_NAME_PATTERN = /^kcsi-egress-(?:int|ext)-([a-z0-9][a-z0-9_.-]*)$/;
+const EGRESS_NETWORK_NAME_PATTERN = /^ksi-egress-(?:int|ext)-([a-z0-9][a-z0-9_.-]*)$/;
 
-// Env-overridable via KCSI_EGRESS_REAP_GRACE_MS. Raised 120s → 600s after
+// Env-overridable via KSI_EGRESS_REAP_GRACE_MS. Raised 120s → 600s after
 // the 2026-07-03 launch-storm incident: under docker contention (3 concurrent
 // campaigns × 6 containers) proxies took minutes to attach, and ~38 tasks
 // died at one instant ~240s after launch — consistent with siblings' networks
@@ -492,7 +492,7 @@ const EGRESS_NETWORK_NAME_PATTERN = /^kcsi-egress-(?:int|ext)-([a-z0-9][a-z0-9_.
 // exhausted docker's address pool can take up to that long unless networks are
 // pruned manually. (Clean/thrown launch failures self-clean via
 // teardownEgressInfra and are unaffected.) Env-overridable via
-// KCSI_EGRESS_REAP_GRACE_MS, read with the strict `envPositiveInt` reader:
+// KSI_EGRESS_REAP_GRACE_MS, read with the strict `envPositiveInt` reader:
 // only digits-only values >= 1 are accepted; anything else (empty, "0", "-3",
 // "600s", "1e3", "300.5") falls back to this default.
 const DEFAULT_REAP_GRACE_MS = 600_000;
@@ -506,13 +506,13 @@ const DEFAULT_REAP_GRACE_MS = 600_000;
  *  address-pool is finite; left unreaped these accumulate across a session until
  *  `docker network create` fails outright with "all predefined address pools
  *  have been fully subnetted" — a hard resource-exhaustion failure retries
- *  alone cannot fix (observed in production: 30 leaked kcsi-egress-* networks
+ *  alone cannot fix (observed in production: 30 leaked ksi-egress-* networks
  *  from earlier killed campaigns in one session).
  *
  *  Only removes a network when its corresponding proxy container for the
  *  same run id no longer exists, it has zero attached containers, AND it is
  *  older than `graceMs` (default 600s, env-overridable via
- *  KCSI_EGRESS_REAP_GRACE_MS). The first two conditions alone do
+ *  KSI_EGRESS_REAP_GRACE_MS). The first two conditions alone do
  *  NOT prove the trio is dead — they do not close the gap for a network
  *  that's mid-setup by a concurrently STARTING sibling process: that
  *  sibling's own `ensureEgressInfra()` creates its networks first and only
@@ -529,7 +529,7 @@ const DEFAULT_REAP_GRACE_MS = 600_000;
  *  timestamp), the network is treated as too young to reap (fail-safe). */
 export function reapStaleEgressNetworks(
   runDocker: DockerRunner = dockerSync,
-  graceMs: number = Math.max(0, envPositiveInt('KCSI_EGRESS_REAP_GRACE_MS', DEFAULT_REAP_GRACE_MS)),
+  graceMs: number = Math.max(0, envPositiveInt('KSI_EGRESS_REAP_GRACE_MS', DEFAULT_REAP_GRACE_MS)),
 ): void {
   const listed = runDocker(['network', 'ls', '--format', '{{.Name}}']);
   const names = String(listed.stdout ?? '')
@@ -544,10 +544,10 @@ export function reapStaleEgressNetworks(
   }
 
   for (const runId of seenRunIds) {
-    const proxyAlive = runDocker(['inspect', `kcsi-egress-proxy-${runId}`]).status === 0;
+    const proxyAlive = runDocker(['inspect', `ksi-egress-proxy-${runId}`]).status === 0;
     if (proxyAlive) continue;
 
-    for (const netName of [`kcsi-egress-int-${runId}`, `kcsi-egress-ext-${runId}`]) {
+    for (const netName of [`ksi-egress-int-${runId}`, `ksi-egress-ext-${runId}`]) {
       if (!names.includes(netName)) continue;
       const inspect = runDocker(['network', 'inspect', '-f', '{{len .Containers}}', netName]);
       const containerCount = Number.parseInt(String(inspect.stdout ?? '').trim(), 10);
@@ -590,7 +590,7 @@ function egressProxyReady(names: ReturnType<typeof egressResourceNames>, allowli
   const allowlistLabel = dockerSync([
     'inspect',
     '-f',
-    '{{ index .Config.Labels "kcsi.egress.allowlist-sha256" }}',
+    '{{ index .Config.Labels "ksi.egress.allowlist-sha256" }}',
     names.proxyContainer,
   ]);
   if (
@@ -651,7 +651,7 @@ function egressInfraDescriptor(names: ReturnType<typeof egressResourceNames>) {
 
 /** Create or join the internal+external networks and allowlisting proxy
  *  sidecar. Idempotent per process; returns null in open mode. A Python
- *  campaign now stamps one KCSI_RUN_ID for all runner subprocesses, so this
+ *  campaign now stamps one KSI_RUN_ID for all runner subprocesses, so this
  *  function uses a filesystem lease to share the Docker resources safely across
  *  those sibling processes and tears them down only after the last lease exits. */
 export function ensureEgressInfra():
@@ -659,8 +659,8 @@ export function ensureEgressInfra():
   | null {
   if (resolveEgressMode() === 'open') {
     logger.warn(
-      { kcsiEgress: 'open' },
-      'KCSI_EGRESS=open: egress isolation DISABLED — agent containers have unrestricted network access (debugging only, never production)',
+      { ksiEgress: 'open' },
+      'KSI_EGRESS=open: egress isolation DISABLED — agent containers have unrestricted network access (debugging only, never production)',
     );
     return null;
   }
@@ -817,31 +817,31 @@ export function buildContainerArgs(
     'EXPERIMENT_NAME',
     'LOG_LEVEL',
     'ANTHROPIC_LOG',
-    'KCSI_OPENAI_MAX_TURNS',
-    'KCSI_CLAUDE_MAX_TURNS',
+    'KSI_OPENAI_MAX_TURNS',
+    'KSI_CLAUDE_MAX_TURNS',
     'OPENAI_AGENTS_DISABLE_TRACING',
-    'KCSI_RUNNER_ROOT',
+    'KSI_RUNNER_ROOT',
     // Forwarded but no longer consumed by the agent-runner (the direct-ARC
     // adapter that read it was removed); kept to avoid coupling with the
     // later Python phase that still sets it. Harmless when unused.
-    'KCSI_ANTHROPIC_ARC_ADAPTER',
+    'KSI_ANTHROPIC_ARC_ADAPTER',
     // Web-tool opt-in (issue #666). Default OFF. When set truthy, the Claude
     // agent-runner offers WebSearch/WebFetch on non-ARC benchmark tasks; ARC
     // stays strictly offline regardless. Forwarded into the container env so
     // index.ts can read it from sdkEnv.
-    'KCSI_ALLOW_WEB_TOOLS',
+    'KSI_ALLOW_WEB_TOOLS',
     // Egress-isolation mode. Only ever set to the string 'open' (isolation
     // disabled, debugging only). Forwarded so the agent-runner can scope the
     // native-tool-secret denial below to the open-egress mode — the only mode
     // where a tool that reads a secret could exfiltrate it. Unset in production
     // (isolation on), so it is never pushed into the container env there.
-    'KCSI_EGRESS',
+    'KSI_EGRESS',
     // Safety override for the Claude Code SDK path. Native file/shell tools are
-    // denied only when egress isolation is disabled (KCSI_EGRESS=open) AND
+    // denied only when egress isolation is disabled (KSI_EGRESS=open) AND
     // credentials are present in sdkEnv, because a same-UID tool can read the
     // parent SDK process environment and, with egress open, exfiltrate it. Set
     // truthy to restore native tools even in that debug mode.
-    'KCSI_ALLOW_UNSAFE_CLAUDE_NATIVE_TOOLS_WITH_SECRETS',
+    'KSI_ALLOW_UNSAFE_CLAUDE_NATIVE_TOOLS_WITH_SECRETS',
     // Flag-gated OpenAI scaffold parity (issue #634). Default OFF. When set
     // truthy, the OpenAI agent-runner adds native read/write/edit/glob/grep
     // function tools and prepends a richer agentic-coding system prompt on
@@ -853,12 +853,12 @@ export function buildContainerArgs(
       args.push('-e', `${key}=${value}`);
     }
   }
-  const embeddingModel = process.env.KCSI_EMBEDDING_MODEL || 'google/embeddinggemma-300m';
+  const embeddingModel = process.env.KSI_EMBEDDING_MODEL || 'google/embeddinggemma-300m';
   args.push(
     '-e',
     `MEMORY_ENABLE_SEMANTIC_SEARCH=${process.env.MEMORY_ENABLE_SEMANTIC_SEARCH || '1'}`,
     '-e',
-    `KCSI_EMBEDDING_MODEL=${embeddingModel}`,
+    `KSI_EMBEDDING_MODEL=${embeddingModel}`,
     '-e',
     `USE_TF=${process.env.USE_TF || '0'}`,
     '-e',

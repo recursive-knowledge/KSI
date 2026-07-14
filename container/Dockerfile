@@ -1,4 +1,4 @@
-# KCSI agent container
+# KSI agent container
 # Full variant (local embedding/memory extras)
 
 # Base image pinned by digest for reproducible builds (tag kept for readability).
@@ -57,7 +57,7 @@ RUN npx tsc --outDir /tmp/dist \
  && ln -sfn /app/node_modules /tmp/dist/node_modules
 
 # Single source of truth for retryable-error markers (shared with the Python
-# orchestrator via src/kcsi/errors.py). retryable_markers.ts reads this at
+# orchestrator via src/ksi/errors.py). retryable_markers.ts reads this at
 # runtime from the compiled module's dir (/tmp/dist; tsc does not copy .json
 # into outDir), else it silently uses its vendored fallback. Keep in lockstep
 # with container/Dockerfile.bench. See issue #648.

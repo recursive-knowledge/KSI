@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "_comment": "SINGLE SOURCE OF TRUTH for retryable-error classification markers shared between the Python orchestrator (src/kcsi/orchestrator/engine.py via src/kcsi/errors.py::load_retryable_markers) and the TypeScript agent-runner (runtime_runner/agent-runner/src/retryable_markers.ts, which emits the stream_race phrases). All markers are matched case-insensitively as substrings of the lowercased error text. Do NOT reorder or reword without updating both consumers and tests/test_retryable_markers.py — a reworded marker silently flips transient<->non-retryable classification.",
+  "_comment": "SINGLE SOURCE OF TRUTH for retryable-error classification markers shared between the Python orchestrator (src/ksi/orchestrator/engine.py via src/ksi/errors.py::load_retryable_markers) and the TypeScript agent-runner (runtime_runner/agent-runner/src/retryable_markers.ts, which emits the stream_race phrases). All markers are matched case-insensitively as substrings of the lowercased error text. Do NOT reorder or reword without updating both consumers and tests/test_retryable_markers.py — a reworded marker silently flips transient<->non-retryable classification.",
   "categories": {
     "non_retryable": [
       "invalid prompt",

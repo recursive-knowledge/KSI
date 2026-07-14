@@ -1,4 +1,4 @@
-"""Tests for src/kcsi/memory/embeddings.py — embedding dimension validation."""
+"""Tests for src/ksi/memory/embeddings.py — embedding dimension validation."""
 
 import sys
 import threading
@@ -23,7 +23,7 @@ def _make_embedder_with_short_vectors(dim_output, dim_configured):
         # Force reimport to pick up the mock
         import importlib
 
-        import kcsi.memory.embeddings as emb_module
+        import ksi.memory.embeddings as emb_module
 
         importlib.reload(emb_module)
 
@@ -118,7 +118,7 @@ def _make_embedder_with_serialization_probe(dim=768):
     try:
         import importlib
 
-        import kcsi.memory.embeddings as emb_module
+        import ksi.memory.embeddings as emb_module
 
         importlib.reload(emb_module)
         embedder = emb_module.Embedder(model_name="fake", dimensions=dim)

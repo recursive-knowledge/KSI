@@ -1,6 +1,6 @@
 """The distillation phase must re-raise ``AuthenticationFailure``.
 
-The distiller (`kcsi.distillation.distiller`) deliberately re-raises
+The distiller (`ksi.distillation.distiller`) deliberately re-raises
 ``AuthenticationFailure`` rather than swallowing it. The phase wrapper used to
 catch it in its broad ``except Exception`` handler, log a WARNING, and return —
 silently disabling knowledge improvement for the rest of a campaign at full
@@ -11,8 +11,8 @@ from __future__ import annotations
 
 import pytest
 
-from kcsi.errors import AuthenticationFailure
-from kcsi.orchestrator.distillation_phase import (
+from ksi.errors import AuthenticationFailure
+from ksi.orchestrator.distillation_phase import (
     DistillationPhaseInput,
     EngineDistillationPhaseService,
 )
@@ -27,7 +27,7 @@ def test_distill_auth_failure_propagates(tmp_path, monkeypatch):
     def fake_distill(inp, *, unsolved_task_ids=None, newly_solved_task_ids=None):
         raise AuthenticationFailure("401 invalid api key")
 
-    import kcsi.distillation as dist_pkg
+    import ksi.distillation as dist_pkg
 
     monkeypatch.setattr(dist_pkg, "distill", fake_distill)
 

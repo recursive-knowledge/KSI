@@ -5,8 +5,8 @@ from pathlib import Path
 import pytest
 from conftest import REPO_ROOT
 
-from kcsi.models import TaskSpec
-from kcsi.tasks.repo_cache import prepare_swebench_repo_snapshots
+from ksi.models import TaskSpec
+from ksi.tasks.repo_cache import prepare_swebench_repo_snapshots
 
 WRAPPER = REPO_ROOT / "benchmarks" / "scripts" / "run_swebench_pro_eval.py"
 PREP = REPO_ROOT / "benchmarks" / "scripts" / "dataprep" / "prepare_swebench_pro_repo_cache.py"
@@ -206,7 +206,7 @@ def test_prepare_swebench_repo_snapshots_rejects_traversal_task_id(monkeypatch, 
     def fake_prepare_one_repo(**kwargs):  # type: ignore[no-untyped-def]
         calls.append(kwargs)
 
-    monkeypatch.setattr("kcsi.tasks.repo_cache._prepare_one_repo", fake_prepare_one_repo)
+    monkeypatch.setattr("ksi.tasks.repo_cache._prepare_one_repo", fake_prepare_one_repo)
     task = TaskSpec(
         id="../outside",
         prompt="a",
@@ -227,7 +227,7 @@ def test_prepare_swebench_repo_snapshots_rejects_duplicate_task_ids(monkeypatch,
     def fake_prepare_one_repo(**kwargs):  # type: ignore[no-untyped-def]
         calls.append(kwargs)
 
-    monkeypatch.setattr("kcsi.tasks.repo_cache._prepare_one_repo", fake_prepare_one_repo)
+    monkeypatch.setattr("ksi.tasks.repo_cache._prepare_one_repo", fake_prepare_one_repo)
     tasks = [
         TaskSpec(
             id="task-a",

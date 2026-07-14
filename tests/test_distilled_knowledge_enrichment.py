@@ -13,7 +13,7 @@ import pytest
 
 @pytest.fixture
 def knowledge_store(tmp_path):
-    from kcsi.memory.knowledge_store import KnowledgeStore
+    from ksi.memory.knowledge_store import KnowledgeStore
 
     ks = KnowledgeStore(str(tmp_path / "k.sqlite"), default_experiment="test")
     yield ks
@@ -75,7 +75,7 @@ class TestEnrichPathRemoved:
         per-task and cross-task bundles threaded through the seeder."""
         import inspect
 
-        from kcsi.orchestrator import engine
+        from ksi.orchestrator import engine
 
         source = inspect.getsource(engine)
         # The injection line (seed_package["distilled_knowledge"] = ...) is
@@ -87,7 +87,7 @@ class TestRendererBackwardCompat:
     """The MEMORY.md renderer should still be resilient to pkgs without bundles."""
 
     def test_empty_seed_package_renders_cleanly(self):
-        from kcsi.runtime.seeding import seed_package_to_memory_md
+        from ksi.runtime.seeding import seed_package_to_memory_md
 
         md = seed_package_to_memory_md({"workstream_name": "solver"}, current_task_id="t1")
         # Must not crash; the renderer may include "None available" or simply

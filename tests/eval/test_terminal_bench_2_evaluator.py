@@ -5,14 +5,14 @@ from pathlib import Path
 
 import pytest
 
-from kcsi.benchmarks.terminal_bench_2 import (
+from ksi.benchmarks.terminal_bench_2 import (
     TB2_VERIFIER_FAIL_CLOSED_STATUS,
     TB2_VERIFIER_MISSING_STATUS,
     TerminalBench2ContractError,
     TerminalBench2Evaluator,
     resolve_terminal_bench_2_task_contract,
 )
-from kcsi.models import TaskSpec
+from ksi.models import TaskSpec
 
 
 def _write_tb2_task(tmp_path: Path, task_id: str = "demo-task") -> Path:
@@ -93,7 +93,7 @@ def test_resolve_terminal_bench_2_contract_uses_task_toml_timeouts_over_metadata
 
 def test_resolve_contract_build_timeout_honors_env_override(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     task_root = _write_tb2_task(tmp_path)
-    monkeypatch.setenv("KCSI_TB2_BUILD_TIMEOUT_SEC", "3600")
+    monkeypatch.setenv("KSI_TB2_BUILD_TIMEOUT_SEC", "3600")
     contract = resolve_terminal_bench_2_task_contract(_task_spec(task_root))
     assert contract.build_timeout_sec == 3600.0
 
@@ -125,7 +125,7 @@ build_timeout_sec = 7200.0
     (task_root / "environment" / "Dockerfile").write_text("FROM ubuntu:24.04\n", encoding="utf-8")
     (task_root / "solution" / "solve.sh").write_text("#!/bin/bash\n", encoding="utf-8")
     (task_root / "tests" / "test.sh").write_text("#!/bin/bash\n", encoding="utf-8")
-    monkeypatch.delenv("KCSI_TB2_BUILD_TIMEOUT_SEC", raising=False)
+    monkeypatch.delenv("KSI_TB2_BUILD_TIMEOUT_SEC", raising=False)
 
     contract = resolve_terminal_bench_2_task_contract(_task_spec(task_root))
     assert contract.build_timeout_sec == 7200.0

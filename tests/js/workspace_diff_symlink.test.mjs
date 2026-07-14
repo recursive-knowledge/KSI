@@ -21,7 +21,7 @@ function runFixture() {
     import path from 'node:path';
     import { spawnSync } from 'node:child_process';
 
-    const parent = fs.mkdtempSync(path.join(os.tmpdir(), 'kcsi-workspace-diff-'));
+    const parent = fs.mkdtempSync(path.join(os.tmpdir(), 'ksi-workspace-diff-'));
     const repo = path.join(parent, 'repo');
     const outside = path.join(parent, 'outside-secret.txt');
     fs.mkdirSync(repo);
@@ -33,8 +33,8 @@ function runFixture() {
       return res.stdout.trim();
     };
     git('init', '-q');
-    git('config', 'user.email', 'kcsi@test');
-    git('config', 'user.name', 'kcsi');
+    git('config', 'user.email', 'ksi@test');
+    git('config', 'user.name', 'ksi');
     fs.writeFileSync(path.join(repo, 'tracked.txt'), 'base\\\\n');
     git('add', 'tracked.txt');
     git('commit', '-q', '-m', 'base');

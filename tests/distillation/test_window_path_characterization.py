@@ -3,9 +3,9 @@ when the fold/motifs alternative channels are removed."""
 
 import json
 
-from kcsi.distillation.cross_task import distill_cross_task
-from kcsi.distillation.per_task import distill_one_task
-from kcsi.distillation.types import CrossTaskBundle, PerTaskBundle
+from ksi.distillation.cross_task import distill_cross_task
+from ksi.distillation.per_task import distill_one_task
+from ksi.distillation.types import CrossTaskBundle, PerTaskBundle
 
 
 def _make_stub_llm(payload: dict):
@@ -132,7 +132,7 @@ def test_motifs_module_is_removed():
     import pytest
 
     with pytest.raises(ModuleNotFoundError):
-        importlib.import_module("kcsi.distillation.motifs")
+        importlib.import_module("ksi.distillation.motifs")
 
 
 def test_ledger_module_is_removed():
@@ -141,13 +141,13 @@ def test_ledger_module_is_removed():
     import pytest
 
     with pytest.raises(ModuleNotFoundError):
-        importlib.import_module("kcsi.distillation.ledger")
+        importlib.import_module("ksi.distillation.ledger")
 
 
 def test_distill_one_task_has_no_channel_param():
     import inspect
 
-    from kcsi.distillation.per_task import distill_one_task
+    from ksi.distillation.per_task import distill_one_task
 
     assert "channel" not in inspect.signature(distill_one_task).parameters
 
@@ -157,7 +157,7 @@ def test_fold_and_retrieval_modules_removed():
 
     import pytest
 
-    for mod in ("kcsi.distillation.fold", "kcsi.distillation.retrieval"):
+    for mod in ("ksi.distillation.fold", "ksi.distillation.retrieval"):
         with pytest.raises(ModuleNotFoundError):
             importlib.import_module(mod)
 
@@ -165,8 +165,8 @@ def test_fold_and_retrieval_modules_removed():
 def test_distillers_have_no_fold_params():
     import inspect
 
-    from kcsi.distillation.cross_task import distill_cross_task
-    from kcsi.distillation.per_task import distill_one_task
+    from ksi.distillation.cross_task import distill_cross_task
+    from ksi.distillation.per_task import distill_one_task
 
     pt = inspect.signature(distill_one_task).parameters
     ct = inspect.signature(distill_cross_task).parameters

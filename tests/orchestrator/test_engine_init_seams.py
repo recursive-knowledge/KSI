@@ -16,9 +16,9 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from kcsi.models import GenerationConfig
-from kcsi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
-from kcsi.tokens import LLMResponse, TokenUsage
+from ksi.models import GenerationConfig
+from ksi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
+from ksi.tokens import LLMResponse, TokenUsage
 
 
 def _make_orch(tmp_path, experiment_name: str) -> GenerationalOrchestrator:
@@ -74,7 +74,7 @@ def test_claim_experiment_sequential_double_claim_suffixes(tmp_path):
     suffixed, so a concurrent same-name launch can never collide on the
     ``runs.experiment`` UNIQUE constraint.
     """
-    from kcsi.memory.knowledge_store import KnowledgeStore
+    from ksi.memory.knowledge_store import KnowledgeStore
 
     store = KnowledgeStore(str(tmp_path / "knowledge.sqlite"), default_experiment="expt")
     try:
@@ -87,7 +87,7 @@ def test_claim_experiment_sequential_double_claim_suffixes(tmp_path):
 
 def test_claim_experiment_resume_returns_original_name(tmp_path):
     """``resume=True`` returns the requested name without suffixing, even twice."""
-    from kcsi.memory.knowledge_store import KnowledgeStore
+    from ksi.memory.knowledge_store import KnowledgeStore
 
     store = KnowledgeStore(str(tmp_path / "knowledge.sqlite"), default_experiment="expt")
     try:
@@ -101,7 +101,7 @@ def test_claim_experiment_resume_returns_original_name(tmp_path):
 
 def test_claim_experiment_two_store_contention_suffixes(tmp_path):
     """Two independent store handles racing the same DB claim distinct names."""
-    from kcsi.memory.knowledge_store import KnowledgeStore
+    from ksi.memory.knowledge_store import KnowledgeStore
 
     db_path = str(tmp_path / "knowledge.sqlite")
     barrier = Barrier(2)
@@ -122,7 +122,7 @@ def test_claim_experiment_two_store_contention_suffixes(tmp_path):
 
 def test_failed_post_claim_initialization_releases_empty_reservation(tmp_path):
     """A later init failure should not leave an empty name claim behind."""
-    from kcsi.memory.knowledge_store import KnowledgeStore
+    from ksi.memory.knowledge_store import KnowledgeStore
 
     db_path = str(tmp_path / "knowledge.sqlite")
     config = GenerationConfig(
@@ -179,7 +179,7 @@ def test_real_store_open_failure_is_fatal(tmp_path):
             lambda self, config, knowledge_db_path, exp_name: exp_name,
         ),
         patch(
-            "kcsi.memory.knowledge_store.KnowledgeStore.__init__",
+            "ksi.memory.knowledge_store.KnowledgeStore.__init__",
             side_effect=RuntimeError("real boom"),
         ),
         pytest.raises(RuntimeError, match="KnowledgeStore initialization failed"),

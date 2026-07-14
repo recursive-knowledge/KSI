@@ -1,4 +1,4 @@
-"""Tests for KcsiContainerExecutor auth validation."""
+"""Tests for KsiContainerExecutor auth validation."""
 
 from __future__ import annotations
 
@@ -12,30 +12,30 @@ _ROOT = REPO_ROOT
 
 from tests.helpers import _load_by_path
 
-# ── Synthetic kcsi_ncbc package hierarchy ──────────────────────────────────
+# ── Synthetic ksi_ncbc package hierarchy ──────────────────────────────────
 
-_PKG = "kcsi_ncbc"
+_PKG = "ksi_ncbc"
 
 _root_pkg = _types.ModuleType(_PKG)
-_root_pkg.__path__ = [str(_ROOT / "src" / "kcsi")]  # type: ignore[attr-defined]
+_root_pkg.__path__ = [str(_ROOT / "src" / "ksi")]  # type: ignore[attr-defined]
 _root_pkg.__package__ = _PKG
 sys.modules[_PKG] = _root_pkg
 
 # models
-_models_mod = _load_by_path(f"{_PKG}.models", "src/kcsi/models.py", package=_PKG)
+_models_mod = _load_by_path(f"{_PKG}.models", "src/ksi/models.py", package=_PKG)
 
 # runtime package
 _runtime_pkg = _types.ModuleType(f"{_PKG}.runtime")
-_runtime_pkg.__path__ = [str(_ROOT / "src" / "kcsi" / "runtime")]  # type: ignore[attr-defined]
+_runtime_pkg.__path__ = [str(_ROOT / "src" / "ksi" / "runtime")]  # type: ignore[attr-defined]
 _runtime_pkg.__package__ = f"{_PKG}.runtime"
 sys.modules[f"{_PKG}.runtime"] = _runtime_pkg
 
 # tokens module (required by runtime.types and container_host)
-_tokens_mod = _load_by_path(f"{_PKG}.tokens", "src/kcsi/tokens.py", package=_PKG)
+_tokens_mod = _load_by_path(f"{_PKG}.tokens", "src/ksi/tokens.py", package=_PKG)
 _root_pkg.TokenUsage = _tokens_mod.TokenUsage  # type: ignore[attr-defined]
 
 # runtime.types
-_types_mod = _load_by_path(f"{_PKG}.runtime.types", "src/kcsi/runtime/types.py", package=f"{_PKG}.runtime")
+_types_mod = _load_by_path(f"{_PKG}.runtime.types", "src/ksi/runtime/types.py", package=f"{_PKG}.runtime")
 _runtime_pkg.RuntimeResult = _types_mod.RuntimeResult  # type: ignore[attr-defined]
 
 # prompts stub
@@ -47,15 +47,15 @@ sys.modules[f"{_PKG}.prompts"] = _prompts_stub
 # container_host
 _exe_mod = _load_by_path(
     f"{_PKG}.runtime.container_host",
-    "src/kcsi/runtime/container_host.py",
+    "src/ksi/runtime/container_host.py",
     package=f"{_PKG}.runtime",
 )
 
 _validate_provider_auth = _exe_mod._validate_provider_auth
 _build_runner_env = _exe_mod._build_runner_env
-# The module is loaded under the synthetic ``kcsi_ncbc`` package, so it raises
-# ``kcsi_ncbc.errors.AuthenticationFailure`` — a distinct class object from
-# ``kcsi.errors.AuthenticationFailure``. Reference the one bound in the loaded
+# The module is loaded under the synthetic ``ksi_ncbc`` package, so it raises
+# ``ksi_ncbc.errors.AuthenticationFailure`` — a distinct class object from
+# ``ksi.errors.AuthenticationFailure``. Reference the one bound in the loaded
 # module's namespace so ``pytest.raises`` matches the exact class raised.
 AuthenticationFailure = _exe_mod.AuthenticationFailure
 
@@ -141,34 +141,34 @@ class TestBuildNodeEnv:
 
 
 class TestAllowWebToolsEnvPropagation:
-    """Issue #666: ``KCSI_ALLOW_WEB_TOOLS`` must reach the runner env so
+    """Issue #666: ``KSI_ALLOW_WEB_TOOLS`` must reach the runner env so
     ``container_runner.ts`` can forward it into the container, where the Claude
     agent-runner offers WebSearch/WebFetch on non-ARC benchmarks. Default OFF:
     absent on the host and absent from the provider profile => not set, so the
     agent-runner denies the web tools."""
 
     def test_default_off_not_present(self, monkeypatch):
-        monkeypatch.delenv("KCSI_ALLOW_WEB_TOOLS", raising=False)
+        monkeypatch.delenv("KSI_ALLOW_WEB_TOOLS", raising=False)
         result = _build_runner_env({}, 1800)
-        assert "KCSI_ALLOW_WEB_TOOLS" not in result
+        assert "KSI_ALLOW_WEB_TOOLS" not in result
 
     def test_from_host_environ(self, monkeypatch):
-        monkeypatch.setenv("KCSI_ALLOW_WEB_TOOLS", "1")
+        monkeypatch.setenv("KSI_ALLOW_WEB_TOOLS", "1")
         result = _build_runner_env({}, 1800)
-        assert result["KCSI_ALLOW_WEB_TOOLS"] == "1"
+        assert result["KSI_ALLOW_WEB_TOOLS"] == "1"
 
     def test_provider_profile_value_preserved(self, monkeypatch):
         # Provider profile already merged into base_env; host env unset.
-        monkeypatch.delenv("KCSI_ALLOW_WEB_TOOLS", raising=False)
-        result = _build_runner_env({"KCSI_ALLOW_WEB_TOOLS": "1"}, 1800)
-        assert result["KCSI_ALLOW_WEB_TOOLS"] == "1"
+        monkeypatch.delenv("KSI_ALLOW_WEB_TOOLS", raising=False)
+        result = _build_runner_env({"KSI_ALLOW_WEB_TOOLS": "1"}, 1800)
+        assert result["KSI_ALLOW_WEB_TOOLS"] == "1"
 
     def test_provider_profile_wins_over_host(self, monkeypatch):
         # base_env (provider profile) takes precedence; setdefault is a no-op
         # when the key already exists.
-        monkeypatch.setenv("KCSI_ALLOW_WEB_TOOLS", "0")
-        result = _build_runner_env({"KCSI_ALLOW_WEB_TOOLS": "1"}, 1800)
-        assert result["KCSI_ALLOW_WEB_TOOLS"] == "1"
+        monkeypatch.setenv("KSI_ALLOW_WEB_TOOLS", "0")
+        result = _build_runner_env({"KSI_ALLOW_WEB_TOOLS": "1"}, 1800)
+        assert result["KSI_ALLOW_WEB_TOOLS"] == "1"
 
 
 class TestOpenAIParityToolsEnvPropagation:
@@ -201,27 +201,27 @@ class TestOpenAIParityToolsEnvPropagation:
 
 
 class TestDirectArcMaxTokensEnvPropagation:
-    """Issue #682: ``KCSI_DIRECT_ARC_MAX_TOKENS`` (shared per-turn output cap for
+    """Issue #682: ``KSI_DIRECT_ARC_MAX_TOKENS`` (shared per-turn output cap for
     both direct-ARC adapters) must reach the runner env so ``container_runner.ts``
     can forward it into the container. Default: absent on host + absent from
     provider profile => not set, and the adapters fall back to 4096."""
 
     def test_default_absent_not_present(self, monkeypatch):
-        monkeypatch.delenv("KCSI_DIRECT_ARC_MAX_TOKENS", raising=False)
+        monkeypatch.delenv("KSI_DIRECT_ARC_MAX_TOKENS", raising=False)
         result = _build_runner_env({}, 1800)
-        assert "KCSI_DIRECT_ARC_MAX_TOKENS" not in result
+        assert "KSI_DIRECT_ARC_MAX_TOKENS" not in result
 
     def test_from_host_environ(self, monkeypatch):
-        monkeypatch.setenv("KCSI_DIRECT_ARC_MAX_TOKENS", "8192")
+        monkeypatch.setenv("KSI_DIRECT_ARC_MAX_TOKENS", "8192")
         result = _build_runner_env({}, 1800)
-        assert result["KCSI_DIRECT_ARC_MAX_TOKENS"] == "8192"
+        assert result["KSI_DIRECT_ARC_MAX_TOKENS"] == "8192"
 
     def test_provider_profile_value_preserved(self, monkeypatch):
-        monkeypatch.delenv("KCSI_DIRECT_ARC_MAX_TOKENS", raising=False)
-        result = _build_runner_env({"KCSI_DIRECT_ARC_MAX_TOKENS": "2048"}, 1800)
-        assert result["KCSI_DIRECT_ARC_MAX_TOKENS"] == "2048"
+        monkeypatch.delenv("KSI_DIRECT_ARC_MAX_TOKENS", raising=False)
+        result = _build_runner_env({"KSI_DIRECT_ARC_MAX_TOKENS": "2048"}, 1800)
+        assert result["KSI_DIRECT_ARC_MAX_TOKENS"] == "2048"
 
     def test_provider_profile_wins_over_host(self, monkeypatch):
-        monkeypatch.setenv("KCSI_DIRECT_ARC_MAX_TOKENS", "8192")
-        result = _build_runner_env({"KCSI_DIRECT_ARC_MAX_TOKENS": "2048"}, 1800)
-        assert result["KCSI_DIRECT_ARC_MAX_TOKENS"] == "2048"
+        monkeypatch.setenv("KSI_DIRECT_ARC_MAX_TOKENS", "8192")
+        result = _build_runner_env({"KSI_DIRECT_ARC_MAX_TOKENS": "2048"}, 1800)
+        assert result["KSI_DIRECT_ARC_MAX_TOKENS"] == "2048"

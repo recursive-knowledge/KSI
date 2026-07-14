@@ -1,5 +1,5 @@
 /**
- * KCSI shared agent runner
+ * KSI shared agent runner
  * Runs inside a container, receives config via stdin, outputs result to stdout
  *
  * Input protocol:
@@ -218,7 +218,7 @@ async function main(): Promise<void> {
       process.exit(openaiStatus === 'error' ? 1 : 0);
     } else if (
       scheduledForumTaskSources.has(scheduledTaskSource)
-      && String(sdkEnv.KCSI_ANTHROPIC_FORUM_ADAPTER || 'direct').toLowerCase() !== 'claude-code'
+      && String(sdkEnv.KSI_ANTHROPIC_FORUM_ADAPTER || 'direct').toLowerCase() !== 'claude-code'
     ) {
       const queryResult = await runAnthropicDirectForumQuery(prompt, containerInput, sdkEnv);
       if (queryResult.newSessionId) {

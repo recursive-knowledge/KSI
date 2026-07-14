@@ -1,4 +1,4 @@
-"""Tests for the central runtime registry (src/kcsi/runtime/registry.py).
+"""Tests for the central runtime registry (src/ksi/runtime/registry.py).
 
 Pins the PURE-REFACTOR contract: ``container`` resolves, unknown names raise
 early, and the registry is runtime-extensible.
@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import pytest
 
-from kcsi.runtime.registry import (
+from ksi.runtime.registry import (
     REGISTRY,
     RuntimeSpec,
     get_runtime_spec,
@@ -19,7 +19,7 @@ from kcsi.runtime.registry import (
 
 
 def test_builtin_container():
-    import kcsi.runtime  # noqa: F401  (import populates REGISTRY)
+    import ksi.runtime  # noqa: F401  (import populates REGISTRY)
 
     assert supported_runtimes() == ("container",)
     assert supported_runtimes(include_aliases=True) == ("container",)
@@ -43,8 +43,8 @@ def test_register_and_resolve_roundtrip():
 
 import argparse
 
-import kcsi.runtime as _rt  # noqa: E402
-from kcsi.cli import _choose_runtime  # noqa: E402
+import ksi.runtime as _rt  # noqa: E402
+from ksi.cli import _choose_runtime  # noqa: E402
 
 
 def _rt_args(runtime="container", task_source=""):
@@ -65,7 +65,7 @@ def _rt_args(runtime="container", task_source=""):
 
 
 def test_choose_runtime_returns_container():
-    assert isinstance(_choose_runtime(_rt_args(), provider_env={}), _rt.KcsiContainerExecutor)
+    assert isinstance(_choose_runtime(_rt_args(), provider_env={}), _rt.KsiContainerExecutor)
 
 
 def test_choose_runtime_unknown_name_raises():
@@ -90,7 +90,7 @@ def test_choose_runtime_wires_container_kwargs():
     args.no_memory = True  # must disable the memory MCP
 
     executor = _choose_runtime(args, provider_env={})
-    assert isinstance(executor, _rt.KcsiContainerExecutor)
+    assert isinstance(executor, _rt.KsiContainerExecutor)
     assert executor.timeout_sec == 123
     assert executor.session_scope == "experiment"
     assert executor.wipe_workspace_per_task is True

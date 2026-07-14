@@ -46,7 +46,7 @@ import json
 
 import pytest
 
-from kcsi.runtime.normalize import parse_runner_stdout
+from ksi.runtime.normalize import parse_runner_stdout
 
 
 def _envelope(result_text: str = "ok", tokens: int = 100) -> dict:

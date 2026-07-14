@@ -49,7 +49,7 @@ export function resolveClaudeMaxTurns(
   // headroom, and the no-MCP ARC variant reliably hit the 25 cap mid-analysis.
   // 150 gives every code path the same headroom and removes turn budget as a
   // confound; under MCP tools an ARC task still finishes in ~5 turns.
-  // Override via KCSI_CLAUDE_MAX_TURNS.
+  // Override via KSI_CLAUDE_MAX_TURNS.
   return 150;
 }
 
@@ -61,7 +61,7 @@ export function resolveTurnBudgets(
   taskSource: string,
   sdkEnv: Record<string, string | undefined>,
 ): { scheduledMaxTurns: number | undefined; scheduledMaxMessages: number | undefined } {
-  const scheduledMaxTurns = resolveClaudeMaxTurns(taskSource, sdkEnv.KCSI_CLAUDE_MAX_TURNS);
+  const scheduledMaxTurns = resolveClaudeMaxTurns(taskSource, sdkEnv.KSI_CLAUDE_MAX_TURNS);
   // ARC used to get a lower 80-message ceiling here, set back when its
   // maxTurns cap was still 25 (so 80 messages was never the binding
   // constraint). When maxTurns was raised to 150 above (no-MCP ARC sessions
@@ -75,10 +75,10 @@ export function resolveTurnBudgets(
   // cap, #1049) — match every task source.
   const defaultMaxMessages = 150;
   // Guard the env override the same way resolveClaudeMaxTurns does: a
-  // non-numeric/empty/non-positive KCSI_CLAUDE_MAX_MESSAGES falls back to the
+  // non-numeric/empty/non-positive KSI_CLAUDE_MAX_MESSAGES falls back to the
   // default instead of yielding NaN (which would make the >= message ceiling
   // never fire and silently disable the cap).
-  const messagesOverride = Number(sdkEnv.KCSI_CLAUDE_MAX_MESSAGES);
+  const messagesOverride = Number(sdkEnv.KSI_CLAUDE_MAX_MESSAGES);
   const scheduledMaxMessages = Math.max(
     1,
     Number.isFinite(messagesOverride) && messagesOverride > 0
@@ -115,8 +115,8 @@ export function sdkEnvHasNativeToolLeakSecret(sdkEnv: Record<string, string | un
 
 export function egressIsolationDisabled(sdkEnv: Record<string, string | undefined>): boolean {
   // Mirrors the host-side check in runtime_runner/src/container_args.ts. Only
-  // meaningful when the host forwards KCSI_EGRESS into the container env.
-  return String(sdkEnv.KCSI_EGRESS || '').trim().toLowerCase() === 'open';
+  // meaningful when the host forwards KSI_EGRESS into the container env.
+  return String(sdkEnv.KSI_EGRESS || '').trim().toLowerCase() === 'open';
 }
 
 export function shouldDenyNativeToolsForSdkSecrets(sdkEnv: Record<string, string | undefined>): boolean {
@@ -129,13 +129,13 @@ export function shouldDenyNativeToolsForSdkSecrets(sdkEnv: Record<string, string
   // hook unsets every SECRET_ENV_VAR before each command (hooks.ts), and egress
   // isolation (#923) blocks exfiltration of anything a tool does read (e.g.
   // /proc/self/environ via Read). The residual read-then-exfiltrate path only
-  // exists when egress isolation is disabled (KCSI_EGRESS=open — debugging
+  // exists when egress isolation is disabled (KSI_EGRESS=open — debugging
   // only, never production), so scope the denial to that mode, where breaking
   // native tools is an acceptable cost, instead of firing on every run.
   return (
     sdkEnvHasNativeToolLeakSecret(sdkEnv)
     && egressIsolationDisabled(sdkEnv)
-    && !truthyEnvFlag(sdkEnv.KCSI_ALLOW_UNSAFE_CLAUDE_NATIVE_TOOLS_WITH_SECRETS)
+    && !truthyEnvFlag(sdkEnv.KSI_ALLOW_UNSAFE_CLAUDE_NATIVE_TOOLS_WITH_SECRETS)
   );
 }
 
@@ -156,7 +156,7 @@ export function buildToolPolicy(
   const isOffline = taskSource === 'arc';
   // Web tools (WebSearch/WebFetch) are a benchmark-solution leak vector
   // (issue #666): default OFF for ALL benchmark tasks (an operator opts in
-  // per-run with KCSI_ALLOW_WEB_TOOLS=1); ARC stays strictly offline
+  // per-run with KSI_ALLOW_WEB_TOOLS=1); ARC stays strictly offline
   // regardless of the flag. Default-OFF is the new baseline and creates a
   // code-era boundary: results recorded before this fix had web tools
   // available on non-ARC Claude runs (see benchmarks/docs/web_tools_policy.md). The
@@ -206,7 +206,7 @@ export function buildToolPolicy(
   if (denyNativeToolsForSecrets) {
     log(
       'Native Claude file/shell tools: DISABLED '
-      + '[SDK env contains credentials; set KCSI_ALLOW_UNSAFE_CLAUDE_NATIVE_TOOLS_WITH_SECRETS=1 to override]',
+      + '[SDK env contains credentials; set KSI_ALLOW_UNSAFE_CLAUDE_NATIVE_TOOLS_WITH_SECRETS=1 to override]',
     );
   }
   return { isArcWithoutMcp, isScheduledMcpProtocolTask, allowedToolsList, disallowedToolsList };
@@ -256,8 +256,8 @@ export function buildMcpServerConfig(
         MEMORY_EXPERIMENT: containerInput.memoryMcp.experiment ?? '',
         EXPERIMENT_NAME: process.env.EXPERIMENT_NAME || containerInput.memoryMcp.experiment || '',
         MEMORY_ENABLE_SEMANTIC_SEARCH: sdkEnv.MEMORY_ENABLE_SEMANTIC_SEARCH || '1',
-        KCSI_EMBEDDING_MODEL:
-          sdkEnv.KCSI_EMBEDDING_MODEL || 'google/embeddinggemma-300m',
+        KSI_EMBEDDING_MODEL:
+          sdkEnv.KSI_EMBEDDING_MODEL || 'google/embeddinggemma-300m',
         USE_TF: sdkEnv.USE_TF || '0',
         TOKENIZERS_PARALLELISM: sdkEnv.TOKENIZERS_PARALLELISM || 'false',
         HF_HOME: sdkEnv.HF_HOME || '/home/node/.cache/huggingface',

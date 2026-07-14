@@ -5,7 +5,7 @@ mandatory `concrete_primitive` slot. The schema is what blocks meta-advice
 at write time. Tests pin the schema-shaping clauses so a future refactor
 that quietly drops them trips CI."""
 
-from kcsi.forum import build_cross_task_discussion_parts
+from ksi.forum import build_cross_task_discussion_parts
 
 
 def _full(parts) -> str:
@@ -87,7 +87,7 @@ def test_round1_response_prompt_keeps_schema():
 
 def test_anti_meta_block_imported_not_inlined():
     """The forum prompt and distiller must reference the same block."""
-    from kcsi.discussion.concreteness import ANTI_META_BLOCK
+    from ksi.discussion.concreteness import ANTI_META_BLOCK
 
     parts = build_cross_task_discussion_parts(
         agent_id="agent-1",

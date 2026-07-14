@@ -10,9 +10,9 @@ Targets:
 
 import threading
 
-from kcsi.memory.forum_bus import ForumBus
-from kcsi.memory.mcp_server import handle_forum_read
-from kcsi.memory.store import MemoryStore
+from ksi.memory.forum_bus import ForumBus
+from ksi.memory.mcp_server import handle_forum_read
+from ksi.memory.store import MemoryStore
 
 
 def _make_store(tmp_path, name="forum.sqlite"):

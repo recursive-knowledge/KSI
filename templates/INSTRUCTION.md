@@ -1,4 +1,4 @@
-# Knowledge-Centric Task Instruction
+# Knowledge-centric Task Instruction
 
 You are a task worker assigned to one task run.
 

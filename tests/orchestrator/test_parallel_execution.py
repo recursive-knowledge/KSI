@@ -16,11 +16,11 @@ from typing import Any
 
 import pytest
 
-from kcsi.errors import ContainerRegistryError
-from kcsi.models import AgentState, GenerationConfig, TaskSpec, TaskTrace
-from kcsi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
-from kcsi.runtime import RuntimeResult
-from kcsi.tokens import TokenUsage
+from ksi.errors import ContainerRegistryError
+from ksi.models import AgentState, GenerationConfig, TaskSpec, TaskTrace
+from ksi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
+from ksi.runtime import RuntimeResult
+from ksi.tokens import TokenUsage
 from tests.orchestrator_phase_helpers import execute_generation
 
 
@@ -327,7 +327,7 @@ class TestParallelExecution:
             eval_sleep=0.0,
         )
         assigned = {"agent-0": [t.id for t in tasks]}
-        with caplog.at_level(logging.INFO, logger="kcsi"):
+        with caplog.at_level(logging.INFO, logger="ksi"):
             execute_generation(orch, 1, tasks, assigned)
 
         msgs = [r.getMessage() for r in caplog.records]
@@ -338,7 +338,7 @@ class TestParallelExecution:
             assert "elapsed=" in done[0] and "score=" in done[0]
 
     def test_transient_task_failure_retries_within_generation(self, monkeypatch):
-        monkeypatch.setattr("kcsi.orchestrator.execution_phase.time.sleep", lambda _delay: None)
+        monkeypatch.setattr("ksi.orchestrator.execution_phase.time.sleep", lambda _delay: None)
         tasks = _make_tasks(1)
         runtime = FlakyMockRuntime(
             failures_before_success=2,
@@ -371,7 +371,7 @@ class TestParallelExecution:
         assert traces[0].runtime_meta["runtime_attempt_errors"][0]["attempt"] == 1
 
     def test_retryable_registry_failure_retries_with_structured_metadata(self, monkeypatch):
-        monkeypatch.setattr("kcsi.orchestrator.execution_phase.time.sleep", lambda _delay: None)
+        monkeypatch.setattr("ksi.orchestrator.execution_phase.time.sleep", lambda _delay: None)
         tasks = _make_tasks(1)
         runtime = RegistryMockRuntime(retryable=True, failures_before_success=2)
         config = GenerationConfig(
@@ -463,7 +463,7 @@ class TestParallelExecution:
         assert by_task["task-1"].native_score is not None
 
     def test_retry_exhaustion_preserves_attempt_errors(self, monkeypatch):
-        monkeypatch.setattr("kcsi.orchestrator.execution_phase.time.sleep", lambda _delay: None)
+        monkeypatch.setattr("ksi.orchestrator.execution_phase.time.sleep", lambda _delay: None)
         tasks = _make_tasks(1)
         runtime = FlakyMockRuntime(
             failures_before_success=99,

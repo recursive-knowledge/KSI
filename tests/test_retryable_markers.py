@@ -1,12 +1,12 @@
 """Parity + behaviour tests for the shared retryable-error marker source.
 
-Issue #648: the retryable-error markers used by ``src/kcsi/orchestrator/engine.py``
+Issue #648: the retryable-error markers used by ``src/ksi/orchestrator/engine.py``
 to classify a task error as transient (retry) vs non-retryable (abort) live in a
 single source of truth shared with the TypeScript agent-runner:
 ``runtime_runner/shared/retryable_markers.json``. These tests pin:
 
   1. the JSON parses and exposes the expected categories;
-  2. the in-module vendored fallback in ``src/kcsi/errors.py`` stays byte-identical
+  2. the in-module vendored fallback in ``src/ksi/errors.py`` stays byte-identical
      to the JSON (so the "never crash" fallback can't silently drift);
   3. the actual classification function ``_is_retryable_task_error`` produces the
      historical outcome for a representative error string from every category —
@@ -20,7 +20,7 @@ from pathlib import Path
 
 import pytest
 
-from kcsi.errors import (
+from ksi.errors import (
     _RETRYABLE_MARKERS_PATH,
     _VENDORED_RETRYABLE_MARKERS,
     load_retryable_markers,
@@ -29,7 +29,7 @@ from kcsi.errors import (
     transient_markers,
     upstream_provider_transient_markers,
 )
-from kcsi.orchestrator.engine import (
+from ksi.orchestrator.engine import (
     _NON_RETRYABLE_EXIT_CODES,
     _NON_RETRYABLE_TASK_ERROR_MARKERS,
     _TRANSIENT_TASK_ERROR_MARKERS,
@@ -142,7 +142,7 @@ def test_vendored_fallback_matches_json():
 
 def test_loader_falls_back_when_file_missing(monkeypatch):
     """A missing/garbled JSON file must not crash; vendored copy is used."""
-    import kcsi.errors as errors_mod
+    import ksi.errors as errors_mod
 
     load_retryable_markers.cache_clear()
     monkeypatch.setattr(
@@ -257,7 +257,7 @@ def test_engine_module_tuples_match_loader():
 def _point_loader_at(monkeypatch, tmp_path, payload) -> dict[str, tuple[str, ...]]:
     """Write ``payload`` (str or json-serialisable) as the markers file, point
     the loader at it, and return the freshly loaded markers."""
-    import kcsi.errors as errors_mod
+    import ksi.errors as errors_mod
 
     p = tmp_path / "retryable_markers.json"
     p.write_text(payload if isinstance(payload, str) else json.dumps(payload), encoding="utf-8")

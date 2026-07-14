@@ -8,7 +8,7 @@ exercises the new hook and fails until the spec field + dispatch exist.
 
 from types import SimpleNamespace as NS
 
-from kcsi.orchestrator.engine import _score_from_eval
+from ksi.orchestrator.engine import _score_from_eval
 
 
 def _task(src):
@@ -94,7 +94,7 @@ def test_no_task_uses_generic():
 def test_custom_task_source_scorer_is_dispatched():
     """A registered source's ``score_from_eval`` hook drives scoring, with no
     ``task_source ==`` edit in the engine."""
-    from kcsi.tasks import registry
+    from ksi.tasks import registry
 
     def _scorer(eval_result, *, task):
         return 0.42 if eval_result.get("magic") else None

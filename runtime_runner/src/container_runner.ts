@@ -81,7 +81,7 @@ export async function runContainerAgent(
   appendMemoryAndArcMounts(mounts, input, workspaceRuntime);
 
   const safeName = workspaceRuntime.folder.replace(/[^a-zA-Z0-9-]/g, '-');
-  const containerName = `kcsi-runtime-${safeName}-${Date.now()}`;
+  const containerName = `ksi-runtime-${safeName}-${Date.now()}`;
   const egress = ensureEgressInfra();
   const containerArgs = buildContainerArgs(mounts, containerName, egress);
 

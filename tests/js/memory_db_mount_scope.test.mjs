@@ -37,7 +37,7 @@ function evalMounts(input) {
   const script = `
 import { appendMemoryAndArcMounts } from ${JSON.stringify(containerMountsTs)};
 const mounts = [];
-appendMemoryAndArcMounts(mounts, ${JSON.stringify(input)}, { name: 'test-group', folder: 'task__x', trigger: '@Kcsi', added_at: new Date().toISOString() });
+appendMemoryAndArcMounts(mounts, ${JSON.stringify(input)}, { name: 'test-group', folder: 'task__x', trigger: '@Ksi', added_at: new Date().toISOString() });
 process.stdout.write(JSON.stringify(mounts));
 `;
   return spawnSync(tsxBin, ['--eval', script, '--conditions=node'], {
@@ -65,7 +65,7 @@ describe('memory-db mount scoping (issue #1009)', () => {
     // toolset exposes zero tools (results pre-injected via the redacted
     // snapshot), so nothing legitimate breaks.
     for (const taskSource of ['arc', 'polyglot', 'swebench_pro', 'terminal_bench_2', '']) {
-      const dbDir = makeExperimentDir('kcsi-memdb-task-');
+      const dbDir = makeExperimentDir('ksi-memdb-task-');
       const dbPath = path.join(dbDir, 'knowledge.sqlite');
       const runtimeDbPath = path.join(dbDir, 'runtime.sqlite');
       const snapshotPath = path.join(dbDir, 'snapshot.json');
@@ -73,7 +73,7 @@ describe('memory-db mount scoping (issue #1009)', () => {
       fs.writeFileSync(`${dbPath}-wal`, '');
       fs.writeFileSync(runtimeDbPath, '');
       fs.writeFileSync(snapshotPath, '{}');
-      const serverDir = fs.mkdtempSync(path.join(os.tmpdir(), 'kcsi-memdb-server-'));
+      const serverDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ksi-memdb-server-'));
 
       const res = evalMounts({
         prompt: 'p',
@@ -111,12 +111,12 @@ describe('memory-db mount scoping (issue #1009)', () => {
   });
 
   it('mounts WAL/SHM sidecars read-only when they exist on the host (forum container)', () => {
-    const dbDir = makeExperimentDir('kcsi-memdb-wal-');
+    const dbDir = makeExperimentDir('ksi-memdb-wal-');
     const dbPath = path.join(dbDir, 'knowledge.sqlite');
     fs.writeFileSync(dbPath, '');
     fs.writeFileSync(`${dbPath}-wal`, '');
     fs.writeFileSync(`${dbPath}-shm`, '');
-    const serverDir = fs.mkdtempSync(path.join(os.tmpdir(), 'kcsi-memdb-server-'));
+    const serverDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ksi-memdb-server-'));
 
     const res = evalMounts({
       prompt: 'p',
@@ -131,11 +131,11 @@ describe('memory-db mount scoping (issue #1009)', () => {
   });
 
   it('does not mount a WAL/SHM sidecar that does not exist on the host (avoids Docker auto-vivifying a directory) (forum container)', () => {
-    const dbDir = makeExperimentDir('kcsi-memdb-nowal-');
+    const dbDir = makeExperimentDir('ksi-memdb-nowal-');
     const dbPath = path.join(dbDir, 'knowledge.sqlite');
     fs.writeFileSync(dbPath, '');
     // Deliberately no -wal / -shm files.
-    const serverDir = fs.mkdtempSync(path.join(os.tmpdir(), 'kcsi-memdb-server-'));
+    const serverDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ksi-memdb-server-'));
 
     const res = evalMounts({
       prompt: 'p',
@@ -151,10 +151,10 @@ describe('memory-db mount scoping (issue #1009)', () => {
 
   it('mounts the knowledge DB and forum_bus/ read-write for a forum-write task source', () => {
     for (const taskSource of ['per_task_forum', 'cross_task_forum']) {
-      const dbDir = makeExperimentDir('kcsi-memdb-forum-');
+      const dbDir = makeExperimentDir('ksi-memdb-forum-');
       const dbPath = path.join(dbDir, 'knowledge.sqlite');
       fs.writeFileSync(dbPath, '');
-      const serverDir = fs.mkdtempSync(path.join(os.tmpdir(), 'kcsi-memdb-server-'));
+      const serverDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ksi-memdb-server-'));
 
       const res = evalMounts({
         prompt: 'p',
@@ -178,10 +178,10 @@ describe('memory-db mount scoping (issue #1009)', () => {
 
   it('does NOT mount forum_bus/ for a non-forum task (its MCP_TOOLSET exposes zero forum tools, so raw access would only bypass the exclude_task_ids hold-out filter)', () => {
     for (const taskSource of ['arc', 'polyglot', 'swebench_pro', '']) {
-      const dbDir = makeExperimentDir('kcsi-memdb-forum-ro-');
+      const dbDir = makeExperimentDir('ksi-memdb-forum-ro-');
       const dbPath = path.join(dbDir, 'knowledge.sqlite');
       fs.writeFileSync(dbPath, '');
-      const serverDir = fs.mkdtempSync(path.join(os.tmpdir(), 'kcsi-memdb-server-'));
+      const serverDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ksi-memdb-server-'));
 
       const res = evalMounts({
         prompt: 'p',
@@ -203,13 +203,13 @@ describe('memory-db mount scoping (issue #1009)', () => {
   });
 
   it('mounts the optional runtime-audit DB (+ sidecars) individually when runtimeDbPath is set', () => {
-    const dbDir = makeExperimentDir('kcsi-memdb-runtime-');
+    const dbDir = makeExperimentDir('ksi-memdb-runtime-');
     const dbPath = path.join(dbDir, 'knowledge.sqlite');
     const runtimeDbPath = path.join(dbDir, 'runtime.sqlite');
     fs.writeFileSync(dbPath, '');
     fs.writeFileSync(runtimeDbPath, '');
     fs.writeFileSync(`${runtimeDbPath}-wal`, '');
-    const serverDir = fs.mkdtempSync(path.join(os.tmpdir(), 'kcsi-memdb-server-'));
+    const serverDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ksi-memdb-server-'));
 
     const res = evalMounts({
       prompt: 'p',
@@ -225,10 +225,10 @@ describe('memory-db mount scoping (issue #1009)', () => {
   });
 
   it('does not mount a runtime DB at all when runtimeDbPath is absent', () => {
-    const dbDir = makeExperimentDir('kcsi-memdb-noruntime-');
+    const dbDir = makeExperimentDir('ksi-memdb-noruntime-');
     const dbPath = path.join(dbDir, 'knowledge.sqlite');
     fs.writeFileSync(dbPath, '');
-    const serverDir = fs.mkdtempSync(path.join(os.tmpdir(), 'kcsi-memdb-server-'));
+    const serverDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ksi-memdb-server-'));
 
     const res = evalMounts({
       prompt: 'p',
@@ -241,12 +241,12 @@ describe('memory-db mount scoping (issue #1009)', () => {
   });
 
   it('mounts the memory snapshot file individually at /app/memory-db/<basename>', () => {
-    const dbDir = makeExperimentDir('kcsi-memdb-snap-');
+    const dbDir = makeExperimentDir('ksi-memdb-snap-');
     const dbPath = path.join(dbDir, 'knowledge.sqlite');
     const snapshotPath = path.join(dbDir, 'snapshot.json');
     fs.writeFileSync(dbPath, '');
     fs.writeFileSync(snapshotPath, '{}');
-    const serverDir = fs.mkdtempSync(path.join(os.tmpdir(), 'kcsi-memdb-server-'));
+    const serverDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ksi-memdb-server-'));
 
     const res = evalMounts({
       prompt: 'p',
@@ -274,10 +274,10 @@ describe('memory-db mount scoping (issue #1009)', () => {
     // the workspace and writes attempt files, so appendMemoryAndArcMounts must
     // emit no /app/memory server-dir mount and no /app/memory-db snapshot mount
     // even when arcTools is present on the input.
-    const snapDir = makeExperimentDir('kcsi-memdb-arcsnap-');
+    const snapDir = makeExperimentDir('ksi-memdb-arcsnap-');
     const snapshotPath = path.join(snapDir, 'arc_snapshot.json');
     fs.writeFileSync(snapshotPath, '{}');
-    const arcServerDir = fs.mkdtempSync(path.join(os.tmpdir(), 'kcsi-arc-server-'));
+    const arcServerDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ksi-arc-server-'));
 
     const res = evalMounts({
       prompt: 'p',

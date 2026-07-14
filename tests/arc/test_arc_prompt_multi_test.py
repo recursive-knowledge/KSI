@@ -9,8 +9,8 @@ answers are named explicitly.
 
 from __future__ import annotations
 
-from kcsi.models import TaskSpec
-from kcsi.prompts import (
+from ksi.models import TaskSpec
+from ksi.prompts import (
     _build_arc_no_mcp_execution_prompt,
     _build_arc_no_mcp_task_markdown,
     build_execution_prompt,

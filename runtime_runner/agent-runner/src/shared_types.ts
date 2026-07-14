@@ -1,5 +1,5 @@
 /**
- * Canonical container I/O type definitions for the KCSI runtime.
+ * Canonical container I/O type definitions for the KSI runtime.
  *
  * These interfaces define the contract between the host container runner
  * (container_runner.ts) and the in-container agent runners (index.ts, openai.ts).

@@ -176,7 +176,7 @@ def test_verify_evaluator_revision_rejects_unmarked_non_git_checkout(tmp_path: P
         module.verify_evaluator_revision(evaluator_dir=evaluator, revision=module.DEFAULT_REVISION)
 
 
-def test_apply_kcsi_evaluator_patches_rolls_back_on_mid_list_failure(tmp_path: Path) -> None:
+def test_apply_ksi_evaluator_patches_rolls_back_on_mid_list_failure(tmp_path: Path) -> None:
     """When patch N applies but patch N+1 fails, the previously-applied
     patches must be reverted so the evaluator checkout isn't left
     half-patched (which would confuse `verify_evaluator_revision` on the
@@ -222,24 +222,24 @@ def test_apply_kcsi_evaluator_patches_rolls_back_on_mid_list_failure(tmp_path: P
     )
 
     with pytest.raises(subprocess.CalledProcessError):
-        module.apply_kcsi_evaluator_patches(evaluator_dir=evaluator, patches_dir=patches)
+        module.apply_ksi_evaluator_patches(evaluator_dir=evaluator, patches_dir=patches)
 
     # After the broken patch fails, a.py must be back to its original content
     # (i.e., patch_01 was reverted on failure).
     assert target_a.read_text(encoding="utf-8") == "ORIGINAL_A\n", (
-        "apply_kcsi_evaluator_patches left the evaluator checkout half-patched after "
+        "apply_ksi_evaluator_patches left the evaluator checkout half-patched after "
         "a mid-list patch failure; this defeats the idempotency guard and "
         "produces confusing partial diffs on re-setup"
     )
     assert target_b.read_text(encoding="utf-8") == "ORIGINAL_B\n"
     # A rollback must not leave a patch-state marker claiming patches are applied.
     assert not (evaluator / module.PATCH_STATE_MARKER).is_file(), (
-        "apply_kcsi_evaluator_patches wrote a patch-state file after rolling back; "
+        "apply_ksi_evaluator_patches wrote a patch-state file after rolling back; "
         "the state would falsely claim patches are present on the next run"
     )
 
 
-def test_apply_kcsi_evaluator_patches_idempotent_via_marker(tmp_path: Path) -> None:
+def test_apply_ksi_evaluator_patches_idempotent_via_marker(tmp_path: Path) -> None:
     """If a target file already contains 'SWARMS PATCH:', the patch is
     skipped — re-running setup is a no-op."""
     import subprocess
@@ -264,7 +264,7 @@ def test_apply_kcsi_evaluator_patches_idempotent_via_marker(tmp_path: Path) -> N
     )
 
     # Should not raise: marker present → skip.
-    module.apply_kcsi_evaluator_patches(evaluator_dir=evaluator, patches_dir=patches)
+    module.apply_ksi_evaluator_patches(evaluator_dir=evaluator, patches_dir=patches)
     assert target.read_text(encoding="utf-8") == "PATCHED_A  # SWARMS PATCH: clean change\n"
     # The skip path still records the patch in the state file, so the drift
     # guard has a hash to compare against on subsequent runs.
@@ -280,12 +280,12 @@ def test_apply_kcsi_evaluator_patches_idempotent_via_marker(tmp_path: Path) -> N
 
 def test_real_per_instance_resource_limits_patch_applies_and_lands_marker(tmp_path: Path) -> None:
     """The shipped evaluator_patches/per_instance_resource_limits.patch must
-    apply cleanly via apply_kcsi_evaluator_patches() and leave the `KCSI PATCH:`
+    apply cleanly via apply_ksi_evaluator_patches() and leave the `KSI PATCH:`
     marker for both the eval timeout and the container memory limit it adds.
 
     Both changes live in ONE patch file (not two) because
-    apply_kcsi_evaluator_patches()'s idempotency check keys on the *target
-    file* containing a `KCSI PATCH:` marker, not on individual patch content:
+    apply_ksi_evaluator_patches()'s idempotency check keys on the *target
+    file* containing a `KSI PATCH:` marker, not on individual patch content:
     a second patch touching an already-marked target file is silently
     skipped rather than applied (see issue #1010). Since both changes target
     swe_bench_pro_eval.py, they must ship as hunks of a single patch file.
@@ -304,7 +304,7 @@ def test_real_per_instance_resource_limits_patch_applies_and_lands_marker(tmp_pa
     patch_text = RESOURCE_LIMITS_PATCH.read_text(encoding="utf-8")
     target_rel, preimage = _preimage_from_patch(patch_text)
     assert target_rel == "swe_bench_pro_eval.py"
-    assert "KCSI PATCH:" not in preimage, "pre-image already contains the marker"
+    assert "KSI PATCH:" not in preimage, "pre-image already contains the marker"
 
     evaluator = tmp_path / "evaluator"
     evaluator.mkdir()
@@ -324,12 +324,12 @@ def test_real_per_instance_resource_limits_patch_applies_and_lands_marker(tmp_pa
     patches.mkdir()
     (patches / RESOURCE_LIMITS_PATCH.name).write_text(patch_text, encoding="utf-8")
 
-    module.apply_kcsi_evaluator_patches(evaluator_dir=evaluator, patches_dir=patches)
+    module.apply_ksi_evaluator_patches(evaluator_dir=evaluator, patches_dir=patches)
 
     patched = target_path.read_text(encoding="utf-8")
-    assert "KCSI PATCH:" in patched, "marker did not land after applying the real patch"
-    assert "KCSI_EVAL_PER_INSTANCE_TIMEOUT_SEC" in patched
-    assert "KCSI_EVAL_PER_INSTANCE_MEM_LIMIT" in patched
+    assert "KSI PATCH:" in patched, "marker did not land after applying the real patch"
+    assert "KSI_EVAL_PER_INSTANCE_TIMEOUT_SEC" in patched
+    assert "KSI_EVAL_PER_INSTANCE_MEM_LIMIT" in patched
     assert 'run_kwargs["mem_limit"]' in patched
     patch_state = json.loads((evaluator / module.PATCH_STATE_MARKER).read_text(encoding="utf-8"))
     assert patch_state["patches"] == [
@@ -342,12 +342,12 @@ def test_real_per_instance_resource_limits_patch_applies_and_lands_marker(tmp_pa
 
     # Idempotency: re-running is a no-op because the marker is now present, and
     # the recorded patch state stays identical (matching hash → no drift).
-    module.apply_kcsi_evaluator_patches(evaluator_dir=evaluator, patches_dir=patches)
+    module.apply_ksi_evaluator_patches(evaluator_dir=evaluator, patches_dir=patches)
     assert target_path.read_text(encoding="utf-8") == patched
     assert json.loads((evaluator / module.PATCH_STATE_MARKER).read_text(encoding="utf-8")) == patch_state
 
 
-def test_apply_kcsi_evaluator_patches_raises_on_patch_hash_drift(tmp_path: Path) -> None:
+def test_apply_ksi_evaluator_patches_raises_on_patch_hash_drift(tmp_path: Path) -> None:
     """If a target still carries the patch marker but the recorded sha256 no
     longer matches the patch file's bytes, setup must refuse (drift guard) and
     roll back anything it applied earlier this run rather than silently leaving
@@ -367,7 +367,7 @@ def test_apply_kcsi_evaluator_patches_raises_on_patch_hash_drift(tmp_path: Path)
     target_a.write_text("ORIGINAL_A\n", encoding="utf-8")
     # b.py already carries the marker (patched in a prior run).
     target_b = evaluator / "b.py"
-    target_b.write_text("PATCHED_B  # KCSI PATCH: timeout\n", encoding="utf-8")
+    target_b.write_text("PATCHED_B  # KSI PATCH: timeout\n", encoding="utf-8")
     subprocess.run(["git", "add", "."], cwd=evaluator, check=True)
     subprocess.run(["git", "commit", "-q", "-m", "init"], cwd=evaluator, check=True)
 
@@ -375,12 +375,12 @@ def test_apply_kcsi_evaluator_patches_raises_on_patch_hash_drift(tmp_path: Path)
     patches.mkdir()
     (patches / "01_clean.patch").write_text(
         "diff --git a/a.py b/a.py\n--- a/a.py\n+++ b/a.py\n@@ -1 +1 @@\n"
-        "-ORIGINAL_A\n+PATCHED_A  # KCSI PATCH: clean change\n",
+        "-ORIGINAL_A\n+PATCHED_A  # KSI PATCH: clean change\n",
         encoding="utf-8",
     )
     (patches / "02_drift.patch").write_text(
         "diff --git a/b.py b/b.py\n--- a/b.py\n+++ b/b.py\n@@ -1 +1 @@\n"
-        "-ORIGINAL_B\n+PATCHED_B  # KCSI PATCH: timeout v2\n",
+        "-ORIGINAL_B\n+PATCHED_B  # KSI PATCH: timeout v2\n",
         encoding="utf-8",
     )
 
@@ -392,7 +392,7 @@ def test_apply_kcsi_evaluator_patches_raises_on_patch_hash_drift(tmp_path: Path)
     )
 
     with pytest.raises(RuntimeError, match="records a different hash"):
-        module.apply_kcsi_evaluator_patches(evaluator_dir=evaluator, patches_dir=patches)
+        module.apply_ksi_evaluator_patches(evaluator_dir=evaluator, patches_dir=patches)
 
     # Transactional: 01_clean.patch (applied this run) must be rolled back so the
     # checkout is left consistent for the reinstall the error tells you to do.
@@ -403,7 +403,7 @@ def test_apply_kcsi_evaluator_patches_raises_on_patch_hash_drift(tmp_path: Path)
 
 
 def test_read_patch_state_tolerates_malformed_state_file(tmp_path: Path) -> None:
-    """A corrupt or unexpected .kcsi-evaluator-patches.json must degrade to an
+    """A corrupt or unexpected .ksi-evaluator-patches.json must degrade to an
     empty mapping (drift detection disabled) rather than crashing setup."""
     module = _load_script()
     evaluator = tmp_path / "evaluator"

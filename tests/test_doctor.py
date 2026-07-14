@@ -1,9 +1,9 @@
-"""Smoke tests for `kcsi-doctor` — it must run and report without crashing,
+"""Smoke tests for `ksi-doctor` — it must run and report without crashing,
 regardless of whether Docker/Node/keys are present on the machine."""
 
 from __future__ import annotations
 
-import kcsi.doctor as doctor
+import ksi.doctor as doctor
 
 
 def test_parse_node_version_accepts_node_cli_output() -> None:
@@ -59,7 +59,7 @@ def test_check_vector_status_missing_db(tmp_path, capsys) -> None:
 
 def test_check_vector_status_reads_knowledge_db(tmp_path, capsys) -> None:
     """Latest row per phase is reported; degraded phases warn, enabled phases pass."""
-    from kcsi.memory.knowledge_store import KnowledgeStore
+    from ksi.memory.knowledge_store import KnowledgeStore
 
     db_path = str(tmp_path / "exp_knowledge.sqlite")
     store = KnowledgeStore(db_path, default_experiment="exp")

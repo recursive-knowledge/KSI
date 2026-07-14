@@ -1,4 +1,4 @@
-"""Unit tests for kcsi.orchestrator.engine._is_retryable_task_error.
+"""Unit tests for ksi.orchestrator.engine._is_retryable_task_error.
 
 Covers the transient markers that feed into the existing max_task_retries
 loop. Specifically pins the SDK-stream-race signatures added after the
@@ -11,8 +11,8 @@ from __future__ import annotations
 
 import pytest
 
-from kcsi.orchestrator.engine import _is_retryable_task_error
-from kcsi.runtime.normalize import SilentAgentRuntimeError
+from ksi.orchestrator.engine import _is_retryable_task_error
+from ksi.runtime.normalize import SilentAgentRuntimeError
 
 
 @pytest.mark.parametrize(
@@ -127,7 +127,7 @@ def test_silent_with_empty_result_event_recovery_failed_is_not_retryable() -> No
 # leaving the per_turn_sum case stranded.
 #
 # Pinned positive case from the actual revalidation DB:
-#   results/cross_runner_sweeps/revalidate_haiku_haiku_audit/src/kcsi/knowledge/
+#   results/cross_runner_sweeps/revalidate_haiku_haiku_audit/src/ksi/knowledge/
 #   polyglot_haiku_audit_revalidate_haiku_runtime.sqlite, attempt 4
 #   (javascript__queen-attack, agent-0, gen 2): 14418 cache_creation +
 #   45201 cache_read tokens, 2 Read tool calls, 4697 chars of session

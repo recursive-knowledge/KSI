@@ -6,7 +6,7 @@ result is cached per image tag so repeated lookups avoid the subprocess.
 
 from unittest.mock import MagicMock, patch
 
-import kcsi.runtime.container_host as ch
+import ksi.runtime.container_host as ch
 
 
 def _proc(stdout: str, returncode: int = 0) -> MagicMock:
@@ -19,8 +19,8 @@ def _proc(stdout: str, returncode: int = 0) -> MagicMock:
 def test_successful_lookup_is_cached(monkeypatch):
     ch._DOCKER_IMAGE_ID_CACHE.clear()
     with patch.object(ch.subprocess, "run", return_value=_proc("sha256:abc\n")) as run:
-        first = ch._docker_image_id("kcsi-agent:bench")
-        second = ch._docker_image_id("kcsi-agent:bench")
+        first = ch._docker_image_id("ksi-agent:bench")
+        second = ch._docker_image_id("ksi-agent:bench")
     assert first == "sha256:abc"
     assert second == "sha256:abc"
     # Second lookup served from cache -> no second subprocess.

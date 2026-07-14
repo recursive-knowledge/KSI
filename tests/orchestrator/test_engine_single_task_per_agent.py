@@ -14,8 +14,8 @@ from unittest.mock import MagicMock
 import pytest
 from conftest import _build_make_tasks, _build_mock_evaluator, _build_mock_llm, _build_mock_runtime
 
-from kcsi.models import Assignment, GenerationConfig
-from kcsi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence, _assert_single_task_per_agent
+from ksi.models import Assignment, GenerationConfig
+from ksi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence, _assert_single_task_per_agent
 
 
 def test_single_task_per_agent_is_allowed():
@@ -43,7 +43,7 @@ def test_run_wires_the_assertion_with_the_real_assigned_map(monkeypatch):
     # from the real claim-phase output, not just that the function itself
     # is correct in isolation.
     spy = MagicMock(wraps=_assert_single_task_per_agent)
-    monkeypatch.setattr("kcsi.orchestrator.engine._assert_single_task_per_agent", spy)
+    monkeypatch.setattr("ksi.orchestrator.engine._assert_single_task_per_agent", spy)
 
     config = GenerationConfig(num_generations=1, num_agents=1)
     tasks = _build_make_tasks(1)

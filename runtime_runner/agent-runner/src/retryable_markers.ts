@@ -5,8 +5,8 @@
  * an SDK stream-race as retryable) and the ``non_retryable`` category (whose
  * prompt-rejection phrases the OpenAI adapter matches; see openai.ts).
  *
- * The Python orchestrator (``src/kcsi/orchestrator/engine.py`` via
- * ``src/kcsi/errors.py::load_retryable_markers``) classifies a task error as
+ * The Python orchestrator (``src/ksi/orchestrator/engine.py`` via
+ * ``src/ksi/errors.py::load_retryable_markers``) classifies a task error as
  * transient (retry) by case-insensitive substring match against these phrases.
  * The agent-runner must therefore EMIT these exact phrases (as a substring of
  * its error/diagnostic text) for the orchestrator to recognise an SDK

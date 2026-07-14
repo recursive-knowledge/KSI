@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 # Live merge-gate smoke for container egress isolation (#923 B1).
-# Requires: built kcsi-agent:bench image + provider creds in env.
+# Requires: built ksi-agent:bench image + provider creds in env.
 # Proves: (1) provider API works THROUGH the proxy; (2) a blocked host fails.
 set -euo pipefail
 
 RUN_ID="smoke$$"
-INT="kcsi-egress-int-${RUN_ID}"
-EXT="kcsi-egress-ext-${RUN_ID}"
-PROXY="kcsi-egress-proxy-${RUN_ID}"
-# Honor the suite-wide CONTAINER_IMAGE (set by common.sh / used by run_kcsi.sh);
-# KCSI_CONTAINER_IMAGE kept as a back-compat alias.
-IMG="${CONTAINER_IMAGE:-${KCSI_CONTAINER_IMAGE:-kcsi-agent:bench}}"
+INT="ksi-egress-int-${RUN_ID}"
+EXT="ksi-egress-ext-${RUN_ID}"
+PROXY="ksi-egress-proxy-${RUN_ID}"
+# Honor the suite-wide CONTAINER_IMAGE (set by common.sh / used by run_ksi.sh);
+# KSI_CONTAINER_IMAGE kept as a back-compat alias.
+IMG="${CONTAINER_IMAGE:-${KSI_CONTAINER_IMAGE:-ksi-agent:bench}}"
 ALLOW="api.anthropic.com,api.openai.com"
 
 cleanup() {
@@ -28,7 +28,7 @@ docker image inspect "$IMG" >/dev/null 2>&1 || {
 docker network create --internal "$INT" >/dev/null
 docker network create "$EXT" >/dev/null
 docker run -d --rm --name "$PROXY" --network "$EXT" \
-  -e "KCSI_EGRESS_PROXY_PORT=8080" -e "KCSI_EGRESS_ALLOWLIST=${ALLOW}" \
+  -e "KSI_EGRESS_PROXY_PORT=8080" -e "KSI_EGRESS_ALLOWLIST=${ALLOW}" \
   --entrypoint node "$IMG" /tmp/dist/egress_proxy_main.js >/dev/null
 docker network connect "$INT" "$PROXY"
 

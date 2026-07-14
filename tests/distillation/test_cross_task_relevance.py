@@ -4,12 +4,12 @@ Exercises _select_cross_posts_for_budget under a budget tight enough to admit
 exactly one post, so which post survives reveals the ranking signal.
 """
 
-from kcsi.distillation.cross_task import (
+from ksi.distillation.cross_task import (
     _estimate_prompt_tokens,
     _select_cross_posts_for_budget,
 )
-from kcsi.distillation.prompts import _fmt_posts
-from kcsi.memory.cross_task_context import approx_token_count as _approx_token_count
+from ksi.distillation.prompts import _fmt_posts
+from ksi.memory.cross_task_context import approx_token_count as _approx_token_count
 
 _TASK_SOURCE = "polyglot"
 _TARGET = {"id": "target", "prompt": "optimize the sorting algorithm for large arrays quickly"}
@@ -71,7 +71,7 @@ def test_safety_trim_evicts_least_relevant_not_oldest(monkeypatch):
     """The post-selection safety-trim drops the least target-relevant post, not
     merely the oldest-by-index, so a high-relevance early post survives under
     target-conditioning. (Old behavior popped the front / oldest post.)"""
-    import kcsi.distillation.cross_task as ct
+    import ksi.distillation.cross_task as ct
 
     budget = 1000
 

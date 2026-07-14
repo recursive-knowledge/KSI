@@ -6,7 +6,7 @@ import types
 
 
 def test_point_embeddings_cache_at_sets_matching_env(tmp_path):
-    from kcsi.memory.embeddings import point_embeddings_cache_at
+    from ksi.memory.embeddings import point_embeddings_cache_at
 
     # point_embeddings_cache_at() writes os.environ directly (not via
     # monkeypatch), and monkeypatch.delenv(..., raising=False) records
@@ -46,7 +46,7 @@ def test_wait_ready_false_on_load_error(monkeypatch):
     fake.SentenceTransformer = boom
     monkeypatch.setitem(sys.modules, "sentence_transformers", fake)
 
-    from kcsi.memory.embeddings import Embedder
+    from ksi.memory.embeddings import Embedder
 
     emb = Embedder(background=False)  # eager load captures the failure
     assert emb.wait_ready(timeout=5) is False

@@ -4,7 +4,7 @@ This directory holds the upstream Terminal-Bench 2 task corpus tracked as a
 git submodule, plus committed task-subset manifests.
 
 - `source/`: upstream checkout at a pinned commit
-- `task_maps/`: committed KCSI-side task subsets and manifests
+- `task_maps/`: committed KSI-side task subsets and manifests
 
 For the runtime architecture and full integration boundary see
 [INTEGRATION.md](./INTEGRATION.md).
@@ -22,7 +22,7 @@ execution semantics. Each task directory is a small benchmark package with:
 
 The pinned upstream checkout under `source/` contains 89 task directories.
 
-Initialize after cloning KCSI:
+Initialize after cloning KSI:
 
 ```bash
 git submodule update --init --recursive benchmarks/terminal_bench_2/source
@@ -33,11 +33,11 @@ git submodule update --init --recursive benchmarks/terminal_bench_2/source
 Run a 5-task × 2-generation smoke with the curated subset:
 
 ```bash
-uv run python -m kcsi.cli \
+uv run python -m ksi.cli \
   --task-source terminal_bench_2 \
   --tasks-path benchmarks/terminal_bench_2/task_maps/terminal_bench_2_local_smoke_5_curated.json \
   --evaluator terminal_bench_2 --runtime container \
-  --provider-profile configs/kcsi/.env.haiku \
+  --provider-profile configs/ksi/.env.haiku \
   --generations 2 \
   --max-concurrent-tasks 5 --seed 0 --drop-solved \
   --experiment-name tb2_smoke_haiku
@@ -45,12 +45,12 @@ uv run python -m kcsi.cli \
 
 `--runtime-timeout-sec` is omitted on purpose: for TB2 the per-task
 `task.toml [agent].timeout_sec` is the authoritative wall-time bound (Harbor
-parity), so the timeout is not configurable — omission means no KCSI hard
+parity), so the timeout is not configurable — omission means no KSI hard
 container cap, and a non-negative value is rejected.
 
 Per-task images are pulled from Docker Hub (`alexgshaw/<task>:<date>` per
 each task's `task.toml`); local builds happen only on pull failure or when
-`KCSI_TB2_DISABLE_PULL=1`.
+`KSI_TB2_DISABLE_PULL=1`.
 
 ## Task Maps
 
@@ -76,8 +76,8 @@ The generator validates the expected TB2 task layout before writing the map.
 ## Single-Task Smoke / Oracle Trial
 
 `scripts/debug/run_terminal_bench_2_trial.py` is a debug-style driver
-that runs ONE task in oracle / noop / command / kcsi mode without going
-through the full KCSI engine. Useful for verifying that the Harbor task
+that runs ONE task in oracle / noop / command / ksi mode without going
+through the full KSI engine. Useful for verifying that the Harbor task
 contract works end-to-end against a specific task:
 
 ```bash
@@ -90,4 +90,4 @@ PYTHONPATH=. uv run python scripts/debug/run_terminal_bench_2_trial.py \
 This script shares the trial driver (`run_terminal_bench_2_trial`) with the
 production evaluator path; it just doesn't record into the knowledge DB.
 
-For full campaign runs use `kcsi.cli` (see Quick Start above).
+For full campaign runs use `ksi.cli` (see Quick Start above).

@@ -3,8 +3,8 @@ from __future__ import annotations
 import json
 from unittest.mock import MagicMock, patch
 
-from kcsi.models import TaskSpec
-from kcsi.runtime.container_host import KcsiContainerExecutor
+from ksi.models import TaskSpec
+from ksi.runtime.container_host import KsiContainerExecutor
 
 
 def _runner_stdout(*, task_id: str) -> str:
@@ -36,7 +36,7 @@ def test_terminal_bench_2_seed_policy_uses_native_files_and_thin_instruction(tmp
             captured.append(json.load(handle))
         return MagicMock(returncode=0, stdout=_runner_stdout(task_id="git-multibranch"), stderr="")
 
-    ex = KcsiContainerExecutor(
+    ex = KsiContainerExecutor(
         command=["echo", "dummy"],
         working_dir=str(tmp_path),
         instruction_path=str(instruction_path),
@@ -66,7 +66,7 @@ def test_terminal_bench_2_seed_policy_uses_native_files_and_thin_instruction(tmp
         },
     )
 
-    with patch("kcsi.runtime.container_host._run_command_with_backstop", side_effect=fake_run):
+    with patch("ksi.runtime.container_host._run_command_with_backstop", side_effect=fake_run):
         ex.run_task(
             generation=1,
             agent_id="agent-0",

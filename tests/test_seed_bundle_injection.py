@@ -8,10 +8,10 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from kcsi.models import AgentState, GenerationConfig, TaskSpec
-from kcsi.orchestrator.engine import GenerationalOrchestrator
-from kcsi.seeding.seeder import PopulationSeeder
-from kcsi.tokens import LLMResponse, TokenAccumulator, TokenUsage
+from ksi.models import AgentState, GenerationConfig, TaskSpec
+from ksi.orchestrator.engine import GenerationalOrchestrator
+from ksi.seeding.seeder import PopulationSeeder
+from ksi.tokens import LLMResponse, TokenAccumulator, TokenUsage
 from tests.orchestrator_phase_helpers import load_cross_task_seed_bundle, prepare_resume_population
 
 # ---------------------------------------------------------------------------
@@ -329,7 +329,7 @@ def test_load_per_task_bundles_raises_when_no_row_has_usable_dict(tmp_path: Path
 
 @pytest.fixture
 def knowledge_store(tmp_path):
-    from kcsi.memory.knowledge_store import KnowledgeStore
+    from ksi.memory.knowledge_store import KnowledgeStore
 
     ks = KnowledgeStore(str(tmp_path / "k.sqlite"), default_experiment="test")
     yield ks

@@ -4,16 +4,16 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-from kcsi.memory.forum_bus import ForumBus
-from kcsi.memory.knowledge_store import KnowledgeStore
-from kcsi.memory.mcp_server import (
+from ksi.memory.forum_bus import ForumBus
+from ksi.memory.knowledge_store import KnowledgeStore
+from ksi.memory.mcp_server import (
     _build_tools,
     handle_forum_post,
     handle_forum_signal_done,
     handle_forum_signal_done_v2,
     handle_knowledge,
 )
-from kcsi.orchestrator.engine import _drain_forum_bus
+from ksi.orchestrator.engine import _drain_forum_bus
 
 # ---------------------------------------------------------------------------
 # Helpers

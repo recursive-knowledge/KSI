@@ -5,9 +5,9 @@ from conftest import REPO_ROOT
 
 SCRIPT = REPO_ROOT / "benchmarks" / "run_terminal_bench_2.sh"
 # Any existing file passes common.sh's validate_profiles file-existence check;
-# real provider profiles (configs/kcsi/.env.*) are untracked, so point the
+# real provider profiles (configs/ksi/.env.*) are untracked, so point the
 # profile env vars at a committed file for the DRY_RUN preview.
-EXISTING_PROFILE = "configs/kcsi/.env.haiku.template"
+EXISTING_PROFILE = "configs/ksi/.env.haiku.template"
 
 
 def _run_script(args, env_overrides):
@@ -59,14 +59,14 @@ def test_tb2_campaign_dry_run_composes_expected_cli():
 
 
 def test_tb2_campaign_sets_require_pull_and_never_sets_step_cap():
-    # KCSI_TB2_REQUIRE_PULL is exported by the wrapper (fairness); it defaults
-    # to 1 but stays overridable. KCSI_TB2_MAX_STEPS is deliberately left unset
-    # (no kcsi-side step cap) — the wrapper must never assign it.
+    # KSI_TB2_REQUIRE_PULL is exported by the wrapper (fairness); it defaults
+    # to 1 but stays overridable. KSI_TB2_MAX_STEPS is deliberately left unset
+    # (no ksi-side step cap) — the wrapper must never assign it.
     text = SCRIPT.read_text(encoding="utf-8")
-    assert 'export KCSI_TB2_REQUIRE_PULL="${KCSI_TB2_REQUIRE_PULL:-1}"' in text
-    assert "KCSI_TB2_IMAGE_DIGEST_MANIFEST" in text
-    assert "unset KCSI_TB2_MAX_STEPS" in text
-    assert "KCSI_TB2_MAX_STEPS=" not in text
+    assert 'export KSI_TB2_REQUIRE_PULL="${KSI_TB2_REQUIRE_PULL:-1}"' in text
+    assert "KSI_TB2_IMAGE_DIGEST_MANIFEST" in text
+    assert "unset KSI_TB2_MAX_STEPS" in text
+    assert "KSI_TB2_MAX_STEPS=" not in text
     assert 'uv run python - "$TB2_TASK_MAP"' in text
     assert "json.load(open('$TB2_TASK_MAP'))" not in text
 

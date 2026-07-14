@@ -10,7 +10,7 @@ import { resolveWorkspaceRootPath } from './workspace_scope.js';
  * downstream collection loop in main() then picks up the synthesized
  * arc_submit_trial outputs into runtime_meta.arc_submit_trial_results, which
  * the Python scorer
- * (`src/kcsi/eval/arc_session.py::_reconstruct_submissions_from_trace`)
+ * (`src/ksi/eval/arc_session.py::_reconstruct_submissions_from_trace`)
  * consumes unchanged.
  *
  * Prediction files are per-test, named `attempt_<k>_<t>.txt` where ``k`` is the

@@ -1,6 +1,6 @@
 import pytest
 
-from kcsi.cli import build_parser
+from ksi.cli import build_parser
 
 _REQUIRED = ["--task-source", "arc", "--tasks-path", "/tmp/does-not-matter.json"]
 

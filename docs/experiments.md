@@ -5,13 +5,13 @@ walkthroughs run one generation over a handful of tiny tasks. This page
 covers the flags that matter once you scale up — more tasks, more
 generations, or a maintained reference benchmark instead of your own tasks.
 
-There is **one canonical launch surface**: the `kcsi.cli` argument parser.
-Everything else (bash presets, `kcsi.run(...)`) is a layer over the same
+There is **one canonical launch surface**: the `ksi.cli` argument parser.
+Everything else (bash presets, `ksi.run(...)`) is a layer over the same
 `GenerationConfig`.
 
 ```bash
-uv run python -m kcsi.cli --help
-uv run kcsi --help          # console-script alias for the same entry point
+uv run python -m ksi.cli --help
+uv run ksi --help          # console-script alias for the same entry point
 ```
 
 ## Flags that matter at scale
@@ -37,14 +37,14 @@ See [glossary.md](glossary.md) for term definitions and
 Two convenience layers assemble CLI flag lists for you; neither is a separate
 system:
 
-- [`scripts/run_kcsi.sh`](https://github.com/recursive-knowledge/KCSI/blob/main/scripts/run_kcsi.sh) —
+- [`scripts/run_ksi.sh`](https://github.com/recursive-knowledge/KSI/blob/main/scripts/run_ksi.sh) —
   a single-entry launcher that auto-detects the right task source/evaluator
   from a dataset file and resolves `--model` to a provider profile. Use it
   for ad-hoc runs against any dataset.
-- [`benchmarks/run_*.sh`](https://github.com/recursive-knowledge/KCSI/blob/main/benchmarks/README.md) —
+- [`benchmarks/run_*.sh`](https://github.com/recursive-knowledge/KSI/blob/main/benchmarks/README.md) —
   maintained, one-LLM-per-invocation presets for each reference benchmark
   (ARC, Polyglot, SWE-bench Pro, Terminal-Bench 2). See
-  [benchmarks/README.md](https://github.com/recursive-knowledge/KCSI/blob/main/benchmarks/README.md)
+  [benchmarks/README.md](https://github.com/recursive-knowledge/KSI/blob/main/benchmarks/README.md)
   for their arguments and environment variables.
 
 Both print the exact composed CLI command without running anything when
@@ -57,7 +57,7 @@ DRY_RUN=true bash benchmarks/run_arc.sh 2 haiku
 Task selection for a reference benchmark is usually pinned with
 `--task-map-path` (a named, reproducible task-ID subset) rather than a bare
 `--tasks-path` directory — see
-[BENCHMARK_PREPARE.md](https://github.com/recursive-knowledge/KCSI/blob/main/benchmarks/docs/BENCHMARK_PREPARE.md#task-maps)
+[BENCHMARK_PREPARE.md](https://github.com/recursive-knowledge/KSI/blob/main/benchmarks/docs/BENCHMARK_PREPARE.md#task-maps)
 for how task maps are built and validated.
 
 ## Observability
@@ -66,11 +66,11 @@ The CLI exposes an **Observability** flag group controlling logging verbosity:
 
 | Flag / env var | Effect |
 |----------------|--------|
-| `--log-level {DEBUG,INFO,WARNING,ERROR,CRITICAL}` | Logging verbosity. Overrides the `KCSI_LOG_LEVEL` env var. |
+| `--log-level {DEBUG,INFO,WARNING,ERROR,CRITICAL}` | Logging verbosity. Overrides the `KSI_LOG_LEVEL` env var. |
 | `-v` / `--verbose` | Shortcut for `--log-level DEBUG`. |
-| `KCSI_LOG_LEVEL` (env var) | Fallback verbosity when `--log-level` is not passed. |
+| `KSI_LOG_LEVEL` (env var) | Fallback verbosity when `--log-level` is not passed. |
 
-Precedence is `--log-level` → `KCSI_LOG_LEVEL` → `INFO` (the default when
+Precedence is `--log-level` → `KSI_LOG_LEVEL` → `INFO` (the default when
 neither is set). At `INFO` the engine emits per-task progress logs as
 attempts start and complete; `DEBUG` adds runtime/subprocess detail.
 
@@ -106,6 +106,6 @@ knowledge-substrate flag. The removed flag is `--memory-db-path`; use
 
 ## See also
 
-- [benchmarks/docs/BENCHMARK_PREPARE.md](https://github.com/recursive-knowledge/KCSI/blob/main/benchmarks/docs/BENCHMARK_PREPARE.md) —
+- [benchmarks/docs/BENCHMARK_PREPARE.md](https://github.com/recursive-knowledge/KSI/blob/main/benchmarks/docs/BENCHMARK_PREPARE.md) —
   dataset preparation and task-map details for the reference benchmarks.
 - [artifacts.md](artifacts.md) — result report layout and cleanup workflow.

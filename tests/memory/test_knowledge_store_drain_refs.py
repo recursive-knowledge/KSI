@@ -9,7 +9,7 @@ per-op ``_ensure_run/gen_locked`` then short-circuit instead of re-running
 import tempfile
 from pathlib import Path
 
-from kcsi.memory.knowledge_store import KnowledgeStore
+from ksi.memory.knowledge_store import KnowledgeStore
 
 
 def _post_ops(ks: KnowledgeStore, *, generation: int, n: int):

@@ -126,10 +126,10 @@ async function scenario({ responses, triesRemaining, maxLines, rounds, pollTimeo
 }
 
 // Fixtures mirror the real PolyglotHarnessEvaluator payload shape: it emits
-// status:'ok' for BOTH a pass and a fail (src/kcsi/benchmarks/polyglot_harness.py
+// status:'ok' for BOTH a pass and a fail (src/ksi/benchmarks/polyglot_harness.py
 // ~L657 — the pass/fail verdict lives in resolved/native_score/test_exit_code,
 // not status). The evaluator-error response is {status:'evaluator_error', error}
-// (src/kcsi/runtime/container_host.py ~L1160).
+// (src/ksi/runtime/container_host.py ~L1160).
 const pass = { resolved: true, native_score: 1.0, status: 'ok', test_exit_code: 0 };
 const fail = {
   resolved: false, native_score: 0.0, status: 'ok', test_exit_code: 1,

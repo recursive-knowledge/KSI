@@ -5,7 +5,7 @@ import pytest
 
 
 def _make_populated_store(tmp_path):
-    from kcsi.memory.store import MemoryStore
+    from ksi.memory.store import MemoryStore
 
     db_path = str(tmp_path / "test.sqlite")
     store = MemoryStore(db_path)
@@ -28,9 +28,9 @@ class TestMCPHandlers:
     def test_default_embedding_model_is_embeddinggemma(self, monkeypatch):
         import importlib
 
-        import kcsi.memory.embeddings as embeddings
+        import ksi.memory.embeddings as embeddings
 
-        monkeypatch.delenv("KCSI_EMBEDDING_MODEL", raising=False)
+        monkeypatch.delenv("KSI_EMBEDDING_MODEL", raising=False)
         reloaded = importlib.reload(embeddings)
         try:
             assert reloaded._DEFAULT_EMBEDDING_MODEL == "google/embeddinggemma-300m"
@@ -38,7 +38,7 @@ class TestMCPHandlers:
             importlib.reload(embeddings)
 
     def test_build_tools_include_memory_and_forum_toolset(self):
-        from kcsi.memory.mcp_server import _build_tools
+        from ksi.memory.mcp_server import _build_tools
 
         names = {tool["name"] for tool in _build_tools()}
         assert "query" in names
@@ -58,7 +58,7 @@ class TestMCPHandlers:
         assert "semantic vector search" in query_tool["description"]
 
     def test_handle_query(self, tmp_path):
-        from kcsi.memory.mcp_server import handle_query
+        from ksi.memory.mcp_server import handle_query
 
         store = _make_populated_store(tmp_path)
         try:
@@ -77,7 +77,7 @@ class TestMCPHandlers:
             store.close()
 
     def test_handle_query_missing(self, tmp_path):
-        from kcsi.memory.mcp_server import handle_query
+        from ksi.memory.mcp_server import handle_query
 
         store = _make_populated_store(tmp_path)
         try:
@@ -90,7 +90,7 @@ class TestMCPHandlers:
             store.close()
 
     def test_handle_query_uses_knowledge_store_without_runtime_store(self):
-        from kcsi.memory.mcp_server import handle_query
+        from ksi.memory.mcp_server import handle_query
 
         class FakeKnowledgeStore:
             _vec_enabled = False
@@ -128,7 +128,7 @@ class TestMCPHandlers:
         assert result["insights"][0]["text"] == "preserve the parser fix"
 
     def test_handle_query_includes_semantic_related_when_available(self, tmp_path):
-        from kcsi.memory.mcp_server import handle_query
+        from ksi.memory.mcp_server import handle_query
 
         class FakeEmbedder:
             def embed(self, text):
@@ -164,7 +164,7 @@ class TestMCPHandlers:
             store.close()
 
     def test_handle_query_marks_semantic_available_even_without_hits(self, tmp_path):
-        from kcsi.memory.mcp_server import handle_query
+        from ksi.memory.mcp_server import handle_query
 
         class FakeEmbedder:
             def embed(self, text):
@@ -195,7 +195,7 @@ class TestMCPHandlers:
             store.close()
 
     def test_handle_query_reports_semantic_disabled_when_vec_unavailable(self, tmp_path):
-        from kcsi.memory.mcp_server import handle_query
+        from ksi.memory.mcp_server import handle_query
 
         class FakeEmbedder:
             def embed(self, text):
@@ -229,7 +229,7 @@ class TestMCPHandlers:
 
     def test_handle_query_falls_back_to_fts_when_vec_unavailable(self, tmp_path):
         """No embedder/vec → FTS-backed related items with semantic-compatible shape."""
-        from kcsi.memory.mcp_server import handle_query
+        from ksi.memory.mcp_server import handle_query
 
         captured: dict[str, object] = {}
 
@@ -299,7 +299,7 @@ class TestMCPHandlers:
 
     def test_handle_query_fts_fallback_uses_task_id_when_no_query_text(self, tmp_path):
         """Even without explicit query text, the FTS fallback retrieves on task_id."""
-        from kcsi.memory.mcp_server import handle_query
+        from ksi.memory.mcp_server import handle_query
 
         seen: dict[str, object] = {}
 
@@ -327,7 +327,7 @@ class TestMCPHandlers:
 
     def test_handle_query_embedding_failure_falls_back_to_fts(self, tmp_path):
         """A runtime embedding exception degrades to FTS rather than empty/crash."""
-        from kcsi.memory.mcp_server import handle_query
+        from ksi.memory.mcp_server import handle_query
 
         class FailingEmbedder:
             def embed(self, _text):
@@ -361,7 +361,7 @@ class TestMCPHandlers:
         assert result["related"][0]["distance"] is None
 
     def test_forum_protocol_state_requires_retrieval_before_per_task_post(self):
-        from kcsi.memory.mcp_server import ForumProtocolState
+        from ksi.memory.mcp_server import ForumProtocolState
 
         state = ForumProtocolState()
         assert state.missing_for_post("task-1") == [
@@ -376,7 +376,7 @@ class TestMCPHandlers:
         assert state.missing_for_post("task-1") == []
 
     def test_forum_protocol_state_requires_cross_task_semantic_query(self):
-        from kcsi.memory.mcp_server import ForumProtocolState
+        from ksi.memory.mcp_server import ForumProtocolState
 
         state = ForumProtocolState()
         assert state.missing_for_post("__cross_task__") == ["query(task_id='__cross_task__', query='...')"]
@@ -385,7 +385,7 @@ class TestMCPHandlers:
         assert state.missing_for_post("__cross_task__") == []
 
     def test_snapshot_query(self):
-        from kcsi.memory.mcp_server import _query_from_snapshot
+        from ksi.memory.mcp_server import _query_from_snapshot
 
         snapshot = {
             "query_records_by_task": {
@@ -426,7 +426,7 @@ class TestMCPHandlers:
         assert len(query_result["insights"]) == 1
 
     def test_snapshot_query_uses_semantic_related_when_available(self):
-        from kcsi.memory.mcp_server import _query_from_snapshot
+        from ksi.memory.mcp_server import _query_from_snapshot
 
         class FakeEmbedder:
             def embed(self, text):
@@ -457,7 +457,7 @@ class TestMCPHandlers:
         assert result["related"] == [{"task_id": "related", "distance": 0.02}]
 
     def test_snapshot_query_falls_back_to_fts_when_vec_unavailable(self):
-        from kcsi.memory.mcp_server import _query_from_snapshot
+        from ksi.memory.mcp_server import _query_from_snapshot
 
         class FakeKnowledgeStore:
             _vec_enabled = False
@@ -485,7 +485,7 @@ class TestFTSFallbackEndToEnd:
     """End-to-end: real KnowledgeStore with vec disabled → handle_query uses FTS."""
 
     def _make_knowledge_store(self, tmp_path):
-        from kcsi.memory.knowledge_store import KnowledgeStore
+        from ksi.memory.knowledge_store import KnowledgeStore
 
         db_path = str(tmp_path / "knowledge.sqlite")
         store = KnowledgeStore(db_path, default_experiment="exp1", enable_vec=False)
@@ -508,7 +508,7 @@ class TestFTSFallbackEndToEnd:
         return store
 
     def test_handle_query_returns_fts_related_when_no_embedder(self, tmp_path):
-        from kcsi.memory.mcp_server import handle_query
+        from ksi.memory.mcp_server import handle_query
 
         store = self._make_knowledge_store(tmp_path)
         try:
@@ -534,7 +534,7 @@ class TestFTSFallbackEndToEnd:
 
     def test_handle_query_fts_fallback_survives_special_chars(self, tmp_path):
         """FTS5 special characters in the query must not raise (real sanitizer)."""
-        from kcsi.memory.mcp_server import handle_query
+        from ksi.memory.mcp_server import handle_query
 
         store = self._make_knowledge_store(tmp_path)
         try:
@@ -565,25 +565,25 @@ class TestIsRedundant:
     """Tests for _is_redundant word-overlap deduplication."""
 
     def test_high_overlap_returns_true(self):
-        from kcsi.memory.mcp_server import _is_redundant
+        from ksi.memory.mcp_server import _is_redundant
 
         accepted = ["check the migration cache invalidation first"]
         assert _is_redundant("check migration cache invalidation", accepted) is True
 
     def test_distinct_text_returns_false(self):
-        from kcsi.memory.mcp_server import _is_redundant
+        from ksi.memory.mcp_server import _is_redundant
 
         accepted = ["check the migration cache invalidation first"]
         assert _is_redundant("refactor the matrix multiplication code", accepted) is False
 
     def test_empty_candidate_always_redundant(self):
-        from kcsi.memory.mcp_server import _is_redundant
+        from ksi.memory.mcp_server import _is_redundant
 
         assert _is_redundant("", []) is True
         assert _is_redundant("   ", ["anything"]) is True
 
     def test_blank_candidate_always_redundant(self):
-        from kcsi.memory.mcp_server import _is_redundant
+        from ksi.memory.mcp_server import _is_redundant
 
         assert _is_redundant("  \t\n  ", ["some text"]) is True
 
@@ -592,7 +592,7 @@ class TestQueryFromSnapshotDedup:
     """Tests that _query_from_snapshot deduplicates identical insights across records."""
 
     def test_identical_insights_across_records_are_deduped(self):
-        from kcsi.memory.mcp_server import _query_from_snapshot
+        from ksi.memory.mcp_server import _query_from_snapshot
 
         snapshot = {
             "query_records_by_task": {
@@ -632,7 +632,7 @@ class TestQueryFromSnapshotRelated:
     """Tests for related_summaries field in _query_from_snapshot."""
 
     def test_returns_related_field_from_snapshot(self):
-        from kcsi.memory.mcp_server import _query_from_snapshot
+        from ksi.memory.mcp_server import _query_from_snapshot
 
         related = [
             {"task_id": "task-2", "approach": "use grid coloring", "score": 0.5},
@@ -659,7 +659,7 @@ class TestQueryFromSnapshotRelated:
         assert result["related"] == related
 
     def test_related_summaries_capped_at_5(self):
-        from kcsi.memory.mcp_server import _query_from_snapshot
+        from ksi.memory.mcp_server import _query_from_snapshot
 
         related = [{"task_id": f"task-{i}", "approach": f"approach-{i}"} for i in range(10)]
         snapshot = {
@@ -681,7 +681,7 @@ class TestQueryExcludesHoldoutTaskIds:
             return [0.1, 0.2]
 
     def test_handle_query_vec_excludes_task_ids(self, tmp_path):
-        from kcsi.memory.mcp_server import handle_query
+        from ksi.memory.mcp_server import handle_query
 
         class FakeKnowledgeStore:
             _vec_enabled = True
@@ -707,7 +707,7 @@ class TestQueryExcludesHoldoutTaskIds:
         assert [r["task_id"] for r in result["related"]] == ["t2"]
 
     def test_handle_query_fts_fallback_excludes_task_ids(self, tmp_path):
-        from kcsi.memory.mcp_server import handle_query
+        from ksi.memory.mcp_server import handle_query
 
         class FakeKnowledgeStore:
             _vec_enabled = False
@@ -733,7 +733,7 @@ class TestQueryExcludesHoldoutTaskIds:
         assert [r["task_id"] for r in result["related"]] == ["t2"]
 
     def test_query_from_snapshot_vec_excludes_task_ids(self, tmp_path):
-        from kcsi.memory.mcp_server import _query_from_snapshot
+        from ksi.memory.mcp_server import _query_from_snapshot
 
         class FakeKnowledgeStore:
             _vec_enabled = True
@@ -756,7 +756,7 @@ class TestQueryExcludesHoldoutTaskIds:
         assert [r["task_id"] for r in result["related"]] == ["t2"]
 
     def test_query_from_snapshot_fts_fallback_excludes_task_ids(self, tmp_path):
-        from kcsi.memory.mcp_server import _query_from_snapshot
+        from ksi.memory.mcp_server import _query_from_snapshot
 
         class FakeKnowledgeStore:
             _vec_enabled = False
@@ -780,7 +780,7 @@ class TestQueryExcludesHoldoutTaskIds:
         assert [r["task_id"] for r in result["related"]] == ["t2"]
 
     def test_handle_query_excludes_exact_task_records(self):
-        from kcsi.memory.mcp_server import handle_query
+        from ksi.memory.mcp_server import handle_query
 
         class FakeKnowledgeStore:
             _vec_enabled = False
@@ -803,7 +803,7 @@ class TestQueryExcludesHoldoutTaskIds:
         assert result["retrieval_mode"] == "excluded"
 
     def test_query_from_snapshot_excludes_exact_task_records(self):
-        from kcsi.memory.mcp_server import _query_from_snapshot
+        from ksi.memory.mcp_server import _query_from_snapshot
 
         result = _query_from_snapshot(
             snapshot={
@@ -827,7 +827,7 @@ class TestQueryExcludesHoldoutTaskIds:
         assert result["retrieval_mode"] == "excluded"
 
     def test_resolve_exclude_task_ids_merges_env_and_snapshot(self, monkeypatch):
-        from kcsi.memory.mcp_server import _resolve_exclude_task_ids
+        from ksi.memory.mcp_server import _resolve_exclude_task_ids
 
         monkeypatch.setenv("MEMORY_EXCLUDE_TASK_IDS", "h1, ,h2")
         assert _resolve_exclude_task_ids({"exclude_task_ids": ["h2", "h3", ""]}) == frozenset({"h1", "h2", "h3"})
@@ -836,8 +836,8 @@ class TestQueryExcludesHoldoutTaskIds:
         assert _resolve_exclude_task_ids(None) == frozenset()
 
     def test_forum_read_excludes_task_ids_from_bus(self, tmp_path):
-        from kcsi.memory.forum_bus import ForumBus
-        from kcsi.memory.mcp_server import handle_forum_read
+        from ksi.memory.forum_bus import ForumBus
+        from ksi.memory.mcp_server import handle_forum_read
 
         bus = ForumBus(db_path=str(tmp_path / "forum.sqlite"), experiment="exp1", generation=1)
         bus.clear()
@@ -865,8 +865,8 @@ class TestQueryExcludesHoldoutTaskIds:
         ]
 
     def test_forum_post_rejects_excluded_or_unassigned_task_ids(self, tmp_path):
-        from kcsi.memory.forum_bus import ForumBus
-        from kcsi.memory.mcp_server import handle_forum_post
+        from ksi.memory.forum_bus import ForumBus
+        from ksi.memory.mcp_server import handle_forum_post
 
         bus = ForumBus(db_path=str(tmp_path / "forum.sqlite"), experiment="exp1", generation=1)
 
@@ -915,7 +915,7 @@ class TestRunServerFrameValidation:
         import io
         import json
 
-        from kcsi.memory import mcp_server
+        from ksi.memory import mcp_server
 
         stdin = io.StringIO("".join(f + "\n" for f in frames))
         stdout = io.StringIO()
@@ -975,31 +975,31 @@ class TestResolveToolset:
 
     @pytest.mark.parametrize("value", ["all", "memory", "task", "forum"])
     def test_valid_values_pass_through(self, monkeypatch, value):
-        from kcsi.memory.mcp_server import _resolve_toolset
+        from ksi.memory.mcp_server import _resolve_toolset
 
         monkeypatch.setenv("MCP_TOOLSET", value)
         assert _resolve_toolset() == value
 
     def test_unset_defaults_to_all(self, monkeypatch):
-        from kcsi.memory.mcp_server import _resolve_toolset
+        from ksi.memory.mcp_server import _resolve_toolset
 
         monkeypatch.delenv("MCP_TOOLSET", raising=False)
         assert _resolve_toolset() == "all"
 
     def test_empty_defaults_to_all(self, monkeypatch):
-        from kcsi.memory.mcp_server import _resolve_toolset
+        from ksi.memory.mcp_server import _resolve_toolset
 
         monkeypatch.setenv("MCP_TOOLSET", "  ")
         assert _resolve_toolset() == "all"
 
     def test_case_and_whitespace_normalized(self, monkeypatch):
-        from kcsi.memory.mcp_server import _resolve_toolset
+        from ksi.memory.mcp_server import _resolve_toolset
 
         monkeypatch.setenv("MCP_TOOLSET", " Forum ")
         assert _resolve_toolset() == "forum"
 
     def test_unknown_value_fails_closed(self, monkeypatch):
-        from kcsi.memory.mcp_server import _resolve_toolset
+        from ksi.memory.mcp_server import _resolve_toolset
 
         monkeypatch.setenv("MCP_TOOLSET", "taks")
         with pytest.raises(SystemExit, match="Invalid MCP_TOOLSET 'taks'"):

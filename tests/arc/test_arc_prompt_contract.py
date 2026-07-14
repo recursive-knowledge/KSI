@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from kcsi.models import TaskSpec
-from kcsi.prompts import build_execution_prompt, build_task_markdown
+from ksi.models import TaskSpec
+from ksi.prompts import build_execution_prompt, build_task_markdown
 
 
 def _arc_task() -> TaskSpec:

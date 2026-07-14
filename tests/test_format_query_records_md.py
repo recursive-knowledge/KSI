@@ -12,7 +12,7 @@ int-cap path used by other seed fields still truncates.
 
 from __future__ import annotations
 
-from kcsi.runtime.seeding import (
+from ksi.runtime.seeding import (
     _INSIGHT_SEED_MAX_CHARS,
     _sanitize_seed_excerpt,
     format_query_records_md,

@@ -37,13 +37,13 @@ import { buildWebToolGating, isWebToolsAllowed, WEB_TOOLS } from ${JSON.stringif
 const cases = [
   // [label, sdkEnv, isOffline]
   ['non-arc default (unset)', {}, false],
-  ['non-arc explicit on "1"', { KCSI_ALLOW_WEB_TOOLS: '1' }, false],
-  ['non-arc explicit on "true"', { KCSI_ALLOW_WEB_TOOLS: 'true' }, false],
-  ['non-arc explicit off "0"', { KCSI_ALLOW_WEB_TOOLS: '0' }, false],
-  ['non-arc explicit off "false"', { KCSI_ALLOW_WEB_TOOLS: 'false' }, false],
-  ['non-arc whitespace', { KCSI_ALLOW_WEB_TOOLS: '   ' }, false],
+  ['non-arc explicit on "1"', { KSI_ALLOW_WEB_TOOLS: '1' }, false],
+  ['non-arc explicit on "true"', { KSI_ALLOW_WEB_TOOLS: 'true' }, false],
+  ['non-arc explicit off "0"', { KSI_ALLOW_WEB_TOOLS: '0' }, false],
+  ['non-arc explicit off "false"', { KSI_ALLOW_WEB_TOOLS: 'false' }, false],
+  ['non-arc whitespace', { KSI_ALLOW_WEB_TOOLS: '   ' }, false],
   ['arc default', {}, true],
-  ['arc with flag on (ARC always wins)', { KCSI_ALLOW_WEB_TOOLS: '1' }, true],
+  ['arc with flag on (ARC always wins)', { KSI_ALLOW_WEB_TOOLS: '1' }, true],
 ];
 
 const out = cases.map(([label, env, isOffline]) => ({
@@ -92,7 +92,7 @@ describe('web_tools.ts gating — behavioral (issue #666)', () => {
       assert.equal(r.gating.webToolsEnabled, true, label);
       assert.deepEqual(r.gating.allowlistWebTools, WEB, label);
       assert.deepEqual(r.gating.disallowedWebTools, [], label);
-      assert.equal(r.gating.reason, 'KCSI_ALLOW_WEB_TOOLS=1', label);
+      assert.equal(r.gating.reason, 'KSI_ALLOW_WEB_TOOLS=1', label);
     }
   });
 

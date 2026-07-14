@@ -1,5 +1,5 @@
-from kcsi.benchmarks.arc_session import ArcSessionEvaluator
-from kcsi.models import TaskSpec
+from ksi.benchmarks.arc_session import ArcSessionEvaluator
+from ksi.models import TaskSpec
 
 
 def _task_with_tests(test_pairs):
