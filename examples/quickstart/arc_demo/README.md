@@ -17,7 +17,7 @@ correctly configured setup produces solved tasks:
 | `demo_mirror.json`  | mirror each row left-to-right |
 | `demo_transpose.json` | transpose the grid |
 
-Each file follows the ARC task schema consumed by `src/kcsi/tasks/loaders.py`:
+Each file follows the ARC task schema consumed by `src/ksi/tasks/loaders.py`:
 
 ```json
 {

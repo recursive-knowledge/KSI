@@ -24,7 +24,7 @@ from __future__ import annotations
 
 import json
 
-from kcsi.memory.mcp_server import _query_from_snapshot, _redact_solver_hidden_eval_fields, handle_knowledge
+from ksi.memory.mcp_server import _query_from_snapshot, _redact_solver_hidden_eval_fields, handle_knowledge
 
 # Distinctive canaries.
 _EXPECTED_CELL = 4242  # ARC gold cell value — must NOT survive.
@@ -107,7 +107,7 @@ def test_handle_query_routes_page_through_redactor():
     """`query` is a second forum-facing exit of the same attempt page; it must
     apply the same ARC-answer redaction as `handle_knowledge` (defense-in-depth,
     so a future passthrough of eval_results can't reopen the leak)."""
-    from kcsi.memory import mcp_server
+    from ksi.memory import mcp_server
 
     captured: dict = {}
     orig = mcp_server._knowledge_attempts_to_query_rows
@@ -128,7 +128,7 @@ def test_handle_query_routes_page_through_redactor():
 
 
 def test_handle_query_redacts_related_attempt_content_from_fts():
-    from kcsi.memory import mcp_server
+    from ksi.memory import mcp_server
 
     class _RelatedStore:
         _vec_enabled = False
@@ -191,7 +191,7 @@ def test_handle_query_short_task_id_fallback_returns_and_redacts_related():
     raw operator-filtered tokens so such ids still retrieve rows, and the
     redaction path (which only runs on returned rows) is still exercised here.
     """
-    from kcsi.memory import mcp_server
+    from ksi.memory import mcp_server
 
     class _RelatedStore:
         _vec_enabled = False
@@ -289,7 +289,7 @@ def test_snapshot_query_redacts_related_summary_text_fields():
 
 
 def test_query_redacts_flat_trace_condensed_from_legacy_store():
-    from kcsi.memory import mcp_server
+    from ksi.memory import mcp_server
 
     class _LegacyMemoryStore:
         def query_task_memory(self, *, task_id, experiment=None, limit=None):  # noqa: ANN001, D102
@@ -374,7 +374,7 @@ def test_redactor_scrubs_stale_non_attempt_buckets():
 def test_handle_query_strips_legacy_store_attempt_history_arc_answers():
     """Older MemoryStore rows can already contain raw attempt_history entries;
     query must sanitize those read-side payloads too."""
-    from kcsi.memory import mcp_server
+    from ksi.memory import mcp_server
 
     class _LegacyMemoryStore:
         def query_task_memory(self, *, task_id, experiment=None, limit=None):  # noqa: ANN001, D102
@@ -561,7 +561,7 @@ def test_tb2_verifier_output_stripped_from_attempt_meta():
 
 
 def test_knowledge_attempts_to_seed_records_strips_hidden_fields_without_mutating_source():
-    from kcsi.orchestrator.enrichment_phase import _knowledge_attempts_to_seed_records
+    from ksi.orchestrator.enrichment_phase import _knowledge_attempts_to_seed_records
 
     page = _page_with_tb2_attempt()
     page["attempts"][0]["content"]["trace_condensed"] = (

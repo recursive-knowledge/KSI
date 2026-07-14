@@ -1,5 +1,5 @@
-from kcsi.cli import _resolve_arc_split
-from kcsi.models import TaskSpec
+from ksi.cli import _resolve_arc_split
+from ksi.models import TaskSpec
 
 
 def test_resolve_arc_split_training():

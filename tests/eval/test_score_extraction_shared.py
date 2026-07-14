@@ -5,9 +5,9 @@ import sys
 import textwrap
 from pathlib import Path
 
-import kcsi.memory.knowledge_store as _knowledge_store_mod
-import kcsi.memory.store as _store_mod
-from kcsi.orchestrator.scoring import score_from_eval_results
+import ksi.memory.knowledge_store as _knowledge_store_mod
+import ksi.memory.store as _store_mod
+from ksi.orchestrator.scoring import score_from_eval_results
 
 
 def test_native_score_numeric_is_honored():
@@ -66,7 +66,7 @@ def test_non_bool_resolved_is_not_trusted():
 
 def test_store_loads_in_container_mcp_script_mode():
     """store.py must import as a top-level script (container MCP runs
-    ``python3 /app/memory/mcp_server.py`` with only ``src/kcsi/memory/`` mounted,
+    ``python3 /app/memory/mcp_server.py`` with only ``src/ksi/memory/`` mounted,
     so ``..orchestrator.scoring`` is NOT importable). The score-helper import
     must be guarded like store.py's other relative imports, and the inline
     fallback must reproduce the precedence. Regression for PR #815.
@@ -98,7 +98,7 @@ def test_store_loads_in_container_mcp_script_mode():
 def test_knowledge_store_loads_in_container_mcp_script_mode():
     """knowledge_store.py must also import as a top-level script. The container
     MCP server loads it (``from knowledge_store import KnowledgeStore``) with only
-    ``src/kcsi/memory/`` on sys.path, so its ``from ._store_common import ...``
+    ``src/ksi/memory/`` on sys.path, so its ``from ._store_common import ...``
     relative import fails and must fall back to a sibling top-level import.
     Regression for #862 (the _store_common extraction).
     """

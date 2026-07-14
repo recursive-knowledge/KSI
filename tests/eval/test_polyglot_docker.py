@@ -1,10 +1,10 @@
-"""Tests for the kcsi Polyglot Docker image recipe."""
+"""Tests for the ksi Polyglot Docker image recipe."""
 
 from __future__ import annotations
 
 import pytest
 
-from kcsi.benchmarks import polyglot_docker
+from ksi.benchmarks import polyglot_docker
 
 
 def test_polyglot_dockerfile_tracks_hyperagents_base_toolchain() -> None:
@@ -138,7 +138,7 @@ def test_polyglot_image_recipe_match_accepts_alias_labels(monkeypatch) -> None:
     assert polyglot_docker.image_matches_recipe("poly-img") is True
 
 
-def test_polyglot_dockerfile_keeps_kcsi_harness_compatibility() -> None:
+def test_polyglot_dockerfile_keeps_ksi_harness_compatibility() -> None:
     dockerfile = polyglot_docker.DOCKERFILE
 
     assert "python -m pip install --no-cache-dir --upgrade pip pytest" in dockerfile

@@ -1,4 +1,4 @@
-"""Tests for src/kcsi/tasks/repo_cache.py -- SWE-bench repo snapshot preparation."""
+"""Tests for src/ksi/tasks/repo_cache.py -- SWE-bench repo snapshot preparation."""
 
 from __future__ import annotations
 
@@ -8,8 +8,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from kcsi.models import TaskSpec
-from kcsi.tasks.repo_cache import (
+from ksi.models import TaskSpec
+from ksi.tasks.repo_cache import (
     _commit_reachable,
     _find_local_source_clone,
     _prepare_one_repo,
@@ -35,8 +35,8 @@ class TestRun:
             _run(["false"])
 
     def test_uses_timeout_from_env(self, monkeypatch):
-        monkeypatch.setenv("KCSI_GIT_TIMEOUT_SECONDS", "10")
-        with patch("kcsi.tasks.repo_cache.subprocess.Popen") as mock_popen:
+        monkeypatch.setenv("KSI_GIT_TIMEOUT_SECONDS", "10")
+        with patch("ksi.tasks.repo_cache.subprocess.Popen") as mock_popen:
             mock_popen.return_value.communicate.return_value = ("", "")
             mock_popen.return_value.returncode = 0
             _run(["git", "status"])
@@ -44,8 +44,8 @@ class TestRun:
             assert mock_popen.return_value.communicate.call_args.kwargs["timeout"] == 10
 
     def test_default_timeout(self, monkeypatch):
-        monkeypatch.delenv("KCSI_GIT_TIMEOUT_SECONDS", raising=False)
-        with patch("kcsi.tasks.repo_cache.subprocess.Popen") as mock_popen:
+        monkeypatch.delenv("KSI_GIT_TIMEOUT_SECONDS", raising=False)
+        with patch("ksi.tasks.repo_cache.subprocess.Popen") as mock_popen:
             mock_popen.return_value.communicate.return_value = ("", "")
             mock_popen.return_value.returncode = 0
             _run(["git", "status"])
@@ -64,7 +64,7 @@ class TestPrepareOneRepo:
         with pytest.raises(ValueError, match="Invalid repo name"):
             _prepare_one_repo(target=tmp_path / "out", repo="a/b/c", base_commit=VALID_SHA)
 
-    @patch("kcsi.tasks.repo_cache._run")
+    @patch("ksi.tasks.repo_cache._run")
     def test_clones_when_no_existing_repo(self, mock_run, tmp_path):
         target = tmp_path / "myrepo"
         _prepare_one_repo(target=target, repo="owner/repo", base_commit=VALID_SHA)
@@ -75,7 +75,7 @@ class TestPrepareOneRepo:
         assert "clone" in clone_call.args[0]
         assert "https://github.com/owner/repo.git" in clone_call.args[0]
 
-    @patch("kcsi.tasks.repo_cache._run")
+    @patch("ksi.tasks.repo_cache._run")
     def test_fetches_when_existing_repo(self, mock_run, tmp_path):
         target = tmp_path / "myrepo"
         (target / ".git").mkdir(parents=True)
@@ -86,9 +86,9 @@ class TestPrepareOneRepo:
         fetch_call = calls[0]
         assert "fetch" in fetch_call.args[0]
 
-    @patch("kcsi.tasks.repo_cache._run")
+    @patch("ksi.tasks.repo_cache._run")
     def test_offline_mode_skips_fetch(self, mock_run, tmp_path, monkeypatch):
-        monkeypatch.setenv("KCSI_REPO_CACHE_OFFLINE", "true")
+        monkeypatch.setenv("KSI_REPO_CACHE_OFFLINE", "true")
         target = tmp_path / "myrepo"
         (target / ".git").mkdir(parents=True)
 
@@ -98,15 +98,15 @@ class TestPrepareOneRepo:
         for c in mock_run.call_args_list:
             assert "fetch" not in c.args[0]
 
-    @patch("kcsi.tasks.repo_cache._run")
+    @patch("ksi.tasks.repo_cache._run")
     def test_offline_mode_no_clone_raises(self, mock_run, tmp_path, monkeypatch):
-        monkeypatch.setenv("KCSI_REPO_CACHE_OFFLINE", "true")
+        monkeypatch.setenv("KSI_REPO_CACHE_OFFLINE", "true")
         target = tmp_path / "new_repo"
 
         with pytest.raises(RuntimeError, match="offline mode"):
             _prepare_one_repo(target=target, repo="owner/repo", base_commit=VALID_SHA)
 
-    @patch("kcsi.tasks.repo_cache._run")
+    @patch("ksi.tasks.repo_cache._run")
     def test_checkout_requires_base_commit(self, mock_run, tmp_path):
         target = tmp_path / "myrepo"
         (target / ".git").mkdir(parents=True)
@@ -127,7 +127,7 @@ class TestPrepareOneRepo:
             "g" * 40,
         ],
     )
-    @patch("kcsi.tasks.repo_cache._run")
+    @patch("ksi.tasks.repo_cache._run")
     def test_rejects_symbolic_or_malformed_base_commit_before_git(self, mock_run, tmp_path, base_commit):
         target = tmp_path / "myrepo"
         (target / ".git").mkdir(parents=True)
@@ -137,7 +137,7 @@ class TestPrepareOneRepo:
 
         mock_run.assert_not_called()
 
-    @patch("kcsi.tasks.repo_cache._run")
+    @patch("ksi.tasks.repo_cache._run")
     def test_initializes_submodules_after_checkout(self, mock_run, tmp_path):
         # Some SWE-bench Pro repos vendor an import-required dependency as a git
         # submodule (openlibrary exposes `infogami` via a top-level symlink into
@@ -166,11 +166,11 @@ class TestPrepareOneRepo:
         assert submodule_idx > checkout_idx
         assert submodule_idx > clean_idx
 
-    @patch("kcsi.tasks.repo_cache._run")
+    @patch("ksi.tasks.repo_cache._run")
     def test_offline_mode_skips_submodule_init(self, mock_run, tmp_path, monkeypatch):
         # Submodule init fetches from the submodule's own remote; offline mode
         # can't reach the network, so it must be skipped (best-effort).
-        monkeypatch.setenv("KCSI_REPO_CACHE_OFFLINE", "true")
+        monkeypatch.setenv("KSI_REPO_CACHE_OFFLINE", "true")
         target = tmp_path / "myrepo"
         (target / ".git").mkdir(parents=True)
 
@@ -179,7 +179,7 @@ class TestPrepareOneRepo:
         for c in mock_run.call_args_list:
             assert "submodule" not in c.args[0]
 
-    @patch("kcsi.tasks.repo_cache._run")
+    @patch("ksi.tasks.repo_cache._run")
     def test_submodule_timeout_does_not_abort_prep(self, mock_run, tmp_path):
         # `_run` raises `TimeoutExpired` on a hung submodule fetch -- a sibling of
         # `CalledProcessError`, not a subclass. Submodule init is best-effort, so
@@ -202,7 +202,7 @@ class TestPrepareOneRepo:
         # when the existing cache still has uninitialized submodules.
         target = tmp_path / "myrepo"
         target.mkdir()
-        with patch("kcsi.tasks.repo_cache.subprocess.run") as mock_sp:
+        with patch("ksi.tasks.repo_cache.subprocess.run") as mock_sp:
             mock_sp.return_value = subprocess.CompletedProcess(
                 args=[],
                 returncode=0,
@@ -340,8 +340,8 @@ class TestPrepareOneRepo:
         )
         assert status.stdout.startswith("-"), status.stdout
 
-    @patch("kcsi.tasks.repo_cache._commit_reachable", return_value=True)
-    @patch("kcsi.tasks.repo_cache._run")
+    @patch("ksi.tasks.repo_cache._commit_reachable", return_value=True)
+    @patch("ksi.tasks.repo_cache._run")
     def test_checkout_uses_detached_validated_commit(self, mock_run, mock_reach, tmp_path):
         target = tmp_path / "myrepo"
         (target / ".git").mkdir(parents=True)
@@ -351,8 +351,8 @@ class TestPrepareOneRepo:
         checkout_calls = [c.args[0] for c in mock_run.call_args_list if "checkout" in c.args[0]]
         assert checkout_calls == [["git", "-C", str(target), "checkout", "-f", "--detach", VALID_SHA]]
 
-    @patch("kcsi.tasks.repo_cache._commit_reachable", return_value=True)
-    @patch("kcsi.tasks.repo_cache._run")
+    @patch("ksi.tasks.repo_cache._commit_reachable", return_value=True)
+    @patch("ksi.tasks.repo_cache._run")
     def test_skips_pr_ref_fetch_when_commit_reachable(self, mock_run, mock_reach, tmp_path):
         target = tmp_path / "myrepo"
         (target / ".git").mkdir(parents=True)
@@ -364,8 +364,8 @@ class TestPrepareOneRepo:
             args = c.args[0]
             assert not any("refs/pull" in str(a) for a in args)
 
-    @patch("kcsi.tasks.repo_cache._commit_reachable", return_value=False)
-    @patch("kcsi.tasks.repo_cache._run")
+    @patch("ksi.tasks.repo_cache._commit_reachable", return_value=False)
+    @patch("ksi.tasks.repo_cache._run")
     def test_falls_back_to_pr_refs_when_commit_unreachable(self, mock_run, mock_reach, tmp_path):
         target = tmp_path / "myrepo"
         (target / ".git").mkdir(parents=True)
@@ -377,8 +377,8 @@ class TestPrepareOneRepo:
         assert len(pr_ref_calls) == 1
         assert "fetch" in pr_ref_calls[0].args[0]
 
-    @patch("kcsi.tasks.repo_cache._commit_reachable", return_value=False)
-    @patch("kcsi.tasks.repo_cache._run")
+    @patch("ksi.tasks.repo_cache._commit_reachable", return_value=False)
+    @patch("ksi.tasks.repo_cache._run")
     def test_pr_ref_fetch_failure_is_non_fatal(self, mock_run, mock_reach, tmp_path):
         target = tmp_path / "myrepo"
         (target / ".git").mkdir(parents=True)
@@ -398,10 +398,10 @@ class TestPrepareOneRepo:
         checkout_calls = [c for c in mock_run.call_args_list if "checkout" in c.args[0]]
         assert any(VALID_SHA in c.args[0] for c in checkout_calls)
 
-    @patch("kcsi.tasks.repo_cache._commit_reachable")
-    @patch("kcsi.tasks.repo_cache._run")
+    @patch("ksi.tasks.repo_cache._commit_reachable")
+    @patch("ksi.tasks.repo_cache._run")
     def test_offline_mode_skips_pr_ref_fetch(self, mock_run, mock_reach, tmp_path, monkeypatch):
-        monkeypatch.setenv("KCSI_REPO_CACHE_OFFLINE", "true")
+        monkeypatch.setenv("KSI_REPO_CACHE_OFFLINE", "true")
         target = tmp_path / "myrepo"
         (target / ".git").mkdir(parents=True)
 
@@ -419,22 +419,22 @@ class TestPrepareOneRepo:
 # ---------------------------------------------------------------------------
 class TestCommitReachable:
     def test_returns_true_on_success(self, tmp_path):
-        with patch("kcsi.tasks.repo_cache.subprocess.run") as mock_run:
+        with patch("ksi.tasks.repo_cache.subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(returncode=0, stdout="commit\n")
             assert _commit_reachable(tmp_path, VALID_SHA) is True
 
     def test_returns_false_for_non_commit_object(self, tmp_path):
-        with patch("kcsi.tasks.repo_cache.subprocess.run") as mock_run:
+        with patch("ksi.tasks.repo_cache.subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(returncode=0, stdout="tree\n")
             assert _commit_reachable(tmp_path, VALID_SHA) is False
 
     def test_returns_false_when_git_fails(self, tmp_path):
-        with patch("kcsi.tasks.repo_cache.subprocess.run") as mock_run:
+        with patch("ksi.tasks.repo_cache.subprocess.run") as mock_run:
             mock_run.side_effect = subprocess.CalledProcessError(128, ["git"])
             assert _commit_reachable(tmp_path, VALID_SHA) is False
 
     def test_returns_false_on_timeout(self, tmp_path):
-        with patch("kcsi.tasks.repo_cache.subprocess.run") as mock_run:
+        with patch("ksi.tasks.repo_cache.subprocess.run") as mock_run:
             mock_run.side_effect = subprocess.TimeoutExpired(cmd=["git"], timeout=5)
             assert _commit_reachable(tmp_path, VALID_SHA) is False
 
@@ -451,7 +451,7 @@ class TestFindLocalSourceClone:
         clone_dir = tmp_path / "existing"
         (clone_dir / ".git").mkdir(parents=True)
 
-        with patch("kcsi.tasks.repo_cache.subprocess.run") as mock_run:
+        with patch("ksi.tasks.repo_cache.subprocess.run") as mock_run:
             mock_proc = MagicMock()
             mock_proc.stdout = "https://github.com/owner/repo.git\n"
             mock_run.return_value = mock_proc
@@ -466,7 +466,7 @@ class TestFindLocalSourceClone:
         clone_dir = tmp_path / "other"
         (clone_dir / ".git").mkdir(parents=True)
 
-        with patch("kcsi.tasks.repo_cache.subprocess.run") as mock_run:
+        with patch("ksi.tasks.repo_cache.subprocess.run") as mock_run:
             mock_proc = MagicMock()
             mock_proc.stdout = "https://github.com/other/project.git\n"
             mock_run.return_value = mock_proc
@@ -482,7 +482,7 @@ class TestFindLocalSourceClone:
 # prepare_swebench_repo_snapshots
 # ---------------------------------------------------------------------------
 class TestPrepareSwebenchRepoSnapshots:
-    @patch("kcsi.tasks.repo_cache._prepare_one_repo")
+    @patch("ksi.tasks.repo_cache._prepare_one_repo")
     def test_skips_non_swebench_tasks(self, mock_prep, tmp_path):
         tasks = [
             TaskSpec(
@@ -495,7 +495,7 @@ class TestPrepareSwebenchRepoSnapshots:
         prepare_swebench_repo_snapshots(tasks=tasks, repos_cache_dir=tmp_path)
         mock_prep.assert_not_called()
 
-    @patch("kcsi.tasks.repo_cache._prepare_one_repo")
+    @patch("ksi.tasks.repo_cache._prepare_one_repo")
     def test_skips_tasks_without_repo(self, mock_prep, tmp_path):
         tasks = [
             TaskSpec(
@@ -508,7 +508,7 @@ class TestPrepareSwebenchRepoSnapshots:
         prepare_swebench_repo_snapshots(tasks=tasks, repos_cache_dir=tmp_path)
         mock_prep.assert_not_called()
 
-    @patch("kcsi.tasks.repo_cache._prepare_one_repo")
+    @patch("ksi.tasks.repo_cache._prepare_one_repo")
     def test_prepares_swebench_task(self, mock_prep, tmp_path):
         task = TaskSpec(
             id="django__django-12345",
@@ -525,7 +525,7 @@ class TestPrepareSwebenchRepoSnapshots:
         # Should set repo_path in metadata
         assert "repo_path" in task.metadata
 
-    @patch("kcsi.tasks.repo_cache._prepare_one_repo")
+    @patch("ksi.tasks.repo_cache._prepare_one_repo")
     def test_rejects_missing_base_commit(self, mock_prep, tmp_path):
         task = TaskSpec(
             id="task-missing-base",
@@ -550,7 +550,7 @@ class TestPrepareSwebenchRepoSnapshots:
             "g" * 40,
         ],
     )
-    @patch("kcsi.tasks.repo_cache._prepare_one_repo")
+    @patch("ksi.tasks.repo_cache._prepare_one_repo")
     def test_rejects_invalid_loaded_base_commit_before_prepare(self, mock_prep, tmp_path, base_commit):
         task = TaskSpec(
             id="task-invalid-base",
@@ -565,7 +565,7 @@ class TestPrepareSwebenchRepoSnapshots:
         mock_prep.assert_not_called()
         assert "repo_path" not in task.metadata
 
-    @patch("kcsi.tasks.repo_cache._prepare_one_repo")
+    @patch("ksi.tasks.repo_cache._prepare_one_repo")
     def test_prepares_swebench_pro_task(self, mock_prep, tmp_path):
         task = TaskSpec(
             id="instance_demo__repo-123",
@@ -578,7 +578,7 @@ class TestPrepareSwebenchRepoSnapshots:
         mock_prep.assert_called_once()
         assert "repo_path" in task.metadata
 
-    @patch("kcsi.tasks.repo_cache._prepare_one_repo")
+    @patch("ksi.tasks.repo_cache._prepare_one_repo")
     def test_creates_cache_dir(self, mock_prep, tmp_path):
         cache_dir = tmp_path / "new_cache"
         tasks = [
@@ -592,7 +592,7 @@ class TestPrepareSwebenchRepoSnapshots:
         prepare_swebench_repo_snapshots(tasks=tasks, repos_cache_dir=cache_dir)
         assert cache_dir.exists()
 
-    @patch("kcsi.tasks.repo_cache._prepare_one_repo")
+    @patch("ksi.tasks.repo_cache._prepare_one_repo")
     def test_propagates_before_repo_set_cmd_to_prepare(self, mock_prep, tmp_path):
         before_cmd = (
             "git reset --hard " + VALID_SHA + "\n"
@@ -614,7 +614,7 @@ class TestPrepareSwebenchRepoSnapshots:
         call_kwargs = mock_prep.call_args.kwargs
         assert call_kwargs["before_repo_set_cmd"] == before_cmd
 
-    @patch("kcsi.tasks.repo_cache._prepare_one_repo")
+    @patch("ksi.tasks.repo_cache._prepare_one_repo")
     def test_seed_test_files_default_false(self, mock_prep, tmp_path):
         """Upstream-strict default: seed_test_files=False unless explicitly opted in."""
         task = TaskSpec(
@@ -627,7 +627,7 @@ class TestPrepareSwebenchRepoSnapshots:
         mock_prep.assert_called_once()
         assert mock_prep.call_args.kwargs["seed_test_files"] is False
 
-    @patch("kcsi.tasks.repo_cache._prepare_one_repo")
+    @patch("ksi.tasks.repo_cache._prepare_one_repo")
     def test_seed_test_files_propagated_when_true(self, mock_prep, tmp_path):
         """DGM-equivalent opt-in: seed_test_files=True flows through to _prepare_one_repo."""
         task = TaskSpec(
@@ -648,11 +648,11 @@ class TestPrepareSwebenchRepoSnapshots:
 class TestPrepareOneRepoSeedingGate:
     """``_prepare_one_repo`` only seeds when seed_test_files=True."""
 
-    @patch("kcsi.tasks.repo_cache._seed_baseline_test_files")
-    @patch("kcsi.tasks.repo_cache._run")
-    @patch("kcsi.tasks.repo_cache._commit_reachable", return_value=True)
+    @patch("ksi.tasks.repo_cache._seed_baseline_test_files")
+    @patch("ksi.tasks.repo_cache._run")
+    @patch("ksi.tasks.repo_cache._commit_reachable", return_value=True)
     def test_default_does_not_seed(self, _mock_reachable, _mock_run, mock_seed, tmp_path):
-        from kcsi.tasks.repo_cache import _prepare_one_repo
+        from ksi.tasks.repo_cache import _prepare_one_repo
 
         target = tmp_path / "demo"
         target.mkdir()
@@ -665,11 +665,11 @@ class TestPrepareOneRepoSeedingGate:
         )
         mock_seed.assert_not_called()
 
-    @patch("kcsi.tasks.repo_cache._seed_baseline_test_files")
-    @patch("kcsi.tasks.repo_cache._run")
-    @patch("kcsi.tasks.repo_cache._commit_reachable", return_value=True)
+    @patch("ksi.tasks.repo_cache._seed_baseline_test_files")
+    @patch("ksi.tasks.repo_cache._run")
+    @patch("ksi.tasks.repo_cache._commit_reachable", return_value=True)
     def test_seed_true_invokes_seeder(self, _mock_reachable, _mock_run, mock_seed, tmp_path):
-        from kcsi.tasks.repo_cache import _prepare_one_repo
+        from ksi.tasks.repo_cache import _prepare_one_repo
 
         target = tmp_path / "demo"
         target.mkdir()
@@ -776,7 +776,7 @@ class TestSeedBaselineTestFiles:
         return parent, test_commit
 
     def test_cherry_pick_and_baseline_commit(self, tmp_path):
-        from kcsi.tasks.repo_cache import _seed_baseline_test_files
+        from ksi.tasks.repo_cache import _seed_baseline_test_files
 
         repo = tmp_path / "repo"
         parent, test_commit = self._init_repo(repo)
@@ -803,7 +803,7 @@ class TestSeedBaselineTestFiles:
         assert diff == ""
 
     def test_no_op_when_before_cmd_missing(self, tmp_path):
-        from kcsi.tasks.repo_cache import _seed_baseline_test_files
+        from ksi.tasks.repo_cache import _seed_baseline_test_files
 
         repo = tmp_path / "repo"
         parent, _ = self._init_repo(repo)
@@ -817,7 +817,7 @@ class TestSeedBaselineTestFiles:
         assert head == parent
 
     def test_skips_when_test_commit_unreachable(self, tmp_path):
-        from kcsi.tasks.repo_cache import _seed_baseline_test_files
+        from ksi.tasks.repo_cache import _seed_baseline_test_files
 
         repo = tmp_path / "repo"
         parent, _ = self._init_repo(repo)
@@ -833,7 +833,7 @@ class TestSeedBaselineTestFiles:
         assert head == parent  # No baseline commit added.
 
     def test_rejects_path_traversal(self, tmp_path):
-        from kcsi.tasks.repo_cache import _seed_baseline_test_files
+        from ksi.tasks.repo_cache import _seed_baseline_test_files
 
         repo = tmp_path / "repo"
         parent, test_commit = self._init_repo(repo)
@@ -861,10 +861,10 @@ class TestNarrowFetch:
     The default fetch must request only the base_commit SHA.
     """
 
-    @patch("kcsi.tasks.repo_cache._commit_reachable", return_value=True)
-    @patch("kcsi.tasks.repo_cache._run")
+    @patch("ksi.tasks.repo_cache._commit_reachable", return_value=True)
+    @patch("ksi.tasks.repo_cache._run")
     def test_existing_repo_uses_narrow_fetch_by_default(self, mock_run, _mock_reach, tmp_path, monkeypatch):
-        monkeypatch.delenv("KCSI_SWEBENCH_FETCH_FULL", raising=False)
+        monkeypatch.delenv("KSI_SWEBENCH_FETCH_FULL", raising=False)
         target = tmp_path / "repo"
         (target / ".git").mkdir(parents=True)
 
@@ -878,10 +878,10 @@ class TestNarrowFetch:
         assert "--all" not in first_fetch
         assert "--tags" not in first_fetch
 
-    @patch("kcsi.tasks.repo_cache._commit_reachable", return_value=True)
-    @patch("kcsi.tasks.repo_cache._run")
+    @patch("ksi.tasks.repo_cache._commit_reachable", return_value=True)
+    @patch("ksi.tasks.repo_cache._run")
     def test_wide_fetch_when_env_override_set(self, mock_run, _mock_reach, tmp_path, monkeypatch):
-        monkeypatch.setenv("KCSI_SWEBENCH_FETCH_FULL", "1")
+        monkeypatch.setenv("KSI_SWEBENCH_FETCH_FULL", "1")
         target = tmp_path / "repo"
         (target / ".git").mkdir(parents=True)
 
@@ -890,11 +890,11 @@ class TestNarrowFetch:
         fetch_calls = [c.args[0] for c in mock_run.call_args_list if "fetch" in c.args[0]]
         assert any("--all" in fc for fc in fetch_calls), "expected wide --all fetch with override"
 
-    @patch("kcsi.tasks.repo_cache._commit_reachable", return_value=True)
-    @patch("kcsi.tasks.repo_cache._run")
+    @patch("ksi.tasks.repo_cache._commit_reachable", return_value=True)
+    @patch("ksi.tasks.repo_cache._run")
     def test_narrow_fetch_failure_falls_back_to_wide(self, mock_run, _mock_reach, tmp_path, monkeypatch):
         """If the server rejects direct-SHA fetch, fall back to wide fetch gracefully."""
-        monkeypatch.delenv("KCSI_SWEBENCH_FETCH_FULL", raising=False)
+        monkeypatch.delenv("KSI_SWEBENCH_FETCH_FULL", raising=False)
         target = tmp_path / "repo"
         (target / ".git").mkdir(parents=True)
 
@@ -921,7 +921,7 @@ class TestSeedTestsMetadataPropagation:
     task.metadata so downstream consumers (prompt builder, workspace_task_files)
     can gate on the flag without a separate config channel."""
 
-    @patch("kcsi.tasks.repo_cache._prepare_one_repo")
+    @patch("ksi.tasks.repo_cache._prepare_one_repo")
     def test_seed_false_stamped_in_metadata_by_default(self, mock_prep, tmp_path):
         task = TaskSpec(
             id="t1",
@@ -932,7 +932,7 @@ class TestSeedTestsMetadataPropagation:
         prepare_swebench_repo_snapshots(tasks=[task], repos_cache_dir=tmp_path)
         assert task.metadata.get("swebench_pro_seed_tests") is False
 
-    @patch("kcsi.tasks.repo_cache._prepare_one_repo")
+    @patch("ksi.tasks.repo_cache._prepare_one_repo")
     def test_seed_true_stamped_in_metadata_when_opted_in(self, mock_prep, tmp_path):
         task = TaskSpec(
             id="t1",

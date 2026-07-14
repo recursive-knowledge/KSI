@@ -1,7 +1,7 @@
 # Adding a Benchmark (Task Source)
 
 Task sources (benchmarks) are described by a single `TaskSourceSpec` in the
-central registry: [`src/kcsi/tasks/registry.py`](https://github.com/recursive-knowledge/KCSI/blob/main/src/kcsi/tasks/registry.py).
+central registry: [`src/ksi/tasks/registry.py`](https://github.com/recursive-knowledge/KSI/blob/main/src/ksi/tasks/registry.py).
 
 Before this registry, adding a benchmark meant shotgun-editing ~15 files because
 `task_source == "<name>"` string-equality dispatch was scattered across loaders,
@@ -20,11 +20,11 @@ rather than comparing name strings.
 |-------|--------|
 | `name` / `aliases` | canonical id + accepted synonyms (e.g. `arc1`, `arc2`, `arc_agi_*`, `swebench`) |
 | `default_evaluator` | `cli._normalize_evaluator_for_task_source` + M14 evaluator/source warn-map |
-| `prompt_kind` | string key into the hardcoded `build_execution_prompt` / `build_task_markdown` **fallback** chain (`src/kcsi/prompts/__init__.py`), used when no `execution_prompt_builder` / `task_markdown_builder` is attached |
+| `prompt_kind` | string key into the hardcoded `build_execution_prompt` / `build_task_markdown` **fallback** chain (`src/ksi/prompts/__init__.py`), used when no `execution_prompt_builder` / `task_markdown_builder` is attached |
 | `execution_prompt_builder` | optional per-source builder; called as `execution_prompt_builder(task, *, has_memory=..., generation=...)` → prompt string. Consulted before the `prompt_kind` fallback chain |
 | `task_markdown_builder` | optional per-source builder; called as `task_markdown_builder(task)` → `TASK.md` string. Consulted before the `prompt_kind` fallback chain (the `task_md_override` metadata hook still wins over both) |
-| `distill_domain_hint` | optional per-source distillation domain hint (`src/kcsi/distillation/prompts.py::_domain_hint`): the hint **string**, or a zero-arg **callable** returning it. Opt-in — when unset, **no** domain-hint paragraph is injected (the generic hint is reserved for the unresolvable/cross-task case) |
-| `loader` | task-loader callable; `load_tasks_for_source` calls `spec.loader(tasks_path, *, task_source=..., evals_path=..., arc_max_trials=...)` (built-in loaders are attached by `src/kcsi/tasks/loaders.py` at import time) |
+| `distill_domain_hint` | optional per-source distillation domain hint (`src/ksi/distillation/prompts.py::_domain_hint`): the hint **string**, or a zero-arg **callable** returning it. Opt-in — when unset, **no** domain-hint paragraph is injected (the generic hint is reserved for the unresolvable/cross-task case) |
+| `loader` | task-loader callable; `load_tasks_for_source` calls `spec.loader(tasks_path, *, task_source=..., evals_path=..., arc_max_trials=...)` (built-in loaders are attached by `src/ksi/tasks/loaders.py` at import time) |
 | `supports_mcp_arc` | marks the source as ARC-native: the container materializes `payload.json` + attempt files and the agent uses native file tools (name retained for back-compat) |
 | `is_offline` | sealed/offline benchmark; provider-native tools disabled |
 | `uses_repo_snapshots` | needs SWE-bench-style repo cloning/snapshots |
@@ -33,12 +33,12 @@ rather than comparing name strings.
 | `delegates_runtime` | uses a dedicated runtime executor (e.g. TB2) |
 | `arc_task_reference` | engine/snapshots build a hidden ARC reference payload |
 | `upstream_strict` | maintained upstream-strict published benchmark; enables the disclosure warning when `--no-drop-solved` can carry solved-task answers forward |
-| `validate_tasks_path` | optional callable validating `--tasks-path`; called as `validate_tasks_path(tasks_path, *, evals_path=...)` and returns the `parser.error` message string or `None` when acceptable. A source whose hook is `None` is rejected as unsupported. Built-in validators are attached by `src/kcsi/tasks/path_validation.py` at import time |
+| `validate_tasks_path` | optional callable validating `--tasks-path`; called as `validate_tasks_path(tasks_path, *, evals_path=...)` and returns the `parser.error` message string or `None` when acceptable. A source whose hook is `None` is rejected as unsupported. Built-in validators are attached by `src/ksi/tasks/path_validation.py` at import time |
 
 ### A real example: how `arc` is registered
 
 The shortest of the four built-in registrations is `arc`
-(`src/kcsi/tasks/registry.py`):
+(`src/ksi/tasks/registry.py`):
 
 ```python
 register_task_source(
@@ -67,7 +67,7 @@ directly on the spec;
 `supports_mcp_arc=True` marks the source as ARC-native (the container
 materializes `payload.json` + attempt files; name retained for back-compat);
 `is_offline=True` disables provider-native web tools regardless of
-`KCSI_ALLOW_WEB_TOOLS` (see [web_tools_policy.md](https://github.com/recursive-knowledge/KCSI/blob/main/benchmarks/docs/web_tools_policy.md));
+`KSI_ALLOW_WEB_TOOLS` (see [web_tools_policy.md](https://github.com/recursive-knowledge/KSI/blob/main/benchmarks/docs/web_tools_policy.md));
 `arc_task_reference=True` tells the engine to build ARC's hidden reference
 payload during enrichment; `upstream_strict=True` marks ARC as a maintained
 published benchmark where retaining solved tasks needs disclosure. Every field
@@ -75,7 +75,7 @@ it *doesn't* set (`loader`,
 `validate_tasks_path`, `uses_repo_snapshots`, `supports_classification`,
 `needs_eval_records`, `delegates_runtime`, ...) keeps its conservative
 default — `loader` and `validate_tasks_path` are populated separately by
-`src/kcsi/tasks/loaders.py` and `src/kcsi/tasks/path_validation.py` at import
+`src/ksi/tasks/loaders.py` and `src/ksi/tasks/path_validation.py` at import
 time rather than inline in the registration call, which is why a real source
 can look shorter than the full field table suggests.
 
@@ -87,12 +87,12 @@ different capability profile than ARC's.
 ## Steps
 
 1. **Register the spec.** Add a `register_task_source(TaskSourceSpec(...))` call
-   in `src/kcsi/tasks/registry.py` (or at runtime via `register_task_source` for a
+   in `src/ksi/tasks/registry.py` (or at runtime via `register_task_source` for a
    plugin). Set only the flags your benchmark needs; defaults are the
    conservative generic behavior.
 
    ```python
-   from kcsi.tasks.registry import TaskSourceSpec, register_task_source
+   from ksi.tasks.registry import TaskSourceSpec, register_task_source
 
    def _load_my_bench(tasks_path, **kwargs):  # accept **kwargs for forward compat
        ...
@@ -153,7 +153,7 @@ different capability profile than ARC's.
      ```
 
      (Built-in sources still use the hardcoded `prompt_kind` chains in
-     `src/kcsi/prompts/__init__.py`; you may add a `prompt_kind == "my_bench"`
+     `src/ksi/prompts/__init__.py`; you may add a `prompt_kind == "my_bench"`
      branch there instead of the callables if you prefer, but the spec-attached
      callables keep the addition to the single registry entry.)
    - Distillation domain hint (optional, no dispatch edit): set
@@ -162,13 +162,13 @@ different capability profile than ARC's.
      for the source (the generic `_GENERIC_DOMAIN_HINT` is reserved for the
      unresolvable/cross-task case, where there is no single benchmark to key
      on). The four built-in sources set it on their own specs in
-     `src/kcsi/tasks/registry.py`.
+     `src/ksi/tasks/registry.py`.
    - Evaluator: register the evaluator with `register_evaluator` (see [adding_an_evaluator.md](./adding_an_evaluator.md)) if new.
    - CLI `--tasks-path` validation needs no dispatch edit: set
      `validate_tasks_path` on the spec (as above). A source without it is
      rejected as unsupported.
 
-3. **Add an evaluator** under `src/kcsi/eval/` if the benchmark needs one, and
+3. **Add an evaluator** under `src/ksi/eval/` if the benchmark needs one, and
    register its name via `register_evaluator` (see [adding_an_evaluator.md](./adding_an_evaluator.md)).
 
 4. **Tests:** extend `tests/test_task_registry.py` to pin your new source's

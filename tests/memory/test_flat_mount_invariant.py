@@ -2,7 +2,7 @@
 
 WHY THIS TEST EXISTS
 --------------------
-The container runtime mounts ``src/kcsi/memory/`` flat at ``/app/memory``
+The container runtime mounts ``src/ksi/memory/`` flat at ``/app/memory``
 and runs ``mcp_server.py`` as a top-level script (not as part of an installed
 package).  Because of this, ``mcp_server.py`` imports its sibling modules via
 bare names as a fallback::
@@ -19,14 +19,14 @@ import would raise ``ModuleNotFoundError`` and the MCP server would fail to
 start inside the container.
 
 See also:
-- ``src/kcsi/memory/__init__.py`` — module docstring explaining the invariant
-- ``src/kcsi/runtime/container_host.py`` — ``mcp_server_dir`` mount definition
-- ``src/kcsi/memory/mcp_server.py`` lines 40-52 — the fallback import block
+- ``src/ksi/memory/__init__.py`` — module docstring explaining the invariant
+- ``src/ksi/runtime/container_host.py`` — ``mcp_server_dir`` mount definition
+- ``src/ksi/memory/mcp_server.py`` lines 40-52 — the fallback import block
 """
 
 import pathlib
 
-import kcsi.memory
+import ksi.memory
 
 # Modules that mcp_server.py reaches as flat siblings under script-mode import,
 # directly or transitively, and that must therefore live in the memory directory.
@@ -50,7 +50,7 @@ MOUNT_CRITICAL_MODULES = [
 
 def test_mount_critical_modules_are_flat_siblings() -> None:
     """Each mount-critical module must be a direct child of the memory dir."""
-    memory_dir = pathlib.Path(kcsi.memory.__file__).parent
+    memory_dir = pathlib.Path(ksi.memory.__file__).parent
 
     missing = [name for name in MOUNT_CRITICAL_MODULES if not (memory_dir / name).is_file()]
 
@@ -59,7 +59,7 @@ def test_mount_critical_modules_are_flat_siblings() -> None:
         f"{missing}. "
         "Moving them into a sub-package breaks mcp_server.py's script-mode "
         "imports when the container runs python3 /app/memory/mcp_server.py. "
-        "See src/kcsi/memory/__init__.py for the full invariant explanation."
+        "See src/ksi/memory/__init__.py for the full invariant explanation."
     )
 
 
@@ -71,12 +71,12 @@ def test_no_sub_packages_in_memory_dir() -> None:
     are top-level .py files, not when they hide inside nested __init__.py
     trees.
     """
-    memory_dir = pathlib.Path(kcsi.memory.__file__).parent
+    memory_dir = pathlib.Path(ksi.memory.__file__).parent
 
     sub_packages = [p.name for p in memory_dir.iterdir() if p.is_dir() and (p / "__init__.py").is_file()]
 
     assert not sub_packages, (
         f"Sub-packages found in {memory_dir}: {sub_packages}. "
         "The memory directory must remain flat (no nested packages). "
-        "See src/kcsi/memory/__init__.py for the full invariant explanation."
+        "See src/ksi/memory/__init__.py for the full invariant explanation."
     )

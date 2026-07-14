@@ -24,8 +24,8 @@ from __future__ import annotations
 
 import pytest
 
-from kcsi.errors import AuthenticationFailure
-from kcsi.orchestrator import task_retry
+from ksi.errors import AuthenticationFailure
+from ksi.orchestrator import task_retry
 
 # --- Fakes that mimic the SDK exception shapes we actually see -------------
 
@@ -85,7 +85,7 @@ def _no_sleep(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 def test_retry_rides_out_transient_then_succeeds(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("KCSI_DISTILL_MAX_RETRIES", "6")
+    monkeypatch.setenv("KSI_DISTILL_MAX_RETRIES", "6")
     calls = {"n": 0}
 
     def fn() -> str:
@@ -100,7 +100,7 @@ def test_retry_rides_out_transient_then_succeeds(monkeypatch: pytest.MonkeyPatch
 
 
 def test_retry_does_not_retry_deterministic_failure(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("KCSI_DISTILL_MAX_RETRIES", "6")
+    monkeypatch.setenv("KSI_DISTILL_MAX_RETRIES", "6")
     calls = {"n": 0}
 
     def fn() -> str:
@@ -113,7 +113,7 @@ def test_retry_does_not_retry_deterministic_failure(monkeypatch: pytest.MonkeyPa
 
 
 def test_retry_exhausts_and_raises_last(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("KCSI_DISTILL_MAX_RETRIES", "2")
+    monkeypatch.setenv("KSI_DISTILL_MAX_RETRIES", "2")
     calls = {"n": 0}
 
     def fn() -> str:
@@ -126,7 +126,7 @@ def test_retry_exhausts_and_raises_last(monkeypatch: pytest.MonkeyPatch) -> None
 
 
 def test_retry_disabled_with_zero(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("KCSI_DISTILL_MAX_RETRIES", "0")
+    monkeypatch.setenv("KSI_DISTILL_MAX_RETRIES", "0")
     calls = {"n": 0}
 
     def fn() -> str:
@@ -147,10 +147,10 @@ def test_make_distill_llm_adapter_retries_transient(tmp_path, monkeypatch: pytes
     returns the eventual result — instead of failing the whole generation."""
     import json
 
-    from kcsi.tokens import LLMResponse, TokenUsage
+    from ksi.tokens import LLMResponse, TokenUsage
     from tests.test_distill_phase import _make_orch
 
-    monkeypatch.setenv("KCSI_DISTILL_MAX_RETRIES", "6")
+    monkeypatch.setenv("KSI_DISTILL_MAX_RETRIES", "6")
     orch = _make_orch(tmp_path)
 
     good = LLMResponse(

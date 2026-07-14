@@ -24,17 +24,17 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from kcsi.models import GenerationConfig, TaskTrace
-from kcsi.orchestrator.engine import (
+from ksi.models import GenerationConfig, TaskTrace
+from ksi.orchestrator.engine import (
     ForumValidationError,
     GenerationalOrchestrator,
     NoopPersistence,
     _coerce_round_usage,
     _CrossTaskR1Coordinator,
 )
-from kcsi.runtime.barrier import BarrierEvent
-from kcsi.runtime.types import RuntimeResult
-from kcsi.tokens import LLMResponse, TokenUsage
+from ksi.runtime.barrier import BarrierEvent
+from ksi.runtime.types import RuntimeResult
+from ksi.tokens import LLMResponse, TokenUsage
 from tests.orchestrator_phase_helpers import cross_task_forum
 
 # ── _CrossTaskR1Coordinator unit tests ─────────────────────────────────────
@@ -592,7 +592,7 @@ def test_engine_treats_r1_genuine_error_as_shared_container_failure(tmp_path):
 
 
 def test_cli_cross_task_shared_container_flag_default_off():
-    from kcsi.cli import _build_parser
+    from ksi.cli import _build_parser
 
     parser = _build_parser()
     args = parser.parse_args(
@@ -602,7 +602,7 @@ def test_cli_cross_task_shared_container_flag_default_off():
 
 
 def test_cli_cross_task_shared_container_flag_bare_enables():
-    from kcsi.cli import _build_parser
+    from ksi.cli import _build_parser
 
     parser = _build_parser()
     args = parser.parse_args(
@@ -618,7 +618,7 @@ def test_cli_cross_task_shared_container_flag_bare_enables():
 
 
 def test_cli_cross_task_shared_container_flag_accepts_bool_words():
-    from kcsi.cli import _build_parser
+    from ksi.cli import _build_parser
 
     base = ["--task-source", "polyglot", "--tasks-path", "dummy.json"]
     for raw, expected in [("true", True), ("false", False), ("0", False), ("1", True), ("yes", True), ("no", False)]:

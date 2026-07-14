@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import tempfile
 
-from kcsi.memory.knowledge_store import KnowledgeStore
-from kcsi.orchestrator import engine as eng
+from ksi.memory.knowledge_store import KnowledgeStore
+from ksi.orchestrator import engine as eng
 
 
 class TestRemovedMethods:

@@ -1,12 +1,12 @@
 """Tests for #990a: runs.code_commit/resolved_model/scoring_mode provenance stamp.
 
-Covers ``KnowledgeStore`` (src/kcsi/memory/knowledge_store.py). See
+Covers ``KnowledgeStore`` (src/ksi/memory/knowledge_store.py). See
 tests/memory/test_store_run_metadata.py for the equivalent MemoryStore coverage.
 """
 
 import sqlite3
 
-from kcsi.memory.knowledge_store import KnowledgeStore
+from ksi.memory.knowledge_store import KnowledgeStore
 
 
 class TestRunMetadataColumns:

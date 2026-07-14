@@ -23,12 +23,12 @@ This PR preserves that meta across the raise/except boundary by:
   1. Defining ``SilentAgentRuntimeError`` (RuntimeError subclass) that
      carries ``runtime_meta`` as an instance attribute.
 
-  2. Having ``KcsiContainerExecutor.run_task`` raise the subclass (not a
+  2. Having ``KsiContainerExecutor.run_task`` raise the subclass (not a
      plain RuntimeError) when the silent-failure sentinel is observed.
 
   3. Having the engine's ``_eval_stage`` exception handler detect the
      subclass and restore ``runtime_meta`` on the trace (capped at
-     ``KCSI_NATIVE_MEMORY_MAX_CHARS`` via ``_cap_native_memory_fields``).
+     ``KSI_NATIVE_MEMORY_MAX_CHARS`` via ``_cap_native_memory_fields``).
 
 The cap prevents unbounded bloat if an evaluator re-runs pathologically
 long sessions, and matches the semantics documented in CLAUDE.md (positive
@@ -46,9 +46,9 @@ import json
 
 import pytest
 
-from kcsi.memory.store import MemoryStore
-from kcsi.orchestrator.engine import _cap_native_memory_fields
-from kcsi.runtime.normalize import (
+from ksi.memory.store import MemoryStore
+from ksi.orchestrator.engine import _cap_native_memory_fields
+from ksi.runtime.normalize import (
     SILENT_FAILURE_STATUS,
     SilentAgentRuntimeError,
 )
@@ -93,7 +93,7 @@ class TestSilentAgentRuntimeError:
 
 class TestCapNativeMemoryFields:
     def test_preserves_memory_fields_below_cap(self, monkeypatch):
-        monkeypatch.delenv("KCSI_NATIVE_MEMORY_MAX_CHARS", raising=False)
+        monkeypatch.delenv("KSI_NATIVE_MEMORY_MAX_CHARS", raising=False)
         meta = {
             "native_session_memory": "short transcript",
             "raw_native_session_memory": "raw short",
@@ -105,7 +105,7 @@ class TestCapNativeMemoryFields:
         assert out["task_id"] == "t1"
 
     def test_truncates_oversized_memory_to_tail(self, monkeypatch):
-        monkeypatch.setenv("KCSI_NATIVE_MEMORY_MAX_CHARS", "100")
+        monkeypatch.setenv("KSI_NATIVE_MEMORY_MAX_CHARS", "100")
         long_memory = "A" * 500 + "TAIL_MARKER_END"
         meta = {"native_session_memory": long_memory, "raw_native_session_memory": long_memory}
         out = _cap_native_memory_fields(meta)
@@ -115,7 +115,7 @@ class TestCapNativeMemoryFields:
         assert len(out["raw_native_session_memory"]) == 100
 
     def test_disables_capture_on_non_positive_cap(self, monkeypatch):
-        monkeypatch.setenv("KCSI_NATIVE_MEMORY_MAX_CHARS", "0")
+        monkeypatch.setenv("KSI_NATIVE_MEMORY_MAX_CHARS", "0")
         meta = {
             "native_session_memory": "something",
             "raw_native_session_memory": "something",
@@ -133,7 +133,7 @@ class TestCapNativeMemoryFields:
         assert _cap_native_memory_fields("not a dict") == {}  # type: ignore[arg-type]
 
     def test_non_string_memory_field_is_untouched(self, monkeypatch):
-        monkeypatch.setenv("KCSI_NATIVE_MEMORY_MAX_CHARS", "100")
+        monkeypatch.setenv("KSI_NATIVE_MEMORY_MAX_CHARS", "100")
         # Defensive: someone sets it to None or a list by mistake — must not crash.
         meta = {"native_session_memory": None, "raw_native_session_memory": ["x"]}
         out = _cap_native_memory_fields(meta)
@@ -149,7 +149,7 @@ class TestRecoveredFromSessionStatus:
 
     def test_recovered_from_session_is_not_flagged_silent(self):
         """parse_runner_stdout must leave status=recovered_from_session alone."""
-        from kcsi.runtime.normalize import RECOVERED_FROM_SESSION_STATUS, parse_runner_stdout
+        from ksi.runtime.normalize import RECOVERED_FROM_SESSION_STATUS, parse_runner_stdout
 
         stdout = json.dumps(
             {
@@ -176,7 +176,7 @@ class TestRecoveredFromSessionStatus:
 
     def test_recovered_status_constant_present(self):
         """Module-level constant must exist so downstream code can import it."""
-        from kcsi.runtime import normalize
+        from ksi.runtime import normalize
 
         assert normalize.RECOVERED_FROM_SESSION_STATUS == "recovered_from_session"
 
@@ -189,7 +189,7 @@ class TestSilentFailureAttemptPersistence:
     """
 
     def test_native_session_memory_survives_full_persistence_chain(self, tmp_path, store, monkeypatch):
-        monkeypatch.delenv("KCSI_NATIVE_MEMORY_MAX_CHARS", raising=False)
+        monkeypatch.delenv("KSI_NATIVE_MEMORY_MAX_CHARS", raising=False)
         # The meta shape that runtime_runner/src/main.ts writes after a silent
         # exit: native_session_memory populated by the on-host collector, plus
         # the zero-filled token counters from the empty container envelope.
@@ -261,7 +261,7 @@ class TestSilentFailureAttemptPersistence:
 
     def test_oversized_memory_is_capped_on_persistence_chain(self, tmp_path, store, monkeypatch):
         """When a session log exceeds the cap, the tail is preserved."""
-        monkeypatch.setenv("KCSI_NATIVE_MEMORY_MAX_CHARS", "256")
+        monkeypatch.setenv("KSI_NATIVE_MEMORY_MAX_CHARS", "256")
         # 10 KB of real content; cap is 256 chars.
         long_memory = "HEAD_JUNK" + ("X" * 10_000) + "TAIL_TURN_CONTENT_RIGHT_AT_END"
         runtime_meta = {

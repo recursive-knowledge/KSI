@@ -6,8 +6,8 @@
  *
  * The Claude path resolves its turn budget via `resolveClaudeMaxTurns`
  * (runtime_runner/agent-runner/src/query_config.ts): a unified 150-turn cap
- * for every task source, overridable via KCSI_CLAUDE_MAX_TURNS. A separate
- * message ceiling comes from KCSI_CLAUDE_MAX_MESSAGES (`resolveTurnBudgets`,
+ * for every task source, overridable via KSI_CLAUDE_MAX_TURNS. A separate
+ * message ceiling comes from KSI_CLAUDE_MAX_MESSAGES (`resolveTurnBudgets`,
  * same file) with a default of 150 for every task source (ARC and
  * per_task_forum both used to get a lower default here before, respectively,
  * #1037 and #1049 raised them to match maxTurns — see
@@ -143,7 +143,7 @@ describe("resolveOpenAIMaxTurns — task-source aware turn budget", () => {
     assert.equal(resolveOpenAIMaxTurns("per_task_forum", undefined), 60);
   });
 
-  it("honors KCSI_OPENAI_MAX_TURNS env override when set to a positive integer", () => {
+  it("honors KSI_OPENAI_MAX_TURNS env override when set to a positive integer", () => {
     assert.equal(resolveOpenAIMaxTurns("arc", "200"), 200);
     assert.equal(resolveOpenAIMaxTurns("per_task_forum", "1"), 1);
   });

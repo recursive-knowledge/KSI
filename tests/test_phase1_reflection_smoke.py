@@ -4,7 +4,7 @@ This test substitutes the TS runtime command with a tiny Python script that
 plays the container's role: writes ``WORKSPACE_PATH=`` to stderr, drops the
 sentinel, reads back the response, and emits a stdout envelope shaped like
 the real container output. The host-side path under test is the full
-``KcsiContainerExecutor.run_task`` integration:
+``KsiContainerExecutor.run_task`` integration:
 
   * payload contains ``phase1_reflection: { enabled: true }``
   * a BarrierWatcher is launched
@@ -13,7 +13,7 @@ the real container output. The host-side path under test is the full
   * the resulting RuntimeResult.runtime_meta carries ``phase1_reflection``
 
 A real docker-backed smoke is out of scope here because every dev box
-without ``kcsi-agent:bench`` would skip it; this test instead exercises
+without ``ksi-agent:bench`` would skip it; this test instead exercises
 every Python and host-TS piece of the wiring (BarrierWatcher launch,
 sentinel discovery, evaluator callback, response delivery, envelope
 parsing). The TS runtime is exercised separately by the agent-runner
@@ -28,8 +28,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from kcsi.models import TaskSpec
-from kcsi.runtime.container_host import KcsiContainerExecutor
+from ksi.models import TaskSpec
+from ksi.runtime.container_host import KsiContainerExecutor
 
 # A small Python script that emulates ``runtime_runner/src/main.ts``:
 # writes the workspace path file, then waits for the agent's barrier
@@ -47,7 +47,7 @@ payload = json.loads(Path(payload_path).read_text(encoding='utf-8'))
 ws = Path(os.environ['FAKE_WORKSPACE_DIR'])
 ws.mkdir(parents=True, exist_ok=True)
 
-barrier_file = os.environ.get('KCSI_BARRIER_WORKSPACE_FILE')
+barrier_file = os.environ.get('KSI_BARRIER_WORKSPACE_FILE')
 if barrier_file:
     Path(barrier_file).write_text(str(ws), encoding='utf-8')
 
@@ -152,7 +152,7 @@ def _provider_env() -> dict:
 
 
 def test_phase1_reflection_end_to_end_with_fake_runner(tmp_path):
-    """Drive ``KcsiContainerExecutor.run_task`` with a fake runner that
+    """Drive ``KsiContainerExecutor.run_task`` with a fake runner that
     plays the container side of the barrier protocol; assert the resulting
     runtime_meta carries the phase1_reflection text the host fed back."""
 
@@ -164,7 +164,7 @@ def test_phase1_reflection_end_to_end_with_fake_runner(tmp_path):
     evaluator = MagicMock()
     evaluator.evaluate.return_value = {"native_score": 0.5, "resolved": False, "status": "scored"}
 
-    executor = KcsiContainerExecutor(
+    executor = KsiContainerExecutor(
         command=[sys.executable, str(fake_runner)],
         working_dir=str(tmp_path),
         timeout_sec=60,
@@ -228,7 +228,7 @@ def test_phase1_reflection_smoke_disabled_path(tmp_path):
     evaluator = MagicMock()
     evaluator.evaluate.return_value = {"native_score": 0.0, "resolved": False, "status": "scored"}
 
-    executor = KcsiContainerExecutor(
+    executor = KsiContainerExecutor(
         command=[sys.executable, str(fake_runner)],
         working_dir=str(tmp_path),
         timeout_sec=60,
@@ -264,7 +264,7 @@ def test_deferred_watcher_exits_promptly_on_stop_before_workspace_written(tmp_pa
     evaluator = MagicMock()
     evaluator.evaluate.return_value = {"native_score": 0.0}
 
-    executor = KcsiContainerExecutor(
+    executor = KsiContainerExecutor(
         command=["fake"],
         working_dir=str(tmp_path),
         timeout_sec=60,

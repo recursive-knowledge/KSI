@@ -1,6 +1,6 @@
 """Test CLI flag parsing for knowledge DB path."""
 
-from kcsi.cli import build_parser
+from ksi.cli import build_parser
 
 
 def test_knowledge_db_path_flag():
@@ -14,7 +14,7 @@ def test_knowledge_db_path_flag():
             "--knowledge-db-path",
             "/tmp/memory.sqlite",
             "--provider-profile",
-            "configs/kcsi/.env.haiku",
+            "configs/ksi/.env.haiku",
         ]
     )
     assert args.knowledge_db_path == "/tmp/memory.sqlite"
@@ -31,7 +31,7 @@ def test_runtime_db_path_accepts_explicit_path():
             "--runtime-db-path",
             "/tmp/memory.sqlite",
             "--provider-profile",
-            "configs/kcsi/.env.haiku",
+            "configs/ksi/.env.haiku",
             "--max-concurrent-tasks",
             "8",
             "--max-concurrent-forum-tasks",
@@ -52,7 +52,7 @@ def test_runtime_db_path_flag():
             "--runtime-db-path",
             "/tmp/runtime.sqlite",
             "--provider-profile",
-            "configs/kcsi/.env.haiku",
+            "configs/ksi/.env.haiku",
             "--max-concurrent-tasks",
             "8",
             "--max-concurrent-forum-tasks",
@@ -72,7 +72,7 @@ def test_knowledge_db_path_optional_with_auto_generation():
             "--tasks-path",
             "/tmp/tasks.parquet",
             "--provider-profile",
-            "configs/kcsi/.env.haiku",
+            "configs/ksi/.env.haiku",
             "--max-concurrent-tasks",
             "8",
             "--max-concurrent-forum-tasks",
@@ -94,7 +94,7 @@ def test_capture_limits_defaults():
             "--knowledge-db-path",
             "/tmp/memory.sqlite",
             "--provider-profile",
-            "configs/kcsi/.env.haiku",
+            "configs/ksi/.env.haiku",
             "--max-concurrent-tasks",
             "8",
             "--max-concurrent-forum-tasks",
@@ -118,7 +118,7 @@ def test_capture_limits_custom_values():
             "--knowledge-db-path",
             "/tmp/memory.sqlite",
             "--provider-profile",
-            "configs/kcsi/.env.haiku",
+            "configs/ksi/.env.haiku",
             "--max-concurrent-tasks",
             "8",
             "--max-concurrent-forum-tasks",
@@ -148,7 +148,7 @@ def test_capture_limits_zero_means_disabled():
             "--knowledge-db-path",
             "/tmp/memory.sqlite",
             "--provider-profile",
-            "configs/kcsi/.env.haiku",
+            "configs/ksi/.env.haiku",
             "--max-concurrent-tasks",
             "8",
             "--max-concurrent-forum-tasks",
@@ -172,7 +172,7 @@ def test_native_memory_file_limits_defaults():
             "--knowledge-db-path",
             "/tmp/memory.sqlite",
             "--provider-profile",
-            "configs/kcsi/.env.haiku",
+            "configs/ksi/.env.haiku",
             "--max-concurrent-tasks",
             "8",
             "--max-concurrent-forum-tasks",

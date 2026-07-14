@@ -1,7 +1,7 @@
 # tests/test_extract_approach_excerpt.py
-"""Tests for _extract_approach_excerpt in src/kcsi/orchestrator/engine.py."""
+"""Tests for _extract_approach_excerpt in src/ksi/orchestrator/engine.py."""
 
-from kcsi.orchestrator.engine import _extract_approach_excerpt
+from ksi.orchestrator.engine import _extract_approach_excerpt
 
 
 class TestExtractApproachExcerpt:

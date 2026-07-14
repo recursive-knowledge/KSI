@@ -2,13 +2,13 @@ import json
 import tempfile
 from pathlib import Path
 
-from kcsi.distillation import (
+from ksi.distillation import (
     CrossTaskBundle,
     DistillInput,
     PerTaskBundle,
     distill,
 )
-from kcsi.memory.knowledge_store import CROSS_TASK_SENTINEL, KnowledgeStore
+from ksi.memory.knowledge_store import CROSS_TASK_SENTINEL, KnowledgeStore
 
 
 def _seed_db(tmp: Path) -> KnowledgeStore:
@@ -127,7 +127,7 @@ def test_distill_cross_task_exception_preserves_per_task_bundles(monkeypatch):
     """A non-LLM exception escaping distill_cross_task (e.g. a context-length
     error) must NOT discard the already-completed per-task bundles — the
     docstring promises 'returns whatever bundles succeeded'."""
-    import kcsi.distillation.distiller as distiller_mod
+    import ksi.distillation.distiller as distiller_mod
 
     with tempfile.TemporaryDirectory() as tmp:
         ks = _seed_db(Path(tmp))  # t1 has an attempt; cross-task has a post
@@ -165,8 +165,8 @@ def test_distill_cross_task_exception_preserves_per_task_bundles(monkeypatch):
 def test_distill_cross_task_auth_failure_propagates(monkeypatch):
     """AuthenticationFailure from the cross-task call is fatal and must NOT be
     swallowed by the per-task-bundle-preserving guard."""
-    import kcsi.distillation.distiller as distiller_mod
-    from kcsi.errors import AuthenticationFailure
+    import ksi.distillation.distiller as distiller_mod
+    from ksi.errors import AuthenticationFailure
 
     with tempfile.TemporaryDirectory() as tmp:
         ks = _seed_db(Path(tmp))
@@ -484,7 +484,7 @@ def test_distill_per_phase_llm_overrides():
 # Without windowing, a 50-task c=50 ARC2 run hit Anthropic 200K context at
 # gen 10 (210,659 tokens). The default 6-gen window keeps the input bounded
 # while letting per-task distill (which uses full per-task history) carry
-# older themes forward. Tunable via KCSI_CROSS_TASK_DISTILL_GEN_WINDOW.
+# older themes forward. Tunable via KSI_CROSS_TASK_DISTILL_GEN_WINDOW.
 # ---------------------------------------------------------------------------
 
 
@@ -510,7 +510,7 @@ def _seed_cross_task_history(tmp: Path, gens: list[int]) -> KnowledgeStore:
 
 def test_cross_task_distill_default_window_drops_old_gens(monkeypatch):
     """Default 6-gen window: at gen 10, keep gens 5-10, drop gens 0-4."""
-    monkeypatch.delenv("KCSI_CROSS_TASK_DISTILL_GEN_WINDOW", raising=False)
+    monkeypatch.delenv("KSI_CROSS_TASK_DISTILL_GEN_WINDOW", raising=False)
     with tempfile.TemporaryDirectory() as tmp:
         ks = _seed_cross_task_history(Path(tmp), gens=list(range(0, 11)))
 
@@ -553,7 +553,7 @@ def test_cross_task_distill_default_window_drops_old_gens(monkeypatch):
 
 def test_cross_task_distill_window_zero_disables_capping(monkeypatch):
     """Setting window=0 reverts to legacy uncapped behaviour."""
-    monkeypatch.setenv("KCSI_CROSS_TASK_DISTILL_GEN_WINDOW", "0")
+    monkeypatch.setenv("KSI_CROSS_TASK_DISTILL_GEN_WINDOW", "0")
     with tempfile.TemporaryDirectory() as tmp:
         ks = _seed_cross_task_history(Path(tmp), gens=list(range(0, 11)))
 
@@ -590,7 +590,7 @@ def test_cross_task_distill_window_zero_disables_capping(monkeypatch):
 
 def test_cross_task_distill_custom_window(monkeypatch):
     """Window=3 at gen 10 keeps gens 8, 9, 10 only."""
-    monkeypatch.setenv("KCSI_CROSS_TASK_DISTILL_GEN_WINDOW", "3")
+    monkeypatch.setenv("KSI_CROSS_TASK_DISTILL_GEN_WINDOW", "3")
     with tempfile.TemporaryDirectory() as tmp:
         ks = _seed_cross_task_history(Path(tmp), gens=list(range(0, 11)))
 
@@ -632,7 +632,7 @@ def test_cross_task_distill_custom_window(monkeypatch):
 # Same failure mode as the cross-task window above: without a cap, a task
 # stuck unsolved across many generations accumulates one attempt (with
 # reflection) per generation with no bound, risking the same 200K-context
-# overflow. Tunable via KCSI_PER_TASK_DISTILL_GEN_WINDOW.
+# overflow. Tunable via KSI_PER_TASK_DISTILL_GEN_WINDOW.
 # ---------------------------------------------------------------------------
 
 
@@ -652,7 +652,7 @@ def _seed_per_task_attempt_history(tmp: Path, gens: list[int]) -> KnowledgeStore
 
 def test_per_task_distill_default_window_drops_old_gens(monkeypatch):
     """Default 6-gen window: at gen 10, keep gens 5-10, drop gens 0-4."""
-    monkeypatch.delenv("KCSI_PER_TASK_DISTILL_GEN_WINDOW", raising=False)
+    monkeypatch.delenv("KSI_PER_TASK_DISTILL_GEN_WINDOW", raising=False)
     with tempfile.TemporaryDirectory() as tmp:
         ks = _seed_per_task_attempt_history(Path(tmp), gens=list(range(0, 11)))
 
@@ -696,7 +696,7 @@ def test_per_task_distill_default_window_drops_old_gens(monkeypatch):
 
 def test_per_task_distill_window_zero_disables_capping(monkeypatch):
     """Setting window=0 reverts to legacy uncapped behaviour."""
-    monkeypatch.setenv("KCSI_PER_TASK_DISTILL_GEN_WINDOW", "0")
+    monkeypatch.setenv("KSI_PER_TASK_DISTILL_GEN_WINDOW", "0")
     with tempfile.TemporaryDirectory() as tmp:
         ks = _seed_per_task_attempt_history(Path(tmp), gens=list(range(0, 11)))
 
@@ -733,7 +733,7 @@ def test_per_task_distill_window_zero_disables_capping(monkeypatch):
 
 def test_per_task_distill_custom_window(monkeypatch):
     """Window=3 at gen 10 keeps gens 8, 9, 10 only."""
-    monkeypatch.setenv("KCSI_PER_TASK_DISTILL_GEN_WINDOW", "3")
+    monkeypatch.setenv("KSI_PER_TASK_DISTILL_GEN_WINDOW", "3")
     with tempfile.TemporaryDirectory() as tmp:
         ks = _seed_per_task_attempt_history(Path(tmp), gens=list(range(0, 11)))
 
@@ -774,7 +774,7 @@ def test_per_task_distill_prompt_bounded_at_realistic_generation_count(monkeypat
     per-task distill prompt grow unboundedly. With the default 6-gen window,
     the prompt only ever carries ~6 gens' worth of attempts regardless of how
     many generations the task has been attempted across."""
-    monkeypatch.delenv("KCSI_PER_TASK_DISTILL_GEN_WINDOW", raising=False)
+    monkeypatch.delenv("KSI_PER_TASK_DISTILL_GEN_WINDOW", raising=False)
     with tempfile.TemporaryDirectory() as tmp:
         ks = _seed_per_task_attempt_history(Path(tmp), gens=list(range(0, 30)))
 
@@ -828,7 +828,7 @@ def test_per_task_distill_prompt_bounded_at_realistic_generation_count(monkeypat
 
 def test_distill_parses_free_text_json_via_fallback(monkeypatch):
     """A legacy (system, user) -> str stub goes through the lenient parser."""
-    monkeypatch.delenv("KCSI_CROSS_TASK_DISTILL_GEN_WINDOW", raising=False)
+    monkeypatch.delenv("KSI_CROSS_TASK_DISTILL_GEN_WINDOW", raising=False)
     with tempfile.TemporaryDirectory() as tmp:
         ks = _seed_db(Path(tmp))
 
@@ -890,9 +890,9 @@ def test_distill_broken_json_returns_none_without_second_call():
 def test_distill_consumes_structured_payload_without_regex_path(monkeypatch):
     """When the caller supports json_schema, distill uses the provider's parsed
     dict directly and never touches the free-text brace-matcher / repair path."""
-    import kcsi.distillation.per_task as per_task_mod
+    import ksi.distillation.per_task as per_task_mod
 
-    monkeypatch.delenv("KCSI_CROSS_TASK_DISTILL_GEN_WINDOW", raising=False)
+    monkeypatch.delenv("KSI_CROSS_TASK_DISTILL_GEN_WINDOW", raising=False)
 
     def _boom(*_a, **_k):  # pragma: no cover - must never run
         raise AssertionError("free-text parser must not run for structured output")
@@ -939,7 +939,7 @@ def test_call_llm_reraises_internal_typeerror_instead_of_silent_fallback():
     must surface — it must NOT be misclassified as 'callable rejects json_schema'
     and silently retried without the schema (which masks the bug and double-calls).
     """
-    from kcsi.distillation.per_task import _call_llm
+    from ksi.distillation.per_task import _call_llm
 
     calls = {"n": 0}
 
@@ -960,7 +960,7 @@ def test_call_llm_reraises_internal_typeerror_instead_of_silent_fallback():
 def test_call_llm_falls_back_when_callable_rejects_json_schema_kwarg():
     """A callable that genuinely doesn't accept json_schema (raises the standard
     'unexpected keyword argument' TypeError) falls back to a schema-less call."""
-    from kcsi.distillation.per_task import _call_llm
+    from ksi.distillation.per_task import _call_llm
 
     def legacy(sys_prompt, user_prompt):
         return '{"transferable_insights": ["legacy"]}'
@@ -976,7 +976,7 @@ def test_call_llm_folds_cache_prefix_back_when_callable_rejects_it():
     user_prompt (the forum history lives entirely in cache_prefix), so the
     fallback must fold cache_prefix back into the user message rather than drop
     it — otherwise the history silently vanishes (issue #1252 item 3)."""
-    from kcsi.distillation.per_task import _call_llm
+    from ksi.distillation.per_task import _call_llm
 
     seen: dict[str, str] = {}
 
@@ -996,7 +996,7 @@ def test_call_llm_empty_dict_payload_falls_back_to_lenient_parser():
     """An empty {} structured payload must NOT be accepted as a successful parse
     (which would silently produce an all-empty bundle). It falls through to the
     lenient free-text parser on the raw text instead."""
-    from kcsi.distillation.per_task import _call_llm, distill_one_task
+    from ksi.distillation.per_task import _call_llm, distill_one_task
 
     def empty_struct(sys_prompt, user_prompt, *, json_schema=None):
         # Provider returned a syntactically-valid but empty object as the parsed
@@ -1017,7 +1017,7 @@ def test_call_llm_empty_dict_payload_falls_back_to_lenient_parser():
 def test_call_llm_uses_injected_bundle_schema():
     """A custom bundle_schema is forwarded to the callable; absent it, the
     default DISTILL_BUNDLE_JSON_SCHEMA is used."""
-    from kcsi.distillation.per_task import _call_llm
+    from ksi.distillation.per_task import _call_llm
 
     seen = {}
 
@@ -1036,7 +1036,7 @@ def test_call_llm_uses_injected_bundle_schema():
 def test_distill_one_task_empty_response_returns_none_distinctly():
     """An empty LLM response (e.g. a tool-call decline) returns None and does
     not crash in the lenient parser."""
-    from kcsi.distillation.per_task import distill_one_task
+    from ksi.distillation.per_task import distill_one_task
 
     def empty(s, u, *, json_schema=None):
         return ("", None, None)
@@ -1123,7 +1123,7 @@ def test_load_attempts_strips_hidden_eval_fields():
     at the load boundary, so hidden test-runner tails, grader answer keys, and
     ARC per-test details cannot reach the distill prompt even if a future
     renderer edit dumps raw eval_results."""
-    from kcsi.distillation.distiller import _load_attempts
+    from ksi.distillation.distiller import _load_attempts
 
     eval_results = {
         "resolved": False,
@@ -1166,7 +1166,7 @@ def test_load_attempts_strips_hidden_eval_fields():
 def test_load_attempts_strips_hidden_attempt_meta_and_trace():
     """The load-boundary redaction also covers hidden verifier transcripts in
     attempt_meta and hidden-marked text in the condensed trace."""
-    from kcsi.distillation.distiller import _load_attempts
+    from ksi.distillation.distiller import _load_attempts
 
     class _RichStub:
         def query_task(self, task_id, *, generation=None, entry_types=None, limit=None):

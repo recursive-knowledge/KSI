@@ -84,9 +84,9 @@ def test_strict_ci_fails_hard_when_npm_missing(tmp_path):
 
 
 def test_strict_via_dedicated_flag_fails_hard_when_npm_missing(tmp_path):
-    """KCSI_TYPECHECK_STRICT=1 also triggers fail-hard, independent of CI."""
+    """KSI_TYPECHECK_STRICT=1 also triggers fail-hard, independent of CI."""
     bindir = _make_bin_dir(tmp_path, with_npm_node=False, npm_fails=False)
-    result = _run({"KCSI_TYPECHECK_STRICT": "1"}, str(bindir))
+    result = _run({"KSI_TYPECHECK_STRICT": "1"}, str(bindir))
     assert result.returncode != 0, result.stdout + result.stderr
 
 
@@ -105,7 +105,7 @@ def test_strict_fails_hard_when_npm_ci_fails(tmp_path):
     bindir = _make_bin_dir(tmp_path, with_npm_node=True, npm_fails=True)
     cache = tmp_path / "cache"
     result = _run(
-        {"CI": "true", "KCSI_TYPECHECK_CACHE": str(cache)},
+        {"CI": "true", "KSI_TYPECHECK_CACHE": str(cache)},
         str(bindir) + os.pathsep + os.environ.get("PATH", ""),
     )
     assert result.returncode != 0, result.stdout + result.stderr
@@ -117,7 +117,7 @@ def test_local_soft_skip_when_npm_ci_fails(tmp_path):
     bindir = _make_bin_dir(tmp_path, with_npm_node=True, npm_fails=True)
     cache = tmp_path / "cache"
     result = _run(
-        {"KCSI_TYPECHECK_CACHE": str(cache)},
+        {"KSI_TYPECHECK_CACHE": str(cache)},
         str(bindir) + os.pathsep + os.environ.get("PATH", ""),
     )
     assert result.returncode == 0, result.stdout + result.stderr
@@ -160,8 +160,8 @@ def test_local_soft_skip_when_src_dir_missing(tmp_path):
 
 
 def test_skip_flag_bypasses_even_in_strict_mode(tmp_path):
-    """KCSI_TYPECHECK_SKIP=1 short-circuits before the tooling checks, even
+    """KSI_TYPECHECK_SKIP=1 short-circuits before the tooling checks, even
     under CI=true — an explicit opt-out is always honored."""
     bindir = _make_bin_dir(tmp_path, with_npm_node=False, npm_fails=False)
-    result = _run({"CI": "true", "KCSI_TYPECHECK_SKIP": "1"}, str(bindir))
+    result = _run({"CI": "true", "KSI_TYPECHECK_SKIP": "1"}, str(bindir))
     assert result.returncode == 0, result.stdout + result.stderr

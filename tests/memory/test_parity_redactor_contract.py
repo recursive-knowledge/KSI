@@ -1,7 +1,7 @@
 """Contract test: the MCP knowledge redactor must cover every hidden-test-runner
 output key any evaluator emits.
 
-Parity rule (src/kcsi/memory/parity.py): adaptive surfaces may contain only
+Parity rule (src/ksi/memory/parity.py): adaptive surfaces may contain only
 information from the declared phase/split feedback channel. In default
 upstream-strict runs, each maintained no-feedback benchmark (polyglot /
 SWE-bench / terminal_bench_2 — all run hidden pytest) emits hidden test-runner
@@ -21,12 +21,12 @@ import re
 
 from conftest import REPO_ROOT
 
-from kcsi.memory.mcp_server import (
+from ksi.memory.mcp_server import (
     _HIDDEN_ATTEMPT_META_KEYS,
     _HIDDEN_TEST_RUNNER_TAIL_KEYS,
     _redact_solver_hidden_eval_fields,
 )
-from kcsi.memory.parity import HIDDEN_EVAL_ANSWER_KEYS
+from ksi.memory.parity import HIDDEN_EVAL_ANSWER_KEYS
 
 _REPO = REPO_ROOT
 
@@ -60,11 +60,11 @@ _TAIL_RE = re.compile(r"\b([a-z][a-z0-9_]*_(?:stdout|stderr)_tail)\b")
 # tests/distillation/test_distill_parity_contract.py adds the behavioral guard
 # against a key-less raw dump that this name-based scan cannot see.
 _SCAN = (
-    "src/kcsi/eval",
-    "src/kcsi/runtime",
-    "src/kcsi/orchestrator/engine.py",
-    "src/kcsi/memory",
-    "src/kcsi/distillation",
+    "src/ksi/eval",
+    "src/ksi/runtime",
+    "src/ksi/orchestrator/engine.py",
+    "src/ksi/memory",
+    "src/ksi/distillation",
 )
 
 
@@ -90,8 +90,8 @@ def test_every_eval_tail_key_is_classified():
         f"Unclassified stdout/stderr tail key(s): {sorted(unclassified)}. "
         "If it is hidden test/verifier output outside the declared channel, add it to "
         "_HIDDEN_TEST_RUNNER_TAIL_KEYS or _HIDDEN_ATTEMPT_META_KEYS in "
-        "src/kcsi/memory/parity.py; if it is declared agent/runtime feedback, add "
-        "it to _SAFE_TAILS here. See src/kcsi/memory/parity.py."
+        "src/ksi/memory/parity.py; if it is declared agent/runtime feedback, add "
+        "it to _SAFE_TAILS here. See src/ksi/memory/parity.py."
     )
 
 
@@ -117,7 +117,7 @@ def test_unknown_nested_arc_answer_field_fails_closed():
     """A future nested answer key under arc_per_test must NOT survive — the
     allow-list projection is the structural guarantee (deny-lists can't catch
     a key nobody remembered to add)."""
-    from kcsi.memory.parity import redact_solver_hidden_eval_fields
+    from ksi.memory.parity import redact_solver_hidden_eval_fields
 
     page = {
         "attempts": [
@@ -226,5 +226,5 @@ def test_answer_shaped_keys_are_classified():
         f"Answer-shaped key(s) {sorted(unclassified)} found under {_SCAN}. "
         "If a grader answer, ensure the redactor strips/allow-list-projects it; "
         "then add to _ANSWER_KEY_ALLOWLIST here with a rationale. "
-        "See src/kcsi/memory/parity.py."
+        "See src/ksi/memory/parity.py."
     )

@@ -32,14 +32,14 @@ describe('deriveEgressAllowlist', () => {
     assert.ok(out.includes('api.anthropic.com'));
     assert.ok(out.includes('proxy.corp'));
   });
-  it('appends KCSI_EGRESS_ALLOW hosts', () => {
-    const out = derive({ MODEL_PROVIDER: 'openai', KCSI_EGRESS_ALLOW: 'bedrock-runtime.us-east-1.amazonaws.com, sts.amazonaws.com' });
+  it('appends KSI_EGRESS_ALLOW hosts', () => {
+    const out = derive({ MODEL_PROVIDER: 'openai', KSI_EGRESS_ALLOW: 'bedrock-runtime.us-east-1.amazonaws.com, sts.amazonaws.com' });
     assert.ok(out.includes('api.openai.com'));
     assert.ok(out.includes('bedrock-runtime.us-east-1.amazonaws.com'));
     assert.ok(out.includes('sts.amazonaws.com'));
   });
   it('lowercases and dedupes', () => {
-    const out = derive({ MODEL_PROVIDER: 'anthropic', KCSI_EGRESS_ALLOW: 'API.Anthropic.com' });
+    const out = derive({ MODEL_PROVIDER: 'anthropic', KSI_EGRESS_ALLOW: 'API.Anthropic.com' });
     assert.deepEqual(out, ['api.anthropic.com']);
   });
   it('ignores a malformed base-URL override', () => {

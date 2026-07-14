@@ -1,7 +1,7 @@
 /**
  * Adapter-safety helpers shared across agent-runner adapters.
  *
- * Every agent framework that plugs into the KCSI runtime emits the same
+ * Every agent framework that plugs into the KSI runtime emits the same
  * ContainerOutput envelope (see shared_types.ts). Each adapter must
  * detect its own silent-exit modes, produce a diagnostic envelope on
  * failure, and avoid leaking secrets to stdout / DB. This module
@@ -150,7 +150,7 @@ export function buildSilentDiagnostic(args: {
 
 /**
  * ContainerOutput fingerprint that matches the Python host's silent-failure
- * classifier (`src/kcsi/runtime/normalize.py::is_silent_agent_failure`).
+ * classifier (`src/ksi/runtime/normalize.py::is_silent_agent_failure`).
  * An envelope is a silent failure when it claims success but carries no
  * output, no tools, and no tokens. Adapters can call this before emitting
  * to proactively reclassify themselves rather than relying on host-side

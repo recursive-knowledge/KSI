@@ -1,5 +1,5 @@
 # tests/memory/test_memory_store.py
-"""Tests for src/kcsi/memory/store.py — SQLite memory store."""
+"""Tests for src/ksi/memory/store.py — SQLite memory store."""
 
 import gc
 import sqlite3
@@ -13,7 +13,7 @@ import pytest
 
 
 def _make_store(tmp_path):
-    from kcsi.memory.store import MemoryStore
+    from ksi.memory.store import MemoryStore
 
     db_path = str(tmp_path / "test_memory.sqlite")
     return MemoryStore(db_path)
@@ -42,12 +42,12 @@ class TestMemoryStoreSchema:
 
     def test_read_only_does_not_run_compat_schema_migrations(self, tmp_path, monkeypatch):
         db_path = str(tmp_path / "readonly.sqlite")
-        from kcsi.memory.store import MemoryStore
+        from ksi.memory.store import MemoryStore
 
         writer = MemoryStore(db_path, default_experiment="ro")
         writer.close()
 
-        import kcsi.memory.store as store_mod
+        import ksi.memory.store as store_mod
 
         def fail_if_called(_self: object) -> None:
             raise AssertionError("compat schema migration must not run in read-only mode")
@@ -69,7 +69,7 @@ class TestMemoryStoreSchema:
         import os
 
         db_path = str(tmp_path / "readonly.sqlite")
-        from kcsi.memory.store import MemoryStore
+        from ksi.memory.store import MemoryStore
 
         writer = MemoryStore(db_path, default_experiment="ro")
         writer.close()
@@ -115,8 +115,8 @@ class TestMemoryStoreSchema:
         several times. Re-taking the advisory file lock for every nested helper
         can stall the single writer thread under train-50 scale.
         """
-        import kcsi.memory._store_common as store_common_mod
-        from kcsi.memory.store import MemoryStore
+        import ksi.memory._store_common as store_common_mod
+        from ksi.memory.store import MemoryStore
 
         db_path = str(tmp_path / "nested.sqlite")
         store = MemoryStore(db_path, default_experiment="test")
@@ -154,7 +154,7 @@ class TestRawTranscripts:
         all production readers go through attempt_artifacts — a
         memory_docs[transcript] row is dead weight that bloats memory_docs.
         """
-        from kcsi.memory.store import MemoryStore
+        from ksi.memory.store import MemoryStore
 
         db_path = str(tmp_path / "test.sqlite")
         store = MemoryStore(db_path, default_experiment="test")
@@ -204,7 +204,7 @@ class TestRawTranscripts:
 
     def test_insert_raw_transcript_attaches_to_existing_attempt(self, tmp_path):
         """A task trace and its transcript are one logical attempt."""
-        from kcsi.memory.store import MemoryStore
+        from ksi.memory.store import MemoryStore
 
         db_path = str(tmp_path / "test.sqlite")
         store = MemoryStore(db_path, default_experiment="test")
@@ -246,7 +246,7 @@ class TestRawTranscripts:
 
     def test_batch_mode_suppresses_intermediate_commits(self, tmp_path):
         """Verify _batched() keeps _batch_mode=True during helpers so _commit() is a no-op."""
-        from kcsi.memory.store import MemoryStore
+        from ksi.memory.store import MemoryStore
 
         db_path = str(tmp_path / "batch.sqlite")
         store = MemoryStore(db_path, default_experiment="test")
@@ -388,7 +388,7 @@ class TestTaskSummaries:
 
     def test_list_task_summaries_respects_limit(self, tmp_path):
         """list_task_summaries should not return more rows than the limit."""
-        from kcsi.memory.store import MemoryStore
+        from ksi.memory.store import MemoryStore
 
         db_path = str(tmp_path / "test.sqlite")
         store = MemoryStore(db_path, default_experiment="test")
@@ -424,7 +424,7 @@ class TestDefaultSchemaHasAllTables:
         return {r["name"] for r in rows}
 
     def test_default_has_all_tables(self, tmp_path):
-        from kcsi.memory.store import MemoryStore
+        from ksi.memory.store import MemoryStore
 
         store = MemoryStore(str(tmp_path / "default.sqlite"))
         tables = self._tables(store)
@@ -588,7 +588,7 @@ class TestConcurrentRunWrite:
     """Stress test: multiple threads calling _run_write-wrapped methods concurrently."""
 
     def test_concurrent_inserts_all_succeed(self, tmp_path):
-        from kcsi.memory.store import MemoryStore
+        from ksi.memory.store import MemoryStore
 
         store = MemoryStore(str(tmp_path / "concurrent.sqlite"))
         num_threads = 10
@@ -623,7 +623,7 @@ class TestConcurrentRunWrite:
         store.close()
 
     def test_concurrent_task_summary_inserts(self, tmp_path):
-        from kcsi.memory.store import MemoryStore
+        from ksi.memory.store import MemoryStore
 
         store = MemoryStore(str(tmp_path / "concurrent_summary.sqlite"))
         num_threads = 10
@@ -668,7 +668,7 @@ class TestRunWriteTimeout:
     """Test _run_write timeout and normal-case behavior."""
 
     def test_run_write_succeeds_normally(self, tmp_path):
-        from kcsi.memory.store import MemoryStore
+        from ksi.memory.store import MemoryStore
 
         store = MemoryStore(str(tmp_path / "rw.sqlite"))
         result_box = [None]
@@ -683,7 +683,7 @@ class TestRunWriteTimeout:
         store.close()
 
     def test_run_write_propagates_exception(self, tmp_path):
-        from kcsi.memory.store import MemoryStore
+        from ksi.memory.store import MemoryStore
 
         store = MemoryStore(str(tmp_path / "rw_err.sqlite"))
 
@@ -696,7 +696,7 @@ class TestRunWriteTimeout:
 
     def test_run_write_timeout_raises_runtime_error(self, tmp_path):
         """When the writer thread is dead/stuck, _run_write should raise RuntimeError."""
-        from kcsi.memory.store import MemoryStore
+        from ksi.memory.store import MemoryStore
 
         store = MemoryStore(str(tmp_path / "rw_timeout.sqlite"))
 
@@ -766,7 +766,7 @@ class TestRunWriteCancellation:
         return t
 
     def test_timed_out_write_is_cancelled_and_never_applies(self, tmp_path):
-        from kcsi.memory.store import MemoryStore
+        from ksi.memory.store import MemoryStore
 
         store = MemoryStore(str(tmp_path / "cancel.sqlite"))
         executed = []
@@ -785,7 +785,7 @@ class TestRunWriteCancellation:
         """The exact issue-#767 shape: a caller that retries after the stall
         error (SqlitePersistence's retry-once-then-drop guards) must not end
         up with the row applied twice once the writer recovers."""
-        from kcsi.memory.store import MemoryStore
+        from ksi.memory.store import MemoryStore
 
         store = MemoryStore(str(tmp_path / "dup.sqlite"))
         kwargs = dict(
@@ -817,7 +817,7 @@ class TestRunWriteCancellation:
     def test_running_write_gets_grace_period_instead_of_cancel(self, tmp_path):
         """A closure the worker is already executing cannot be cancelled; the
         caller waits one more window and consumes the result normally."""
-        from kcsi.memory.store import MemoryStore
+        from ksi.memory.store import MemoryStore
 
         store = MemoryStore(str(tmp_path / "grace.sqlite"))
         with patch("threading.Event", _FastWaitEvent):
@@ -829,8 +829,8 @@ class TestRunWriteCancellation:
         """If the closure is still executing after the grace window, the error
         must be the dedicated WriteIndeterminateError so best-effort callers
         can drop instead of retrying (a generic retry could duplicate rows)."""
-        from kcsi.errors import WriteIndeterminateError
-        from kcsi.memory.store import MemoryStore
+        from ksi.errors import WriteIndeterminateError
+        from ksi.memory.store import MemoryStore
 
         store = MemoryStore(str(tmp_path / "indet.sqlite"))
         finished = []
@@ -851,7 +851,7 @@ class TestCloseWithActiveWriter:
     """Test that close() handles a busy writer thread gracefully."""
 
     def test_close_after_writes_completes_cleanly(self, tmp_path):
-        from kcsi.memory.store import MemoryStore
+        from ksi.memory.store import MemoryStore
 
         store = MemoryStore(str(tmp_path / "close_clean.sqlite"))
         # Do some writes first
@@ -869,7 +869,7 @@ class TestCloseWithActiveWriter:
         assert store._writer_thread is None
 
     def test_close_with_stuck_writer_cleans_up(self, tmp_path):
-        from kcsi.memory.store import MemoryStore
+        from ksi.memory.store import MemoryStore
 
         store = MemoryStore(str(tmp_path / "close_stuck.sqlite"))
 
@@ -898,14 +898,14 @@ class TestCloseWithActiveWriter:
         assert store._conn is None
 
     def test_double_close_is_safe(self, tmp_path):
-        from kcsi.memory.store import MemoryStore
+        from ksi.memory.store import MemoryStore
 
         store = MemoryStore(str(tmp_path / "double_close.sqlite"))
         store.close()
         store.close()  # second close should not raise
 
     def test_store_is_collectible_without_explicit_close(self, tmp_path):
-        from kcsi.memory.store import MemoryStore
+        from ksi.memory.store import MemoryStore
 
         def _fd_count() -> int | None:
             fd_root = Path("/dev/fd")
@@ -946,7 +946,7 @@ class TestAllTablesPresentInDefaultSchema:
     """Verify all table types are accessible in the default (full) schema."""
 
     def test_transcript_insert_succeeds(self, tmp_path):
-        from kcsi.memory.store import MemoryStore
+        from ksi.memory.store import MemoryStore
 
         store = MemoryStore(str(tmp_path / "full.sqlite"))
         store.insert_raw_transcript(
@@ -962,7 +962,7 @@ class TestAllTablesPresentInDefaultSchema:
         store.close()
 
     def test_forum_message_insert_succeeds(self, tmp_path):
-        from kcsi.memory.store import MemoryStore
+        from ksi.memory.store import MemoryStore
 
         store = MemoryStore(str(tmp_path / "full.sqlite"))
         store.insert_forum_message(
@@ -978,7 +978,7 @@ class TestAllTablesPresentInDefaultSchema:
         store.close()
 
     def test_forum_round_payload_insert_succeeds(self, tmp_path):
-        from kcsi.memory.store import MemoryStore
+        from ksi.memory.store import MemoryStore
 
         store = MemoryStore(str(tmp_path / "full.sqlite"))
         store.insert_forum_message(
@@ -994,7 +994,7 @@ class TestAllTablesPresentInDefaultSchema:
         store.close()
 
     def test_task_memory_upsert_succeeds(self, tmp_path):
-        from kcsi.memory.store import MemoryStore
+        from ksi.memory.store import MemoryStore
 
         store = MemoryStore(str(tmp_path / "full.sqlite"))
         store.upsert_task_memory_record(
@@ -1033,7 +1033,7 @@ class TestAssignmentTimestamps:
         )
 
     def test_mark_assignment_started_sets_started_at(self, tmp_path):
-        from kcsi.memory.store import MemoryStore
+        from ksi.memory.store import MemoryStore
 
         store = MemoryStore(str(tmp_path / "ts.sqlite"), default_experiment="exp1")
         try:
@@ -1053,7 +1053,7 @@ class TestAssignmentTimestamps:
 
     def test_mark_assignment_ended_sets_both_timestamps(self, tmp_path):
         """End-to-end: dispatch → complete → both timestamps present, ended >= started."""
-        from kcsi.memory.store import MemoryStore
+        from ksi.memory.store import MemoryStore
 
         store = MemoryStore(str(tmp_path / "ts.sqlite"), default_experiment="exp1")
         try:
@@ -1089,7 +1089,7 @@ class TestAssignmentTimestamps:
 
     def test_mark_assignment_started_is_idempotent(self, tmp_path):
         """Retries must not clobber the original start time."""
-        from kcsi.memory.store import MemoryStore
+        from ksi.memory.store import MemoryStore
 
         store = MemoryStore(str(tmp_path / "ts.sqlite"), default_experiment="exp1")
         try:
@@ -1115,7 +1115,7 @@ class TestAssignmentTimestamps:
     def test_mark_assignment_ended_backfills_started_at(self, tmp_path):
         """If ended is called without a prior start (e.g., persistence was wired
         late), started_at is back-filled so duration analytics are non-NULL."""
-        from kcsi.memory.store import MemoryStore
+        from ksi.memory.store import MemoryStore
 
         store = MemoryStore(str(tmp_path / "ts.sqlite"), default_experiment="exp1")
         try:
@@ -1140,7 +1140,7 @@ class TestAssignmentTimestamps:
         Regression for the 0/0 assignments timestamps observed in the live
         Haiku baseline sweep (results/baseline_sweep_haiku/...).
         """
-        from kcsi.cli import SqlitePersistence
+        from ksi.cli import SqlitePersistence
 
         db_path = str(tmp_path / "persist.sqlite")
         persist = SqlitePersistence(runtime_db_path=db_path, experiment_name="exp1")
@@ -1182,7 +1182,7 @@ class TestAssignmentTimestamps:
         """Integration-ish: mimic the engine flow — 'started' then insert_task_trace
         (which already calls _ensure_assignment) then 'completed'. Both timestamps
         should be present on the single assignment row."""
-        from kcsi.memory.store import MemoryStore
+        from ksi.memory.store import MemoryStore
 
         store = MemoryStore(str(tmp_path / "ts.sqlite"), default_experiment="exp1")
         try:
@@ -1258,7 +1258,7 @@ class TestTasksRepoPreservation:
     def test_repeated_upsert_preserves_existing_repo_when_empty_comes_second(self, tmp_path):
         """Write task twice: first with repo='owner/name', then with repo='' —
         the final row MUST still have repo='owner/name' (the COALESCE preserve)."""
-        from kcsi.memory.store import MemoryStore
+        from ksi.memory.store import MemoryStore
 
         store = MemoryStore(str(tmp_path / "repo_preserve.sqlite"), default_experiment="exp1")
         try:
@@ -1286,7 +1286,7 @@ class TestTasksRepoPreservation:
         Once the caller passes the real repo, the second write must update
         the blank row to the real value.
         """
-        from kcsi.memory.store import MemoryStore
+        from ksi.memory.store import MemoryStore
 
         store = MemoryStore(str(tmp_path / "repo_set_after.sqlite"), default_experiment="exp1")
         try:
@@ -1305,7 +1305,7 @@ class TestTasksRepoPreservation:
         tasks row must contain that repo. Pins the fix for
         SqlitePersistence.on_task_trace which used to hardcode repo=''.
         """
-        from kcsi.memory.store import MemoryStore
+        from ksi.memory.store import MemoryStore
 
         store = MemoryStore(str(tmp_path / "trace_repo.sqlite"), default_experiment="exp1")
         try:
@@ -1338,7 +1338,7 @@ class TestTasksRepoPreservation:
 
     def test_composite_persistence_propagates_experiment_rename(self, tmp_path):
         """Engine collision suffixing must reach wrapped SQLite observers."""
-        from kcsi.cli import CollectingPersistence, CompositePersistence, SqlitePersistence
+        from ksi.cli import CollectingPersistence, CompositePersistence, SqlitePersistence
 
         db_path = str(tmp_path / "persist.sqlite")
         sqlite = SqlitePersistence(runtime_db_path=db_path, experiment_name="original")
@@ -1362,7 +1362,7 @@ class TestTasksRepoPreservation:
 
     def test_composite_persistence_keeps_local_experiment_name_without_observers(self):
         """CompositePersistence should retain renamed state even with no named observers."""
-        from kcsi.cli import CompositePersistence
+        from ksi.cli import CompositePersistence
 
         persist = CompositePersistence([])
         persist.experiment_name = "renamed"
@@ -1371,7 +1371,7 @@ class TestTasksRepoPreservation:
 
     def test_sqlite_persistence_rename_updates_open_store_default_experiment(self, tmp_path):
         """Renaming after store creation should update the open store's experiment."""
-        from kcsi.cli import SqlitePersistence
+        from ksi.cli import SqlitePersistence
 
         db_path = str(tmp_path / "persist.sqlite")
         persist = SqlitePersistence(runtime_db_path=db_path, experiment_name="original")
@@ -1398,8 +1398,8 @@ class TestTasksRepoPreservation:
         so the 3 always-silent-failing swepro tasks get their repo column
         populated on the first attempt.
         """
-        from kcsi.cli import SqlitePersistence
-        from kcsi.models import TaskTrace, TokenUsage
+        from ksi.cli import SqlitePersistence
+        from ksi.models import TaskTrace, TokenUsage
 
         db_path = str(tmp_path / "persist.sqlite")
         persist = SqlitePersistence(runtime_db_path=db_path, experiment_name="exp1")

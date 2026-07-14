@@ -1,4 +1,4 @@
-from kcsi.memory.parity import (
+from ksi.memory.parity import (
     ARC_PER_TEST_SAFE_KEYS,
     HIDDEN_ATTEMPT_META_KEYS,
     HIDDEN_EVAL_ANSWER_KEYS,

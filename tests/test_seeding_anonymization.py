@@ -7,7 +7,7 @@ should appear.
 
 from __future__ import annotations
 
-from kcsi.runtime.seeding import _best_attempt_summary
+from ksi.runtime.seeding import _best_attempt_summary
 
 
 def _make_record(

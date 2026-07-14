@@ -99,7 +99,7 @@ def test_benchmark_runs_default_to_bench_image():
     )
 
     assert match is not None
-    assert match.group(1) == "kcsi-agent:bench"
+    assert match.group(1) == "ksi-agent:bench"
 
 
 def test_bench_dockerfile_verifies_go_and_ripgrep_contract():
@@ -127,7 +127,7 @@ def test_bench_dockerfile_carries_polyglot_toolchains():
     """The agent's own execution image must be able to compile/test the
 
     non-Go/Python Polyglot languages itself (rust, java, cpp, javascript),
-    not just the separate kcsi-polyglot-eval grading image: the agent can
+    not just the separate ksi-polyglot-eval grading image: the agent can
     otherwise hit `cargo: command not found` mid-task on rust tasks, and the
     same gap affects JavaScript's `npm test`/jest under egress isolation.
     """
@@ -163,7 +163,7 @@ def test_bench_dockerfile_carries_polyglot_toolchains():
     # entry; the JDK resolves user.home via getpwuid and silently breaks
     # Gradle unless this is forced.
     assert "JAVA_TOOL_OPTIONS=-Duser.home=/home/node" in dockerfile
-    # jest/babel, version-pinned to match the kcsi-polyglot-eval grading
+    # jest/babel, version-pinned to match the ksi-polyglot-eval grading
     # image's recipe (polyglot_docker.py's HyperAgents pb.base template).
     assert "jest@29.7.0" in dockerfile
     assert "@babel/core@7.25.2" in dockerfile
@@ -183,18 +183,18 @@ def test_bench_dockerfile_carries_polyglot_toolchains():
 
 
 def test_bench_and_grader_images_pin_identical_js_toolchain_versions():
-    """The agent's bench image and the kcsi-polyglot-eval grading image must
+    """The agent's bench image and the ksi-polyglot-eval grading image must
 
     pin the SAME jest/babel versions, or the agent's in-container `npm test`
     smoke pass and the grader's verdict can silently diverge (deep review
     2026-07-03, PR #1091 M1: the grading recipe previously left `jest`
     unpinned while the bench image pinned 29.7.0). Assert each version token
     appears in BOTH container/Dockerfile.bench and the grading recipe in
-    src/kcsi/benchmarks/polyglot_docker.py, so a bump to one that isn't mirrored to
+    src/ksi/benchmarks/polyglot_docker.py, so a bump to one that isn't mirrored to
     the other fails loudly.
     """
     dockerfile_bench = DOCKERFILE_BENCH.read_text(encoding="utf-8")
-    grader_recipe = (REPO_ROOT / "src" / "kcsi" / "benchmarks" / "polyglot_docker.py").read_text(encoding="utf-8")
+    grader_recipe = (REPO_ROOT / "src" / "ksi" / "benchmarks" / "polyglot_docker.py").read_text(encoding="utf-8")
 
     for token in (
         "jest@29.7.0",

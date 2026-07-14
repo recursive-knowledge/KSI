@@ -8,7 +8,7 @@ exercises the new hook and fails until the spec field + dispatch exist.
 
 from types import SimpleNamespace as NS
 
-from kcsi.orchestrator.engine import GenerationalOrchestrator
+from ksi.orchestrator.engine import GenerationalOrchestrator
 
 _f = GenerationalOrchestrator._knowledge_trace_condensed
 
@@ -83,7 +83,7 @@ def test_generic_no_output_no_error():
 def test_custom_task_source_trace_condensed_is_dispatched():
     """A registered source's ``trace_condensed`` hook drives the condensed
     trace, with no ``task_source ==`` edit in the engine."""
-    from kcsi.tasks import registry
+    from ksi.tasks import registry
 
     def _fmt(trace, *, insight_text):
         return f"CUSTOM tc score={trace.native_score} insight={insight_text}"

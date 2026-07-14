@@ -10,9 +10,9 @@ from __future__ import annotations
 
 import pytest
 
-from kcsi.benchmarks.swebench_pro_external import SWEBENCH_FAILURE_STATUSES
-from kcsi.models import TaskSpec
-from kcsi.orchestrator.engine import _score_from_eval
+from ksi.benchmarks.swebench_pro_external import SWEBENCH_FAILURE_STATUSES
+from ksi.models import TaskSpec
+from ksi.orchestrator.engine import _score_from_eval
 
 
 def _task(source: str) -> TaskSpec:

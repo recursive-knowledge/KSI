@@ -1,6 +1,6 @@
 """Behavioral parity guard for the distillation prompt surface.
 
-``src/kcsi/memory/parity.py`` names three agent-facing adaptive surfaces; the
+``src/ksi/memory/parity.py`` names three agent-facing adaptive surfaces; the
 distillation prompt is one of them. Unlike the MCP forum tools, the distill
 renderers do NOT route ``eval_results`` through ``redact_solver_hidden_eval_fields``
 -- their only protection is *render-time field selection* (``_fmt_eval_results`` /
@@ -18,7 +18,7 @@ the declared experience signal (outcome scalars/counts) is retained.
 
 from __future__ import annotations
 
-from kcsi.distillation.prompts import _fmt_attempts, _fmt_eval_results
+from ksi.distillation.prompts import _fmt_attempts, _fmt_eval_results
 
 # Sentinels for each hidden field class. None may appear in rendered distill text.
 _POLY_TAIL = "CANARY_POLYGLOT_TEST_RUNNER_TAIL"

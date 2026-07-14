@@ -11,9 +11,9 @@ from __future__ import annotations
 
 import dataclasses
 
-from kcsi.distillation.per_task import _as_insight_list
-from kcsi.distillation.prompts import DISTILL_BUNDLE_JSON_SCHEMA
-from kcsi.distillation.types import CrossTaskBundle, PerTaskBundle
+from ksi.distillation.per_task import _as_insight_list
+from ksi.distillation.prompts import DISTILL_BUNDLE_JSON_SCHEMA
+from ksi.distillation.types import CrossTaskBundle, PerTaskBundle
 
 
 def _schema_top_level_keys() -> set[str]:
@@ -77,7 +77,7 @@ def test_evidence_post_ids_is_integer_array_and_coercion_drops_nonpositive():
     """The schema types evidence_post_ids as integers; the coercion enforces the
     tighter positive-int rule. This pins the documented (minor) range mismatch so
     a future tightening of either side is a conscious change."""
-    from kcsi.distillation.per_task import _as_int_list
+    from ksi.distillation.per_task import _as_int_list
 
     assert DISTILL_BUNDLE_JSON_SCHEMA["schema"]["properties"]["evidence_post_ids"] == {
         "type": "array",

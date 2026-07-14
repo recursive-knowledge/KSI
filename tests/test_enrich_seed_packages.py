@@ -4,11 +4,11 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-from kcsi.models import AgentState, TaskSpec
-from kcsi.orchestrator.engine import GenerationalOrchestrator
-from kcsi.orchestrator.enrichment_phase import EngineEnrichmentPhaseService, _knowledge_attempts_to_seed_records
-from kcsi.orchestrator.strategy import DefaultKnowledgeStrategy, RawAttemptsStrategy
-from kcsi.runtime.seeding import format_query_records_md, seed_package_to_memory_md
+from ksi.models import AgentState, TaskSpec
+from ksi.orchestrator.engine import GenerationalOrchestrator
+from ksi.orchestrator.enrichment_phase import EngineEnrichmentPhaseService, _knowledge_attempts_to_seed_records
+from ksi.orchestrator.strategy import DefaultKnowledgeStrategy, RawAttemptsStrategy
+from ksi.runtime.seeding import format_query_records_md, seed_package_to_memory_md
 
 # ---------------------------------------------------------------------------
 # Helpers — build a lightweight engine stub that has the attributes

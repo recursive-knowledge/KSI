@@ -14,7 +14,7 @@
 #
 # Prerequisites:
 #   - data/polyglot_medium.json (uv run python benchmarks/scripts/dataprep/prepare_polyglot_dataset.py)
-#   - kcsi-polyglot-eval:latest Docker image
+#   - ksi-polyglot-eval:latest Docker image
 #
 # Environment variables:
 #   HAIKU_PROFILE / OPENAI_PROFILE, GENERATIONS (default 10),
@@ -36,7 +36,7 @@ GENERATIONS="${GENERATIONS:-10}"
 # a stray CROSS_RUNNER_AGENT_TIMEOUT_SEC from the shell (cli.py reads that env
 # var as the --runtime-timeout-sec default).
 RUNTIME_TIMEOUT="${RUNTIME_TIMEOUT:-1800}"
-TASKS_PATH="$KCSI_ROOT/data/polyglot_medium.json"
+TASKS_PATH="$KSI_ROOT/data/polyglot_medium.json"
 maybe_validate_file "$TASKS_PATH" "Polyglot dataset"
 
 COMMON_ARGS=(

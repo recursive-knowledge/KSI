@@ -133,7 +133,7 @@ describe('Anthropic scheduled benchmark streaming', () => {
     );
     assert.match(
       agentRunner,
-      /KCSI_ANTHROPIC_FORUM_ADAPTER\s*\|\|\s*'direct'/,
+      /KSI_ANTHROPIC_FORUM_ADAPTER\s*\|\|\s*'direct'/,
       'direct forum adapter must be the default with an opt-out env override',
     );
     for (const phase of ['per_task_forum', 'cross_task_forum']) {
@@ -220,7 +220,7 @@ describe('Anthropic scheduled benchmark streaming', () => {
     // for now (other code paths and tooling reference it), but the forum
     // adapter does not call it.
     assert.match(directHistory, /compactConsumedToolResults/);
-    assert.match(directHistory, /kcsi compacted tool result/);
+    assert.match(directHistory, /ksi compacted tool result/);
     assert.doesNotMatch(directForumRunner, /compactConsumedToolResults\(/);
   });
 
@@ -233,7 +233,7 @@ describe('Anthropic scheduled benchmark streaming', () => {
         { role: 'user', content: 'start' },
         { role: 'assistant', content: [{ type: 'tool_use', id: 'old-call', name: 'query', input: {} }] },
         { role: 'user', content: [{ type: 'tool_result', tool_use_id: 'old-call', content: [{ type: 'text', text: 'old payload ' + 'x'.repeat(2000) }] }] },
-        { role: 'user', content: [{ type: 'tool_result', tool_use_id: 'already', content: [{ type: 'text', text: '[kcsi compacted tool result] query result was already delivered.' }] }] },
+        { role: 'user', content: [{ type: 'tool_result', tool_use_id: 'already', content: [{ type: 'text', text: '[ksi compacted tool result] query result was already delivered.' }] }] },
         { role: 'assistant', content: [{ type: 'tool_use', id: 'recent-call', name: 'forum_post', input: {} }] },
         { role: 'user', content: [{ type: 'tool_result', tool_use_id: 'recent-call', content: [{ type: 'text', text: 'fresh forum_post payload' }] }] },
       ];
@@ -247,11 +247,11 @@ describe('Anthropic scheduled benchmark streaming', () => {
 
       assert.match(
         messages[2].content[0].content[0].text,
-        /^\\[kcsi compacted tool result\\] query result was already delivered/,
+        /^\\[ksi compacted tool result\\] query result was already delivered/,
       );
       assert.equal(
         messages[3].content[0].content[0].text,
-        '[kcsi compacted tool result] query result was already delivered.',
+        '[ksi compacted tool result] query result was already delivered.',
         'pre-compacted results should not be rewritten',
       );
       assert.equal(
@@ -270,7 +270,7 @@ describe('Anthropic scheduled benchmark streaming', () => {
       import os from 'node:os';
       import path from 'node:path';
 
-      const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'kcsi-forum-mcp-'));
+      const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ksi-forum-mcp-'));
       const fakePython = path.join(tempDir, 'python3');
       fs.writeFileSync(fakePython, \`#!/usr/bin/env node
 const tools = [
@@ -359,7 +359,7 @@ process.stdin.on('data', (chunk) => {
         {
           MODEL: 'claude-test',
           ANTHROPIC_API_KEY: 'test-key',
-          KCSI_ANTHROPIC_DIRECT_FORUM_MAX_TURNS: '2',
+          KSI_ANTHROPIC_DIRECT_FORUM_MAX_TURNS: '2',
         },
       );
 

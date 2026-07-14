@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from typing import Any
 
-from kcsi.models import AgentState, TaskSpec, TaskTrace
-from kcsi.orchestrator.distillation_phase import DistillationPhaseInput
-from kcsi.orchestrator.execution_phase import ExecutionPhaseInput
-from kcsi.orchestrator.forum_phase import CrossTaskForumPhaseInput, PerTaskForumPhaseInput
-from kcsi.orchestrator.seeding_phase import SeedingPhaseInput
+from ksi.models import AgentState, TaskSpec, TaskTrace
+from ksi.orchestrator.distillation_phase import DistillationPhaseInput
+from ksi.orchestrator.execution_phase import ExecutionPhaseInput
+from ksi.orchestrator.forum_phase import CrossTaskForumPhaseInput, PerTaskForumPhaseInput
+from ksi.orchestrator.seeding_phase import SeedingPhaseInput
 
 
 def execute_generation(

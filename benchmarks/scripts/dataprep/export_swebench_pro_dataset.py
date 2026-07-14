@@ -16,7 +16,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from kcsi.benchmarks.swebench_pro_external import DATASET_NAME, DATASET_REVISION
+from ksi.benchmarks.swebench_pro_external import DATASET_NAME, DATASET_REVISION
 
 
 def _load_dataset_rows(*, dataset_name: str, split: str, revision: str | None = None) -> list[dict[str, Any]]:

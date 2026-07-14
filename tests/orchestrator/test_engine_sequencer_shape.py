@@ -13,7 +13,7 @@ from __future__ import annotations
 import pytest
 from conftest import REPO_ROOT
 
-from kcsi.orchestrator import (
+from ksi.orchestrator import (
     claim_phase,
     distillation_phase,
     enrichment_phase,
@@ -24,7 +24,7 @@ from kcsi.orchestrator import (
 )
 from tests.orchestrator_phase_decoupling_guard import functions_referencing_engine
 
-ENGINE = REPO_ROOT / "src" / "kcsi" / "orchestrator" / "engine.py"
+ENGINE = REPO_ROOT / "src" / "ksi" / "orchestrator" / "engine.py"
 
 
 @pytest.mark.parametrize(

@@ -1,7 +1,7 @@
 /**
  * Container-side helpers for the host<->container barrier protocol.
  *
- * See `src/kcsi/runtime/barrier.py` for the canonical protocol description.
+ * See `src/ksi/runtime/barrier.py` for the canonical protocol description.
  *
  * Sentinel naming (relative to /workspace/task):
  *   - sentinel:  .barrier.<name>.<agentId>.ready    (container writes)

@@ -1,6 +1,6 @@
 """Tests for patch extraction and normalize_patch normalization."""
 
-from kcsi.eval.patch_extract import extract_patch, normalize_patch
+from ksi.eval.patch_extract import extract_patch, normalize_patch
 
 # ---------------------------------------------------------------------------
 # normalize_patch: fabricated index lines

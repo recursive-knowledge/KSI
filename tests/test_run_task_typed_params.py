@@ -1,8 +1,8 @@
 import inspect
 
-from kcsi.protocols import RuntimeExecutor
-from kcsi.runtime.container_host import KcsiContainerExecutor
-from kcsi.runtime.terminal_bench_2 import TerminalBench2Executor
+from ksi.protocols import RuntimeExecutor
+from ksi.runtime.container_host import KsiContainerExecutor
+from ksi.runtime.terminal_bench_2 import TerminalBench2Executor
 
 
 def _params(fn):
@@ -17,7 +17,7 @@ def test_protocol_declares_cross_task_params():
 
 
 def test_container_host_and_tb2_impls_declare_them():
-    for cls in (KcsiContainerExecutor, TerminalBench2Executor):
+    for cls in (KsiContainerExecutor, TerminalBench2Executor):
         p = _params(cls.run_task)
         assert "cross_task_shared_container" in p
         assert "cross_task_r1_callback" in p

@@ -1,14 +1,14 @@
 # Runtime Startup Performance
 
-Current notes for the path from `uv run python -m kcsi.cli ...` to the first
+Current notes for the path from `uv run python -m ksi.cli ...` to the first
 agent API call.
 
 ## Current Hot Path
 
 ```text
-kcsi.cli
+ksi.cli
   -> GenerationalOrchestrator
-  -> KcsiContainerExecutor
+  -> KsiContainerExecutor
   -> runtime_runner/src/main.ts
   -> runtime_runner/src/container_runner.ts
   -> Docker container
@@ -40,7 +40,7 @@ kcsi.cli
 
 Each container can start multiple MCP processes:
 
-- KCSI MCP server
+- KSI MCP server
 - memory MCP server when knowledge tools are enabled
 - ARC MCP tools for ARC tasks
 
@@ -102,7 +102,7 @@ Node dependencies, SWE-bench Pro repos, or Polyglot images are missing.
 ## Practical Preflight
 
 ```bash
-docker images kcsi-agent:bench
+docker images ksi-agent:bench
 npm --prefix runtime_runner ci
 uv sync --extra memory
 ```
@@ -110,7 +110,7 @@ uv sync --extra memory
 For Polyglot:
 
 ```bash
-docker images kcsi-polyglot-eval:latest
+docker images ksi-polyglot-eval:latest
 ```
 
 For SWE-bench Pro, verify the dataset, task map, and repo cache paths before

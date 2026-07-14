@@ -17,7 +17,7 @@ inline private-method calls, gated by a maze of flags
 improvement mechanisms (raw-attempts, no-forum, generic-preamble, prompt
 evolution), so the mechanism needs to be swappable rather than flag-encoded.
 
-`src/kcsi/orchestrator/strategy.py` introduces the `ImprovementStrategy` seam to
+`src/ksi/orchestrator/strategy.py` introduces the `ImprovementStrategy` seam to
 make that swap possible.
 
 ## The seam
@@ -112,7 +112,7 @@ registries). Two are built in: `knowledge` (default) and `raw_attempts`
 4. Register it so the CLI and API can select it by name:
 
    ```python
-   from kcsi.orchestrator.strategy import StrategySpec, register_strategy
+   from ksi.orchestrator.strategy import StrategySpec, register_strategy
 
    register_strategy(StrategySpec(name="my_strategy", factory=MyStrategy))
    ```
@@ -146,7 +146,7 @@ cross-task phases:
   pitfalls / checks / next_steps) from the full attempt/post history each
   generation. Stateless; re-processes full history every generation.
 - **Cross-task**: recomputes bundles over the last
-  `KCSI_CROSS_TASK_DISTILL_GEN_WINDOW` (default 6) generations of cross-task
+  `KSI_CROSS_TASK_DISTILL_GEN_WINDOW` (default 6) generations of cross-task
   posts. Context overflow cannot occur on the cross-task **forum prompt**: forum
   agents see only the **current generation's** posts (prior-generation history
   is not loaded), which is bounded by `(rounds-1) * num_agents`. Cross-generation
@@ -155,14 +155,14 @@ cross-task phases:
   budget selector (`distillation/cross_task.py::_select_cross_posts_for_budget`),
   which keeps every generation represented and, under target-conditioning, ranks
   posts by **lexical relevance to the target task** (`target_relevance` in
-  `kcsi/memory/cross_task_context.py`) rather than recency — so large low-solve
+  `ksi/memory/cross_task_context.py`) rather than recency — so large low-solve
   benchmarks (e.g. Terminal-Bench 2 at 89 tasks) do NOT need
-  `KCSI_CROSS_TASK_DISTILL_GEN_WINDOW` lowered to stay under the 200K limit.
+  `KSI_CROSS_TASK_DISTILL_GEN_WINDOW` lowered to stay under the 200K limit.
   **Memory horizon (trade-off):** because the forum no longer carries
   prior-generation history, the cross-generation knowledge path is
   forum → distill → seed → next-gen bundle, and bundles are **not** re-distilled
   into later generations. The distill step is windowed to the last
-  `KCSI_CROSS_TASK_DISTILL_GEN_WINDOW` (default 6) generations, so an insight
+  `KSI_CROSS_TASK_DISTILL_GEN_WINDOW` (default 6) generations, so an insight
   older than the window decays unless an agent re-surfaces it in a recent forum
   post. Raise the window (or set it to `0` to disable windowing) for campaigns
   that need a longer effective memory, at the cost of a larger distill prompt.
@@ -177,10 +177,10 @@ cross-task phases:
   `CROSS_TASK_SENTINEL`) injected into every task's MEMORY.md.
 
 There is no alternative distillation strategy or channel format. The
-environment variables `KCSI_DISTILL_STRATEGY`, `KCSI_PER_TASK_CHANNEL`, and
-`KCSI_CROSS_TASK_CHANNEL` have been **removed**; setting any non-default value
+environment variables `KSI_DISTILL_STRATEGY`, `KSI_PER_TASK_CHANNEL`, and
+`KSI_CROSS_TASK_CHANNEL` have been **removed**; setting any non-default value
 now raises a `RuntimeError` at orchestrator run startup (see
-`src/kcsi/distillation/_removed_env.py`), including `--no-memory` and `raw_attempts`
+`src/ksi/distillation/_removed_env.py`), including `--no-memory` and `raw_attempts`
 runs. The only selectable axis is `--improvement-strategy {knowledge,raw_attempts}`
 (see "Selecting a strategy" above).
 
@@ -188,7 +188,7 @@ runs. The only selectable axis is `--improvement-strategy {knowledge,raw_attempt
 
 Seeded per-task knowledge items are rendered into MEMORY.md with a per-item
 character cap, and the two channels use **different** caps
-(`src/kcsi/runtime/seeding.py`):
+(`src/ksi/runtime/seeding.py`):
 
 - **External KT bundles** — both channels: per-task
   (`--seed-per-task-bundles-path`) and cross-task (`--seed-bundle-path`),
@@ -225,7 +225,7 @@ succeeding. Two guards bound that:
   backoff before giving up. Auth and deterministic failures are never retried.
   Retries default to **6** (deliberately more generous than `--max-task-retries`,
   since a zeroed distill generation wastes all of that generation's attempt
-  compute); tune with `KCSI_DISTILL_MAX_RETRIES` (0 disables retry).
+  compute); tune with `KSI_DISTILL_MAX_RETRIES` (0 disables retry).
 - **Escalation** — when a generation is attempted but its distillation is
   fully zeroed by failures, the engine logs at `ERROR` and counts consecutive
   zeroed generations (a healthy generation resets the count). This is a

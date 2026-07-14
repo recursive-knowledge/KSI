@@ -1,5 +1,5 @@
 #!/bin/bash
-# Rebuild kcsi-agent container images when the baked TypeScript is out of
+# Rebuild ksi-agent container images when the baked TypeScript is out of
 # sync with the current source tree. Intended to run from a git post-merge /
 # post-checkout hook so contributors don't silently run stale bench images
 # after pulling a PR that changed `runtime_runner/agent-runner/src/`.
@@ -105,9 +105,9 @@ rebuild_one() {
 
 rc=0
 if [[ "$DO_BENCH" -eq 1 ]]; then
-  rebuild_one "kcsi-agent:bench" "container/Dockerfile.bench" || rc=1
+  rebuild_one "ksi-agent:bench" "container/Dockerfile.bench" || rc=1
 fi
 if [[ "$DO_LATEST" -eq 1 ]]; then
-  rebuild_one "kcsi-agent:latest" "container/Dockerfile" || rc=1
+  rebuild_one "ksi-agent:latest" "container/Dockerfile" || rc=1
 fi
 exit "$rc"

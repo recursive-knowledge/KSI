@@ -25,7 +25,7 @@ import threading
 
 import pytest
 
-from kcsi.memory.knowledge_store import KnowledgeStore
+from ksi.memory.knowledge_store import KnowledgeStore
 
 
 def test_batched_off_writer_thread_raises(tmp_path):

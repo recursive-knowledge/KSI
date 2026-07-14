@@ -1,8 +1,8 @@
 """Unit tests for per-experiment knowledge/runtime DB path derivation.
 
-Covers the knowledge/runtime DB path helpers that live in ``kcsi.layout``.
-They are reused by ``kcsi.orchestrator.engine`` and
-``kcsi.runtime.container_host`` to produce a per-experiment
+Covers the knowledge/runtime DB path helpers that live in ``ksi.layout``.
+They are reused by ``ksi.orchestrator.engine`` and
+``ksi.runtime.container_host`` to produce a per-experiment
 ``<stem>_knowledge.sqlite`` and ``<stem>_runtime.sqlite`` paths instead of a
 single shared ``knowledge.sqlite``.
 
@@ -17,7 +17,7 @@ from pathlib import Path
 
 import pytest
 
-from kcsi.layout import (
+from ksi.layout import (
     default_knowledge_db_path,
     default_runtime_db_path,
     derive_legacy_sibling,
@@ -102,8 +102,8 @@ class TestCliReExport:
     """The cli module kept ``_derive_legacy_sibling`` as a backward-compat alias."""
 
     def test_cli_alias_matches_layout_helper(self):
-        from kcsi.cli import _derive_legacy_sibling
-        from kcsi.layout import derive_legacy_sibling as canonical
+        from ksi.cli import _derive_legacy_sibling
+        from ksi.layout import derive_legacy_sibling as canonical
 
         # Same callable, not a re-implementation.
         assert _derive_legacy_sibling is canonical
@@ -144,10 +144,10 @@ class TestResolveKnowledgeDbBackCompat:
         """The pure resolver returns the subdir path WITHOUT creating dirs or
         migrating a legacy flat DB — that is the whole point of the split (#982
         #3). The destructive work lives in _migrate_legacy_flat_knowledge_db."""
-        monkeypatch.setattr("kcsi.layout.RUNTIME_KNOWLEDGE_DIR", tmp_path)
+        monkeypatch.setattr("ksi.layout.RUNTIME_KNOWLEDGE_DIR", tmp_path)
         legacy = tmp_path / "expA_knowledge.sqlite"
         _make_wal_db(legacy, "expA")
-        from kcsi.cli import _resolve_knowledge_db_path
+        from ksi.cli import _resolve_knowledge_db_path
 
         result = Path(_resolve_knowledge_db_path("", "expA"))
         assert result == (tmp_path / "expA" / "expA_knowledge.sqlite").resolve()
@@ -155,20 +155,20 @@ class TestResolveKnowledgeDbBackCompat:
         assert legacy.exists()  # legacy flat DB NOT migrated by the pure resolver
 
     def test_uses_subdir_when_nothing_exists(self, monkeypatch, tmp_path):
-        monkeypatch.setattr("kcsi.layout.RUNTIME_KNOWLEDGE_DIR", tmp_path)
-        from kcsi.cli import _prepare_knowledge_db_path
+        monkeypatch.setattr("ksi.layout.RUNTIME_KNOWLEDGE_DIR", tmp_path)
+        from ksi.cli import _prepare_knowledge_db_path
 
         result = Path(_prepare_knowledge_db_path("", "expA"))
         assert result == (tmp_path / "expA" / "expA_knowledge.sqlite").resolve()
         assert result.parent.is_dir()  # parent dir created
 
     def test_migrates_legacy_flat_into_isolated_subdir(self, monkeypatch, tmp_path):
-        monkeypatch.setattr("kcsi.layout.RUNTIME_KNOWLEDGE_DIR", tmp_path)
+        monkeypatch.setattr("ksi.layout.RUNTIME_KNOWLEDGE_DIR", tmp_path)
         legacy = tmp_path / "expA_knowledge.sqlite"
         legacy_runtime = tmp_path / "expA_runtime.sqlite"
         _make_wal_db(legacy, "expA-knowledge")
         _make_wal_db(legacy_runtime, "expA-runtime")
-        from kcsi.cli import _prepare_knowledge_db_path
+        from ksi.cli import _prepare_knowledge_db_path
 
         result = Path(_prepare_knowledge_db_path("", "expA"))
 
@@ -188,12 +188,12 @@ class TestResolveKnowledgeDbBackCompat:
         """Core #923 M1 isolation guarantee for the legacy-resume path: the
         directory the container will mount (``dirname(resolved)``) must contain
         ONLY this experiment's DB, never a concurrent sibling experiment's DB."""
-        monkeypatch.setattr("kcsi.layout.RUNTIME_KNOWLEDGE_DIR", tmp_path)
+        monkeypatch.setattr("ksi.layout.RUNTIME_KNOWLEDGE_DIR", tmp_path)
         # expA: legacy flat layout being resumed.
         _make_wal_db(tmp_path / "expA_knowledge.sqlite", "expA")
         # expB: an unrelated sibling experiment sharing the flat dir.
         _make_wal_db(tmp_path / "expB_knowledge.sqlite", "expB")
-        from kcsi.cli import _prepare_knowledge_db_path
+        from ksi.cli import _prepare_knowledge_db_path
 
         result = Path(_prepare_knowledge_db_path("", "expA"))
         mounted_dir = result.parent  # == path.dirname(dbPath) the runner mounts
@@ -211,10 +211,10 @@ class TestResolveKnowledgeDbBackCompat:
         sibling experiments. The resume must FAIL CLOSED (raise) rather than
         silently mount the shared dir — the operator recovers by moving the DB
         or passing --knowledge-db-path."""
-        monkeypatch.setattr("kcsi.layout.RUNTIME_KNOWLEDGE_DIR", tmp_path)
+        monkeypatch.setattr("ksi.layout.RUNTIME_KNOWLEDGE_DIR", tmp_path)
         legacy = tmp_path / "expA_knowledge.sqlite"
         _make_wal_db(legacy, "expA")
-        import kcsi.cli as cli
+        import ksi.cli as cli
 
         def _boom(*_a, **_k):
             raise OSError("simulated migration failure")
@@ -229,12 +229,12 @@ class TestResolveKnowledgeDbBackCompat:
         """If the main DB already moved into the subdir but a LATER step fails
         (e.g. the runtime-sibling move), the resume must point at the subdir —
         not the now-empty flat path, which would silently reset the run."""
-        monkeypatch.setattr("kcsi.layout.RUNTIME_KNOWLEDGE_DIR", tmp_path)
+        monkeypatch.setattr("ksi.layout.RUNTIME_KNOWLEDGE_DIR", tmp_path)
         legacy = tmp_path / "expA_knowledge.sqlite"
         legacy_runtime = tmp_path / "expA_runtime.sqlite"
         _make_wal_db(legacy, "expA-knowledge")
         _make_wal_db(legacy_runtime, "expA-runtime")
-        import kcsi.cli as cli
+        import ksi.cli as cli
 
         real_move = cli._checkpoint_and_move_sqlite
         calls = {"n": 0}
@@ -256,18 +256,18 @@ class TestResolveKnowledgeDbBackCompat:
         assert not legacy.exists()  # the main DB really moved
 
     def test_prefers_subdir_when_both_exist(self, monkeypatch, tmp_path):
-        monkeypatch.setattr("kcsi.layout.RUNTIME_KNOWLEDGE_DIR", tmp_path)
+        monkeypatch.setattr("ksi.layout.RUNTIME_KNOWLEDGE_DIR", tmp_path)
         subdir_db = tmp_path / "expA" / "expA_knowledge.sqlite"
         subdir_db.parent.mkdir(parents=True)
         subdir_db.write_text("")
         (tmp_path / "expA_knowledge.sqlite").write_text("")
-        from kcsi.cli import _prepare_knowledge_db_path
+        from ksi.cli import _prepare_knowledge_db_path
 
         result = Path(_prepare_knowledge_db_path("", "expA"))
         assert result == subdir_db.resolve()
 
     def test_explicit_path_is_never_rewritten(self, tmp_path):
-        from kcsi.cli import _resolve_knowledge_db_path
+        from ksi.cli import _resolve_knowledge_db_path
 
         explicit = tmp_path / "custom" / "mine_knowledge.sqlite"
         result = Path(_resolve_knowledge_db_path(str(explicit), "expA"))

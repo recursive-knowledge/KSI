@@ -5,11 +5,11 @@ from __future__ import annotations
 import json
 from unittest.mock import MagicMock
 
-from kcsi.forum import build_per_task_discussion_parts
-from kcsi.models import GenerationConfig, TaskTrace
-from kcsi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence, _drain_forum_bus
-from kcsi.runtime.types import RuntimeResult
-from kcsi.tokens import LLMResponse, TokenUsage
+from ksi.forum import build_per_task_discussion_parts
+from ksi.models import GenerationConfig, TaskTrace
+from ksi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence, _drain_forum_bus
+from ksi.runtime.types import RuntimeResult
+from ksi.tokens import LLMResponse, TokenUsage
 from tests.orchestrator_phase_helpers import per_task_forum
 
 

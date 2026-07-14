@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from kcsi.tasks.loaders import load_tasks_for_source
+from ksi.tasks.loaders import load_tasks_for_source
 
 
 def _write_arc_task(path: Path) -> None:

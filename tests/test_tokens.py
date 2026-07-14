@@ -1,7 +1,7 @@
 import threading
 import time
 
-from kcsi.tokens import PRICES_AS_OF, PRICING, TokenAccumulator, TokenUsage, TokenUsageDict, pricing_for_model
+from ksi.tokens import PRICES_AS_OF, PRICING, TokenAccumulator, TokenUsage, TokenUsageDict, pricing_for_model
 
 
 def test_token_usage_dict_keys_match_to_dict_output():
@@ -503,16 +503,16 @@ def test_token_usage_to_dict_with_cache():
 
 
 def test_runtime_result_has_token_usage():
-    from kcsi.runtime.types import RuntimeResult
-    from kcsi.tokens import TokenUsage
+    from ksi.runtime.types import RuntimeResult
+    from ksi.tokens import TokenUsage
 
     r = RuntimeResult(output="hello", token_usage=TokenUsage(100, 40))
     assert r.token_usage.total == 140
 
 
 def test_task_trace_has_token_usage():
-    from kcsi.models import TaskTrace
-    from kcsi.tokens import TokenUsage
+    from ksi.models import TaskTrace
+    from ksi.tokens import TokenUsage
 
     t = TaskTrace(
         generation=1,
@@ -527,7 +527,7 @@ def test_task_trace_has_token_usage():
 
 
 def test_agent_state_has_token_usage():
-    from kcsi.models import AgentState
+    from ksi.models import AgentState
 
     a = AgentState(id="peer-0")
     assert hasattr(a, "token_usage")
@@ -537,7 +537,7 @@ def test_agent_state_has_token_usage():
 
 
 def test_extract_token_usage_per_direction():
-    from kcsi.runtime.container_host import _extract_token_usage
+    from ksi.runtime.container_host import _extract_token_usage
 
     meta = {"input_tokens": 300, "output_tokens": 100}
     u = _extract_token_usage(meta)
@@ -546,7 +546,7 @@ def test_extract_token_usage_per_direction():
 
 
 def test_extract_token_usage_nested_usage():
-    from kcsi.runtime.container_host import _extract_token_usage
+    from ksi.runtime.container_host import _extract_token_usage
 
     meta = {"usage": {"input_tokens": 200, "output_tokens": 80}}
     u = _extract_token_usage(meta)
@@ -555,7 +555,7 @@ def test_extract_token_usage_nested_usage():
 
 
 def test_extract_token_usage_tokens_used_fallback():
-    from kcsi.runtime.container_host import _extract_token_usage
+    from ksi.runtime.container_host import _extract_token_usage
 
     meta = {"tokens_used": 500}
     u = _extract_token_usage(meta)
@@ -563,7 +563,7 @@ def test_extract_token_usage_tokens_used_fallback():
 
 
 def test_extract_token_usage_empty():
-    from kcsi.runtime.container_host import _extract_token_usage
+    from ksi.runtime.container_host import _extract_token_usage
 
     u = _extract_token_usage({})
     assert u.total == 0
@@ -572,7 +572,7 @@ def test_extract_token_usage_empty():
 def test_parse_runner_stdout_populates_token_usage():
     import json
 
-    from kcsi.runtime.container_host import _parse_runner_stdout
+    from ksi.runtime.container_host import _parse_runner_stdout
 
     stdout = json.dumps(
         {
@@ -587,7 +587,7 @@ def test_parse_runner_stdout_populates_token_usage():
 
 
 def test_extract_token_usage_total_tokens_fallback():
-    from kcsi.runtime.container_host import _extract_token_usage
+    from ksi.runtime.container_host import _extract_token_usage
 
     meta = {"total_tokens": 750}
     u = _extract_token_usage(meta)
@@ -606,7 +606,7 @@ def test_extract_token_usage_propagates_cache_tokens():
     (including 370.1M cache_read + 26.8M cache_creation). Undercount:
     396.9M tokens (~98% of volume invisible in summaries).
     """
-    from kcsi.runtime.normalize import extract_token_usage
+    from ksi.runtime.normalize import extract_token_usage
 
     # Fixture shaped exactly like the TS agent-runner's `meta.usage` emit.
     meta = {
@@ -636,7 +636,7 @@ def test_extract_token_usage_propagates_cache_tokens():
 
 
 def test_extract_token_usage_openai_cached_tokens_details():
-    from kcsi.runtime.normalize import extract_token_usage
+    from ksi.runtime.normalize import extract_token_usage
 
     meta = {
         "usage": {
@@ -655,7 +655,7 @@ def test_extract_token_usage_openai_cached_tokens_details():
 def test_openai_usage_helper_reads_object_details():
     from types import SimpleNamespace
 
-    from kcsi.runtime.llm import _usage_child, _usage_value
+    from ksi.runtime.llm import _usage_child, _usage_value
 
     usage = SimpleNamespace(
         input_tokens=30_000,
@@ -669,8 +669,8 @@ def test_openai_usage_helper_reads_object_details():
 
 def test_engine_accumulates_task_tokens():
     """Engine TokenAccumulator sums task tokens from MockRuntime (10 in + 5 out each)."""
-    from kcsi.models import GenerationConfig, TaskSpec
-    from kcsi.orchestrator.engine import GenerationalOrchestrator
+    from ksi.models import GenerationConfig, TaskSpec
+    from ksi.orchestrator.engine import GenerationalOrchestrator
 
     class AlwaysPassEvaluator:
         def evaluate(self, *, task, model_output, **kwargs):
@@ -686,9 +686,9 @@ def test_engine_accumulates_task_tokens():
     config = GenerationConfig(num_generations=1, num_agents=2)
 
     # MockRuntimeExecutor returns TokenUsage(input=10, output=5) per call
-    from kcsi.runtime.types import RuntimeResult as _RuntimeResult
-    from kcsi.tokens import LLMResponse as _LLMResponse
-    from kcsi.tokens import TokenUsage as _TokenUsage
+    from ksi.runtime.types import RuntimeResult as _RuntimeResult
+    from ksi.tokens import LLMResponse as _LLMResponse
+    from ksi.tokens import TokenUsage as _TokenUsage
 
     class MockRuntimeExecutor:
         def run_task(self, *, generation, agent_id, task, **kwargs):

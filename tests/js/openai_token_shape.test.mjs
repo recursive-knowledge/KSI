@@ -11,7 +11,7 @@
  *   cache_read_input     ← inputDetails.cachedTokens   (correct)
  *   cache_creation_input ← outputDetails.reasoningTokens (WRONG — reasoning is output)
  *
- * Downstream, `kcsi/tokens.py::TokenUsage.total` sums all four fields:
+ * Downstream, `ksi/tokens.py::TokenUsage.total` sums all four fields:
  *   total = input + output + cache_read + cache_creation
  *
  * With the old mapping:

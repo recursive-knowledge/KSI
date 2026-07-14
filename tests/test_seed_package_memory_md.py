@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from kcsi.runtime.seeding import _EXTERNAL_BUNDLE_TRUNCATION_MARKER, seed_package_to_memory_md
+from ksi.runtime.seeding import _EXTERNAL_BUNDLE_TRUNCATION_MARKER, seed_package_to_memory_md
 
 
 def test_renders_per_task_bundle_section():

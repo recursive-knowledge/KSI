@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 from conftest import REPO_ROOT
 
-from kcsi.benchmarks.swebench_pro_external import EVALUATOR_REVISION, REVISION_MARKER
+from ksi.benchmarks.swebench_pro_external import EVALUATOR_REVISION, REVISION_MARKER
 
 WRAPPER = REPO_ROOT / "benchmarks" / "scripts" / "run_swebench_pro_eval.py"
 

@@ -4,7 +4,7 @@
  *
  * Background
  * ----------
- * The KCSI container runtime has two layers:
+ * The KSI container runtime has two layers:
  *
  *   * ``container_runner.ts`` streams results via the ``onOutput`` callback
  *     (each streamed item shaped like ``ContainerOutput`` from

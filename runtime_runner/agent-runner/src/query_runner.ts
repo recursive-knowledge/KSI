@@ -697,7 +697,7 @@ export async function runQuery(
   // Build allowed tools list — conditionally include MCP tools.
   // Scheduled swarm tasks keep coding-native tools enabled, but explicitly
   // exclude team/orchestration tools so the provider runtime does not invent a
-  // second coordination layer on top of the KCSI protocol.
+  // second coordination layer on top of the KSI protocol.
   //
   // ARC is a sealed offline puzzle benchmark — web tools must be disabled so
   // agents cannot google published ARC solutions and contaminate the eval.

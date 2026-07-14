@@ -6,12 +6,12 @@ from unittest.mock import MagicMock
 import pytest
 from conftest import _build_make_tasks, _build_mock_evaluator, _build_mock_llm, _build_mock_runtime
 
-from kcsi.memory.forum_bus import ForumBus
-from kcsi.memory.knowledge_store import KnowledgeStore
-from kcsi.models import GenerationConfig, TaskTrace
-from kcsi.orchestrator.engine import ForumValidationError, GenerationalOrchestrator, NoopPersistence
-from kcsi.runtime.types import RuntimeResult
-from kcsi.tokens import LLMResponse, TokenUsage
+from ksi.memory.forum_bus import ForumBus
+from ksi.memory.knowledge_store import KnowledgeStore
+from ksi.models import GenerationConfig, TaskTrace
+from ksi.orchestrator.engine import ForumValidationError, GenerationalOrchestrator, NoopPersistence
+from ksi.runtime.types import RuntimeResult
+from ksi.tokens import LLMResponse, TokenUsage
 from tests.orchestrator_phase_helpers import per_task_forum
 
 
@@ -80,7 +80,7 @@ def _preseed_execution_insights(db_path: str, agent_ids: list[str], generation: 
     """Pre-seed execution-time insights into KnowledgeStore so distillation has content."""
     from pathlib import Path
 
-    from kcsi.memory.knowledge_store import KnowledgeStore
+    from ksi.memory.knowledge_store import KnowledgeStore
 
     knowledge_db = str(Path(db_path).parent / "knowledge.sqlite")
     store = KnowledgeStore(knowledge_db)
@@ -625,7 +625,7 @@ def test_no_unused_max_retries():
     """Verify max_retries is not assigned in the execution phase service."""
     import inspect
 
-    from kcsi.orchestrator.execution_phase import EngineExecutionPhaseService
+    from ksi.orchestrator.execution_phase import EngineExecutionPhaseService
 
     source = inspect.getsource(EngineExecutionPhaseService._execute_default)
     assert "max_retries" not in source, "max_retries should not be assigned in the execution phase service"

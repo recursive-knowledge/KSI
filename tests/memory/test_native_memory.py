@@ -1,10 +1,10 @@
-"""Tests for src/kcsi/runtime/native_memory.py -- native memory and archive collection."""
+"""Tests for src/ksi/runtime/native_memory.py -- native memory and archive collection."""
 
 from __future__ import annotations
 
 import os
 
-from kcsi.runtime.native_memory import (
+from ksi.runtime.native_memory import (
     _env_int,
     collect_native_session_memory,
 )

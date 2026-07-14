@@ -1,4 +1,4 @@
-"""Tests for the central task-source registry (src/kcsi/tasks/registry.py).
+"""Tests for the central task-source registry (src/ksi/tasks/registry.py).
 
 These pin the PURE-REFACTOR contract: every previously-supported source still
 resolves, aliases collapse to canonical specs, an unknown source raises early
@@ -12,8 +12,8 @@ from pathlib import Path
 
 import pytest
 
-from kcsi.models import TaskSpec
-from kcsi.tasks import (
+from ksi.models import TaskSpec
+from ksi.tasks import (
     SUPPORTED_TASK_SOURCES,
     get_spec,
     load_tasks_for_source,
@@ -21,7 +21,7 @@ from kcsi.tasks import (
     resolve_source,
     supported_task_sources,
 )
-from kcsi.tasks.registry import REGISTRY, TaskSourceSpec
+from ksi.tasks.registry import REGISTRY, TaskSourceSpec
 
 CANONICAL = ("swebench_pro", "arc", "polyglot", "terminal_bench_2", "custom")
 
@@ -195,7 +195,7 @@ def test_supported_task_sources_includes_aliases_on_request():
 
 
 def test_builtin_specs_have_loaders_attached():
-    # Importing kcsi.tasks (above) pulls in loaders.py, which attaches the
+    # Importing ksi.tasks (above) pulls in loaders.py, which attaches the
     # built-in loader callables to the registered specs at import time.
     for name in CANONICAL:
         assert callable(get_spec(name).loader), f"{name} spec has no loader attached"

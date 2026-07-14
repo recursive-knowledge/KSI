@@ -4,8 +4,8 @@ import json
 import tempfile
 from pathlib import Path
 
-from kcsi.memory.forum_bus import ForumBus
-from kcsi.memory.mcp_server import handle_forum_post
+from ksi.memory.forum_bus import ForumBus
+from ksi.memory.mcp_server import handle_forum_post
 
 
 def _make_bus(tmp: str):

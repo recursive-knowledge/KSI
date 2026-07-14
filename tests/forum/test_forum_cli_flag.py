@@ -1,6 +1,6 @@
 """Tests for curation pipeline CLI flags."""
 
-from kcsi.cli import build_parser
+from ksi.cli import build_parser
 
 
 def test_curation_timeout_flag():

@@ -673,7 +673,7 @@ async function createMcpServers(
 
   if (containerInput.memoryMcp) {
     const memoryServer = new MCPServerStdio({
-      name: 'kcsi-memory',
+      name: 'ksi-memory',
       fullCommand: 'python3 /app/memory/mcp_server.py',
       cacheToolsList: true,
       env: buildOpenAIMemoryMcpEnv(containerInput, sdkEnv, taskSource),
@@ -692,7 +692,7 @@ async function createMcpServers(
 
 /**
  * Map OpenAI per-response usage into the Claude-aligned bucket shape used by
- * `src/kcsi/tokens.py::TokenUsage` (which sums all four buckets in `.total`).
+ * `src/ksi/tokens.py::TokenUsage` (which sums all four buckets in `.total`).
  *
  * OpenAI reports `inputTokens` as the TOTAL input (including the cached
  * portion) and exposes the cached subset via `inputTokensDetails[].cachedTokens`.
@@ -717,13 +717,13 @@ async function createMcpServers(
 /**
  * Resolve the per-task-source turn budget for the OpenAI agent-runner.
  *
- * Mirrors the Claude path's `KCSI_CLAUDE_MAX_MESSAGES` resolution logic
+ * Mirrors the Claude path's `KSI_CLAUDE_MAX_MESSAGES` resolution logic
  * in `resolveTurnBudgets` (`runtime_runner/agent-runner/src/query_config.ts`). Defaults:
  *   discussion phases → 60
  *   arc          → 150
  *   everything else → 150
  *
- * `KCSI_OPENAI_MAX_TURNS` overrides the default when set to a positive
+ * `KSI_OPENAI_MAX_TURNS` overrides the default when set to a positive
  * integer; empty / non-numeric / non-positive values fall back to the
  * per-source default. Previously this was a hardcoded 25 for every task
  * source, which aborted ARC runs mid-attempt and was ~6x tighter than the
@@ -1000,7 +1000,7 @@ export async function runOpenAIQuery(
   ).toLowerCase();
   const isForumTask = isOpenAIForumPhase(taskSource);
 
-  const maxTurns = resolveOpenAIMaxTurns(taskSource, sdkEnv.KCSI_OPENAI_MAX_TURNS);
+  const maxTurns = resolveOpenAIMaxTurns(taskSource, sdkEnv.KSI_OPENAI_MAX_TURNS);
   const selectedModel = sdkEnv.MODEL;
   if (!selectedModel) {
     throw new Error(
@@ -1021,7 +1021,7 @@ export async function runOpenAIQuery(
   if (!openaiKey) {
     throw new Error(
       'OPENAI_API_KEY not found in sdkEnv; set it via the provider profile ' +
-      '(configs/kcsi/.env.openai) and ensure container_host.py plumbs it.',
+      '(configs/ksi/.env.openai) and ensure container_host.py plumbs it.',
     );
   }
   setDefaultOpenAIKey(openaiKey);
@@ -1047,13 +1047,13 @@ export async function runOpenAIQuery(
     parityEnabled && taskSource !== 'arc' ? `${buildParityAgenticInstructions()}\n\n` : '';
   const baseInstructions =
     `${parityPrefix}${systemPromptAppend?.trim() || ''}`.trim() ||
-    'You are running inside the KCSI container runtime. Use the provided tools and workspace carefully.';
+    'You are running inside the KSI container runtime. Use the provided tools and workspace carefully.';
   const defaultInstructions = arcSystemAppend
     ? `${baseInstructions}\n\n${arcSystemAppend}`
     : baseInstructions;
   const minimalInstructions = arcSystemAppend
-    ? `You are running inside the KCSI container runtime. Use the provided tools and workspace carefully. Read task files from the workspace instead of relying on preloaded prompt text.\n\n${arcSystemAppend}`
-    : 'You are running inside the KCSI container runtime. Use the provided tools and workspace carefully. Read task files from the workspace instead of relying on preloaded prompt text.';
+    ? `You are running inside the KSI container runtime. Use the provided tools and workspace carefully. Read task files from the workspace instead of relying on preloaded prompt text.\n\n${arcSystemAppend}`
+    : 'You are running inside the KSI container runtime. Use the provided tools and workspace carefully. Read task files from the workspace instead of relying on preloaded prompt text.';
 
   // The hosted `shellTool` / `applyPatchTool` variants in @openai/agents are
   // only accepted by OpenAI's Responses API for a narrow set of reasoning
@@ -1259,7 +1259,7 @@ export async function runOpenAIQuery(
   });
   const makeAgent = (instructions: string): Agent =>
     new Agent({
-      name: 'KcsiOpenAIContainerAgent',
+      name: 'KsiOpenAIContainerAgent',
       model: selectedModel,
       ...(modelSettings ? { modelSettings } : {}),
       instructions,

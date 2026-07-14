@@ -35,7 +35,7 @@ function runSessionsFixture(scriptSource, tempRoot) {
     {
       env: {
         ...process.env,
-        KCSI_SESSION_STATE_ROOT: tempRoot,
+        KSI_SESSION_STATE_ROOT: tempRoot,
       },
       encoding: "utf8",
       cwd: repoRoot,
@@ -45,7 +45,7 @@ function runSessionsFixture(scriptSource, tempRoot) {
 
 describe("runtime session state path guard", () => {
   it("builds a stable path for safe agent ids", { skip: tsxSkip }, () => {
-    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "kcsi-session-root-"));
+    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "ksi-session-root-"));
     const source = `
       import { sessionStatePath } from "./runtime_runner/src/sessions.ts";
       import path from "node:path";
@@ -64,10 +64,10 @@ describe("runtime session state path guard", () => {
   });
 
   it("does not let path syntax alias distinct agent ids", { skip: tsxSkip }, () => {
-    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "kcsi-session-root-"));
+    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "ksi-session-root-"));
     const source = `
       import { sessionStatePath } from "./runtime_runner/src/sessions.ts";
-      const root = process.env.KCSI_SESSION_STATE_ROOT;
+      const root = process.env.KSI_SESSION_STATE_ROOT;
       const ids = [
         "victim",
         "attacker/../victim",
@@ -82,13 +82,13 @@ describe("runtime session state path guard", () => {
     assert.equal(new Set(paths).size, paths.length);
     for (const sessionPath of paths) {
       assert.ok(sessionPath.startsWith(tempRoot));
-      assert.equal(path.basename(sessionPath), ".kcsi_session.json");
+      assert.equal(path.basename(sessionPath), ".ksi_session.json");
       assert.match(path.basename(path.dirname(sessionPath)), /^agent-[0-9a-f]{64}$/);
     }
   });
 
   it("keeps session load/save isolated for path-like agent ids", { skip: tsxSkip }, () => {
-    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "kcsi-session-root-"));
+    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "ksi-session-root-"));
     const source = `
       import { loadSessionForAgent, saveSessionForAgent, sessionStatePath } from "./runtime_runner/src/sessions.ts";
 
@@ -112,7 +112,7 @@ describe("runtime session state path guard", () => {
   });
 
   it("ignores blank agent ids", { skip: tsxSkip }, () => {
-    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "kcsi-session-root-"));
+    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "ksi-session-root-"));
     const source = `
       import { loadSessionForAgent, saveSessionForAgent } from "./runtime_runner/src/sessions.ts";
       import fs from "node:fs";
@@ -120,8 +120,8 @@ describe("runtime session state path guard", () => {
       saveSessionForAgent("   ", "bad-session");
       console.log(JSON.stringify({
         blankLoad: loadSessionForAgent("   "),
-        rootEntries: fs.existsSync(process.env.KCSI_SESSION_STATE_ROOT)
-          ? fs.readdirSync(process.env.KCSI_SESSION_STATE_ROOT)
+        rootEntries: fs.existsSync(process.env.KSI_SESSION_STATE_ROOT)
+          ? fs.readdirSync(process.env.KSI_SESSION_STATE_ROOT)
           : [],
       }));
     `;

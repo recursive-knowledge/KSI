@@ -26,7 +26,7 @@ function runFixture() {
     import path from 'node:path';
     import { spawnSync } from 'node:child_process';
 
-    const parent = fs.mkdtempSync(path.join(os.tmpdir(), 'kcsi-broken-submodule-'));
+    const parent = fs.mkdtempSync(path.join(os.tmpdir(), 'ksi-broken-submodule-'));
     const sub = path.join(parent, 'sub_src');
     const repo = path.join(parent, 'repo');
     const git = (cwd, ...args) => {
@@ -38,8 +38,8 @@ function runFixture() {
     // a small standalone repo to use as the submodule source
     fs.mkdirSync(sub);
     git(sub, 'init', '-q');
-    git(sub, 'config', 'user.email', 'kcsi@test');
-    git(sub, 'config', 'user.name', 'kcsi');
+    git(sub, 'config', 'user.email', 'ksi@test');
+    git(sub, 'config', 'user.name', 'ksi');
     fs.writeFileSync(path.join(sub, 's.txt'), 'hi\\\\n');
     git(sub, 'add', '-A');
     git(sub, 'commit', '-q', '-m', 'init');
@@ -47,8 +47,8 @@ function runFixture() {
     // superproject with the submodule wired in
     fs.mkdirSync(repo);
     git(repo, 'init', '-q');
-    git(repo, 'config', 'user.email', 'kcsi@test');
-    git(repo, 'config', 'user.name', 'kcsi');
+    git(repo, 'config', 'user.email', 'ksi@test');
+    git(repo, 'config', 'user.name', 'ksi');
     fs.writeFileSync(path.join(repo, 'tracked.py'), 'base\\\\n');
     git(repo, 'add', '-A');
     git(repo, 'commit', '-q', '-m', 'base');

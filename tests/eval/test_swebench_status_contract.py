@@ -1,10 +1,10 @@
 """Contract test for the ``swebench_status`` producer/consumer vocabulary.
 
-The evaluator (``src/kcsi/benchmarks/swebench_pro.py``, producer) tags eval-result
+The evaluator (``src/ksi/benchmarks/swebench_pro.py``, producer) tags eval-result
 dicts with a ``swebench_status`` string; ``score_swebench_from_eval``
-(``src/kcsi/orchestrator/scoring.py``, consumer) maps any FAILURE status to an
+(``src/ksi/orchestrator/scoring.py``, consumer) maps any FAILURE status to an
 unscored ``None``. Both sides now reference the single source of truth
-``SWEBENCH_FAILURE_STATUSES`` in ``src/kcsi/benchmarks/swebench_pro_external.py``.
+``SWEBENCH_FAILURE_STATUSES`` in ``src/ksi/benchmarks/swebench_pro_external.py``.
 
 These tests fail loudly if the producer ever emits a ``swebench_status`` value
 that is not part of the centralized vocabulary, or if the consumer stops
@@ -16,10 +16,10 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
-from kcsi.benchmarks.swebench_pro_external import SWEBENCH_FAILURE_STATUSES, SWEBENCH_STATUS_OK
-from kcsi.orchestrator.scoring import score_swebench_from_eval
+from ksi.benchmarks.swebench_pro_external import SWEBENCH_FAILURE_STATUSES, SWEBENCH_STATUS_OK
+from ksi.orchestrator.scoring import score_swebench_from_eval
 
-_PRODUCER_SOURCE = Path(__file__).resolve().parents[2] / "src" / "kcsi" / "benchmarks" / "swebench_pro.py"
+_PRODUCER_SOURCE = Path(__file__).resolve().parents[2] / "src" / "ksi" / "benchmarks" / "swebench_pro.py"
 
 
 def _emitted_swebench_statuses() -> set[str]:

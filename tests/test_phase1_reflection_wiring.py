@@ -1,7 +1,7 @@
 """Unit tests for the Phase-1 reflection wiring across engine and host.
 
 These tests do not spin up a container — they verify the in-process
-plumbing: engine -> KcsiContainerExecutor.evaluator handshake,
+plumbing: engine -> KsiContainerExecutor.evaluator handshake,
 ``record_attempt`` accepts and persists ``reflection``, and
 ``_persist_knowledge_attempt_early`` extracts the reflection text from
 ``runtime_meta.phase1_reflection``.
@@ -13,21 +13,21 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from kcsi.memory.knowledge_store import KnowledgeStore
-from kcsi.models import GenerationConfig, TaskTrace
-from kcsi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
-from kcsi.runtime.container_host import KcsiContainerExecutor
+from ksi.memory.knowledge_store import KnowledgeStore
+from ksi.models import GenerationConfig, TaskTrace
+from ksi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
+from ksi.runtime.container_host import KsiContainerExecutor
 
 
 def test_executor_phase1_reflection_defaults_off():
-    ex = KcsiContainerExecutor(command=["fake"], working_dir=".")
+    ex = KsiContainerExecutor(command=["fake"], working_dir=".")
     assert ex.phase1_reflection_enabled is False
     assert ex.evaluator is None
 
 
 def test_executor_accepts_phase1_flag_and_evaluator():
     ev = MagicMock()
-    ex = KcsiContainerExecutor(
+    ex = KsiContainerExecutor(
         command=["fake"],
         working_dir=".",
         phase1_reflection_enabled=True,
@@ -42,9 +42,9 @@ def test_engine_sets_executor_evaluator(tmp_path, mock_runtime, mock_evaluator, 
     so the runtime's BarrierWatcher (when phase1_reflection is on) can call
     evaluator.evaluate() between task completion and the reflection turn."""
 
-    # Use a real KcsiContainerExecutor so we can assert evaluator was set.
+    # Use a real KsiContainerExecutor so we can assert evaluator was set.
 
-    executor = KcsiContainerExecutor(
+    executor = KsiContainerExecutor(
         command=["fake-runner"],
         working_dir=str(tmp_path),
         phase1_reflection_enabled=True,
@@ -439,9 +439,9 @@ def test_eval_stage_reuses_phase1_eval_result_to_avoid_double_evaluate(
     ``evaluator.evaluate()`` again. Doubles the docker subprocess cost
     on polyglot/swebench_pro otherwise.
     """
-    from kcsi.models import TaskSpec
-    from kcsi.runtime.types import RuntimeResult
-    from kcsi.tokens import TokenUsage
+    from ksi.models import TaskSpec
+    from ksi.runtime.types import RuntimeResult
+    from ksi.tokens import TokenUsage
 
     db_path = str(tmp_path / "mem.sqlite")
     config = GenerationConfig(
@@ -508,9 +508,9 @@ def test_eval_stage_reuses_phase1_eval_result_to_avoid_double_evaluate(
 
 def test_eval_stage_recomputes_phase1_empty_patch_with_final_tool_trace(tmp_path, mock_llm):
     """Phase-1 has no final tool trace, so an empty-patch cache is stale."""
-    from kcsi.models import TaskSpec
-    from kcsi.runtime.types import RuntimeResult
-    from kcsi.tokens import TokenUsage
+    from ksi.models import TaskSpec
+    from ksi.runtime.types import RuntimeResult
+    from ksi.tokens import TokenUsage
 
     runtime = MagicMock()
     runtime.evaluator = None
@@ -553,7 +553,7 @@ def test_eval_stage_falls_through_when_phase1_disabled(
     """When the flag is OFF, runtime_meta has no phase1_reflection_enabled
     marker, and the engine must call evaluate() exactly once (the
     pre-Phase-1 baseline behavior)."""
-    from kcsi.models import TaskSpec
+    from ksi.models import TaskSpec
 
     db_path = str(tmp_path / "mem.sqlite")
     config = GenerationConfig(
@@ -604,9 +604,9 @@ def test_eval_stage_reuses_polyglot_test_feedback_eval_result_to_avoid_double_ev
     gate). Without this test, a regression there (e.g. a typo in the key
     name) would silently double the Docker-run cost on every polyglot task
     using the retry loop, with nothing catching it."""
-    from kcsi.models import TaskSpec
-    from kcsi.runtime.types import RuntimeResult
-    from kcsi.tokens import TokenUsage
+    from ksi.models import TaskSpec
+    from ksi.runtime.types import RuntimeResult
+    from ksi.tokens import TokenUsage
 
     db_path = str(tmp_path / "mem.sqlite")
     config = GenerationConfig(
@@ -676,9 +676,9 @@ def test_eval_stage_falls_through_when_polyglot_test_feedback_not_reuse_eligible
     eval scored the pre-turn state), the engine must fall through to its
     own evaluate() call exactly once rather than silently reusing a stale
     result."""
-    from kcsi.models import TaskSpec
-    from kcsi.runtime.types import RuntimeResult
-    from kcsi.tokens import TokenUsage
+    from ksi.models import TaskSpec
+    from ksi.runtime.types import RuntimeResult
+    from ksi.tokens import TokenUsage
 
     db_path = str(tmp_path / "mem.sqlite")
     config = GenerationConfig(
@@ -756,9 +756,9 @@ def test_eval_stage_records_phase1_reflection_token_phase(
     """
     import logging
 
-    from kcsi.models import TaskSpec
-    from kcsi.runtime.types import RuntimeResult
-    from kcsi.tokens import TokenUsage
+    from ksi.models import TaskSpec
+    from ksi.runtime.types import RuntimeResult
+    from ksi.tokens import TokenUsage
 
     db_path = str(tmp_path / "mem.sqlite")
     config = GenerationConfig(
@@ -831,7 +831,7 @@ def test_eval_stage_records_phase1_reflection_token_phase(
     orch._execution_phase._generate_reflection_and_lessons = MagicMock(return_value=(None, [], 0))  # type: ignore[method-assign]
     try:
         tasks = [TaskSpec(id="t-tok", repo="r", prompt="solve")]
-        with caplog.at_level(logging.WARNING, logger="kcsi.orchestrator.engine"):
+        with caplog.at_level(logging.WARNING, logger="ksi.orchestrator.engine"):
             orch.run(tasks)
 
         # Inspect the accumulator's lifecycle entries: there must be a
@@ -880,9 +880,9 @@ def test_eval_stage_records_polyglot_test_feedback_token_phase(
     ``runtime_meta.polyglot_test_feedback_token_usage`` -- without this, the
     polyglot test-feedback retry loop's extra SDK-turn tokens silently
     vanish from ``token_phases`` cost reports."""
-    from kcsi.models import TaskSpec
-    from kcsi.runtime.types import RuntimeResult
-    from kcsi.tokens import TokenUsage
+    from ksi.models import TaskSpec
+    from ksi.runtime.types import RuntimeResult
+    from ksi.tokens import TokenUsage
 
     db_path = str(tmp_path / "mem.sqlite")
     config = GenerationConfig(
@@ -976,9 +976,9 @@ def test_eval_stage_reevaluates_when_watcher_errored(
     """When phase1_reflection_enabled is True but the watcher's eval
     raised (so phase1_eval_result is absent), the engine must fall back
     to running evaluate() itself rather than silently shipping a 0."""
-    from kcsi.models import TaskSpec
-    from kcsi.runtime.types import RuntimeResult
-    from kcsi.tokens import TokenUsage
+    from ksi.models import TaskSpec
+    from ksi.runtime.types import RuntimeResult
+    from ksi.tokens import TokenUsage
 
     db_path = str(tmp_path / "mem.sqlite")
     config = GenerationConfig(

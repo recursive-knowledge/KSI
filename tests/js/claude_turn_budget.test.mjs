@@ -14,7 +14,7 @@ function resolveClaudeMaxTurns(
     return Math.floor(override);
   }
   // Universal default: every scheduled task gets 150 turns to match the OpenAI
-  // agents-sdk path. Override via KCSI_CLAUDE_MAX_TURNS.
+  // agents-sdk path. Override via KSI_CLAUDE_MAX_TURNS.
   return 150;
 }
 
@@ -42,9 +42,9 @@ describe("resolveClaudeMaxTurns", () => {
 // Mirrors runtime_runner/agent-runner/src/query_config.ts:resolveTurnBudgets();
 // drift-guarded by copy_sync_guard.test.mjs.
 function resolveTurnBudgets(taskSource, sdkEnv) {
-  const scheduledMaxTurns = resolveClaudeMaxTurns(taskSource, sdkEnv.KCSI_CLAUDE_MAX_TURNS);
+  const scheduledMaxTurns = resolveClaudeMaxTurns(taskSource, sdkEnv.KSI_CLAUDE_MAX_TURNS);
   const defaultMaxMessages = 150;
-  const messagesOverride = Number(sdkEnv.KCSI_CLAUDE_MAX_MESSAGES);
+  const messagesOverride = Number(sdkEnv.KSI_CLAUDE_MAX_MESSAGES);
   const scheduledMaxMessages = Math.max(
     1,
     Number.isFinite(messagesOverride) && messagesOverride > 0
@@ -80,10 +80,10 @@ describe("resolveTurnBudgets — message ceiling", () => {
     }
   });
 
-  it("honors KCSI_CLAUDE_MAX_MESSAGES override and ignores invalid values", () => {
-    assert.equal(resolveTurnBudgets("arc", { KCSI_CLAUDE_MAX_MESSAGES: "40" }).scheduledMaxMessages, 40);
-    assert.equal(resolveTurnBudgets("arc", { KCSI_CLAUDE_MAX_MESSAGES: "0" }).scheduledMaxMessages, 150);
-    assert.equal(resolveTurnBudgets("arc", { KCSI_CLAUDE_MAX_MESSAGES: "abc" }).scheduledMaxMessages, 150);
+  it("honors KSI_CLAUDE_MAX_MESSAGES override and ignores invalid values", () => {
+    assert.equal(resolveTurnBudgets("arc", { KSI_CLAUDE_MAX_MESSAGES: "40" }).scheduledMaxMessages, 40);
+    assert.equal(resolveTurnBudgets("arc", { KSI_CLAUDE_MAX_MESSAGES: "0" }).scheduledMaxMessages, 150);
+    assert.equal(resolveTurnBudgets("arc", { KSI_CLAUDE_MAX_MESSAGES: "abc" }).scheduledMaxMessages, 150);
   });
 
   it("standing regression: messageCeiling >= turnCap for every registered task source (#1049)", () => {

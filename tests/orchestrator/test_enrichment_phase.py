@@ -6,13 +6,13 @@ the live engine behavior against a real KnowledgeStore plus the
 ``*Collaborators`` decoupling invariant.
 """
 
-from kcsi.models import AgentState, GenerationConfig, TaskSpec
-from kcsi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
-from kcsi.orchestrator.enrichment_phase import (
+from ksi.models import AgentState, GenerationConfig, TaskSpec
+from ksi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
+from ksi.orchestrator.enrichment_phase import (
     EnrichmentCollaborators,
     EnrichmentPhaseService,
 )
-from kcsi.orchestrator.strategy import DefaultKnowledgeStrategy
+from ksi.orchestrator.strategy import DefaultKnowledgeStrategy
 from tests.orchestrator_phase_decoupling_guard import functions_referencing_engine
 
 
@@ -47,7 +47,7 @@ def test_engine_enrichment_phase_service_satisfies_protocol(tmp_path, mock_runti
 
 
 def test_enrich_body_has_no_engine_access():
-    from kcsi.orchestrator import enrichment_phase
+    from ksi.orchestrator import enrichment_phase
 
     offenders = functions_referencing_engine(enrichment_phase.__file__)
     assert offenders <= {"_collaborators"}, offenders
@@ -151,7 +151,7 @@ def test_enrich_warns_when_external_bundles_loaded_but_none_attach(
             metadata={"task_source": "swebench_pro", "repo": "django/django"},
         )
 
-        with caplog.at_level(logging.WARNING, logger="kcsi.orchestrator.enrichment_phase"):
+        with caplog.at_level(logging.WARNING, logger="ksi.orchestrator.enrichment_phase"):
             orch._enrichment_phase.enrich(
                 generation=2,
                 assigned_map={"agent-0": [task_id]},

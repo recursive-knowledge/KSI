@@ -1,4 +1,4 @@
-# Web-Tool Policy for Benchmark Tasks (`KCSI_ALLOW_WEB_TOOLS`)
+# Web-Tool Policy for Benchmark Tasks (`KSI_ALLOW_WEB_TOOLS`)
 
 > Integrity fix.
 > Default-OFF web tools is the new baseline behavior and creates a **code-era
@@ -10,25 +10,25 @@
 
 Native web tools (`WebSearch`, `WebFetch`) are **OFF by default for every
 benchmark task**. They are offered to the Claude agent only when the operator
-explicitly opts in by setting the environment variable `KCSI_ALLOW_WEB_TOOLS`
+explicitly opts in by setting the environment variable `KSI_ALLOW_WEB_TOOLS`
 to a truthy value (anything other than empty / `0` / `false` / `no` / `off`):
 
 ```bash
-KCSI_ALLOW_WEB_TOOLS=1 uv run python -m kcsi.cli ...
+KSI_ALLOW_WEB_TOOLS=1 uv run python -m ksi.cli ...
 ```
 
 ARC stays **strictly offline regardless of the flag** — the existing
 `isOffline` (ARC) guard always wins, so an ARC run never has web tools even
-with `KCSI_ALLOW_WEB_TOOLS=1`.
+with `KSI_ALLOW_WEB_TOOLS=1`.
 
-| Task source         | Default (flag unset) | `KCSI_ALLOW_WEB_TOOLS=1` |
+| Task source         | Default (flag unset) | `KSI_ALLOW_WEB_TOOLS=1` |
 |---------------------|----------------------|----------------------------|
 | `arc`               | denied               | denied (ARC always offline)|
 | `swebench_pro`      | denied               | enabled                    |
 | `polyglot`          | denied               | enabled                    |
 | `terminal_bench_2`  | denied               | enabled                    |
 
-> **Cross-provider warning.** `KCSI_ALLOW_WEB_TOOLS=1` re-enables web tools
+> **Cross-provider warning.** `KSI_ALLOW_WEB_TOOLS=1` re-enables web tools
 > for the **Claude loop only** — the OpenAI agent loop has no web tools and no
 > equivalent flag. Enabling it therefore reintroduces the Claude-vs-GPT scaffold
 > asymmetry. Do not
@@ -62,14 +62,14 @@ integrity exposure was broad in *capability* but narrow in *realization*.
 
 ## Baseline fairness
 
-The provider asymmetry above is *internal* to kcsi (Claude loop vs OpenAI
+The provider asymmetry above is *internal* to ksi (Claude loop vs OpenAI
 loop). There is also an **external** one: the published baselines never had web
 tools at all. The DGM and HyperAgents agents are given only a `bash` + `editor`
 tool surface — no `WebSearch`/`WebFetch`, and no equivalent. So every pre-fix
-**non-ARC kcsi-Claude** cell (SWE-bench Pro, Polyglot, terminal_bench_2) was
-obtained with a capability the baselines lacked, biasing the kcsi-vs-baseline
-head-to-head in kcsi' favor — and per the web-tool audit that bias was realized
-in the Haiku Polyglot cell (6/40 solved tasks). Pre-fix kcsi-vs-baseline
+**non-ARC ksi-Claude** cell (SWE-bench Pro, Polyglot, terminal_bench_2) was
+obtained with a capability the baselines lacked, biasing the ksi-vs-baseline
+head-to-head in ksi' favor — and per the web-tool audit that bias was realized
+in the Haiku Polyglot cell (6/40 solved tasks). Pre-fix ksi-vs-baseline
 non-ARC comparisons should therefore be **re-run post-fix before being
 published as head-to-head**; ARC and OpenAI cells are unaffected (no web tools
 either way).
@@ -96,23 +96,23 @@ The main agent query runs with `systemPrompt: { preset: 'claude_code' }`. The
 Therefore the denial is enforced by **`disallowedTools`**, not by mere
 omission. `runtime_runner/agent-runner/src/query_config.ts` (`buildToolPolicy`)
 adds `['WebSearch', 'WebFetch']` to `disallowedToolsList` whenever web tools are
-not enabled (ARC always, and every benchmark unless `KCSI_ALLOW_WEB_TOOLS=1`).
+not enabled (ARC always, and every benchmark unless `KSI_ALLOW_WEB_TOOLS=1`).
 The reflection/follow-up turn already runs with `allowedTools: []` and lists the
 web tools in its `disallowedTools`, so it was never a leak path.
 
 The agent logs one self-documenting line at start, e.g.:
 
 ```
-Web tools (WebSearch/WebFetch): DISABLED [default-off (set KCSI_ALLOW_WEB_TOOLS=1 to enable)]
+Web tools (WebSearch/WebFetch): DISABLED [default-off (set KSI_ALLOW_WEB_TOOLS=1 to enable)]
 ```
 
 ## Flag threading
 
 The truthiness parse matches the Python `_is_enabled_env` helper
-(`src/kcsi/runtime/container_host.py`); the env-var path is:
+(`src/ksi/runtime/container_host.py`); the env-var path is:
 
 ```
-src/kcsi/runtime/container_host.py (_build_runner_env, setdefault from os.environ)
+src/ksi/runtime/container_host.py (_build_runner_env, setdefault from os.environ)
   -> runtime_runner/src/container_runner.ts  (env allowlist forwarded with -e)
   -> container process.env
   -> runtime_runner/agent-runner/src/query_config.ts (buildToolPolicy ->
@@ -133,8 +133,8 @@ Docker `--internal` network behind an allowlisting CONNECT proxy sidecar,
 with external DNS blackholed via `--dns 0.0.0.0`, and SWE-bench `.git`
 history is sanitized so the fix commit is unreadable offline. The proxy
 only permits the provider API hosts derived at launch (extendable via
-`KCSI_EGRESS_ALLOW`). The legacy direct-bridge behavior is restored only by the
-explicit `KCSI_EGRESS=open` escape hatch — debugging only, never production. See
+`KSI_EGRESS_ALLOW`). The legacy direct-bridge behavior is restored only by the
+explicit `KSI_EGRESS=open` escape hatch — debugging only, never production. See
 [docs/architecture.md §10](../../docs/architecture.md#10-egress-isolation) for the full topology.
 
 The `Task` sub-agent tool is in the same residual class: on benchmark runs it
@@ -159,7 +159,7 @@ Dockerfile). The gating decision is also unit-tested without the container:
 | Era | Non-ARC Claude web tools |
 |-----|--------------------------|
 | Before this fix | `WebSearch` + `WebFetch` **available** on every non-ARC task |
-| After this fix  | **Denied by default**; opt-in per run via `KCSI_ALLOW_WEB_TOOLS=1` |
+| After this fix  | **Denied by default**; opt-in per run via `KSI_ALLOW_WEB_TOOLS=1` |
 
 When comparing or pooling results across this boundary, treat pre-fix non-ARC
 Claude numbers as confounded by potential solution lookup. See the code-era
@@ -170,6 +170,6 @@ boundary reference for the canonical comparability table.
 - [tb2_native_tools.md](./tb2_native_tools.md) for the *different*,
   unrelated TB2 native file-operation tools (read/write/edit/glob/grep) —
   not agent-facing web access.
-- [`src/kcsi/memory/parity.py`](https://github.com/recursive-knowledge/KCSI/blob/main/src/kcsi/memory/parity.py)
+- [`src/ksi/memory/parity.py`](https://github.com/recursive-knowledge/KSI/blob/main/src/ksi/memory/parity.py)
   for the general feedback-channel/leakage rules this web-tool gate is one
   instance of.

@@ -1,4 +1,4 @@
-"""Regression coverage for ``kcsi.errors.is_auth_error``.
+"""Regression coverage for ``ksi.errors.is_auth_error``.
 
 Incident that motivated the numeric-marker tightening (2026-04-21):
 during the Haiku baseline sweep, a SWE-bench Pro task id of the form
@@ -12,7 +12,7 @@ status markers (401 / 403) while keeping named auth substrings as before.
 
 from __future__ import annotations
 
-from kcsi.errors import AuthenticationFailure, ContainerRegistryError, is_auth_error
+from ksi.errors import AuthenticationFailure, ContainerRegistryError, is_auth_error
 
 
 # ── Real auth failures the classifier MUST still catch ───────────────────
@@ -89,7 +89,7 @@ def test_authentication_failure_is_runtime_error():
 def test_container_registry_error_is_not_a_provider_auth_error() -> None:
     """A registry 401 must never read as an LLM credential failure."""
     exc = ContainerRegistryError(
-        "KCSI_TB2_REQUIRE_PULL=1 and pull of 'alexgshaw/winning-avg-corewars:20251031' "
+        "KSI_TB2_REQUIRE_PULL=1 and pull of 'alexgshaw/winning-avg-corewars:20251031' "
         "failed for task 'winning-avg-corewars'; refusing to fall back to local build "
         "for fairness mode. pull stderr: Error response from daemon: "
         "unauthorized: authentication required"
@@ -116,7 +116,7 @@ def test_real_provider_auth_error_still_fatal() -> None:
 
 def test_container_registry_retry_policy_is_explicit() -> None:
     """Registry provenance alone must not grant an outer task retry."""
-    from kcsi.orchestrator.task_retry import _is_retryable_task_error
+    from ksi.orchestrator.task_retry import _is_retryable_task_error
 
     transient = ContainerRegistryError(
         "unauthorized: authentication required",
@@ -134,8 +134,8 @@ def test_container_registry_retry_policy_is_explicit() -> None:
 
 def test_wrapped_container_registry_error_preserves_typed_policy() -> None:
     """Auth-like wrapper text cannot erase registry provenance or retryability."""
-    from kcsi.orchestrator.task_retry import _is_retryable_task_error
-    from kcsi.runtime.normalize import build_error_runtime_meta
+    from ksi.orchestrator.task_retry import _is_retryable_task_error
+    from ksi.runtime.normalize import build_error_runtime_meta
 
     registry_error = ContainerRegistryError(
         "unauthorized: authentication required",
@@ -166,7 +166,7 @@ def test_nested_provider_auth_error_still_detected() -> None:
 
 
 def test_exception_chain_cycle_is_bounded() -> None:
-    from kcsi.orchestrator.task_retry import _is_retryable_task_error
+    from ksi.orchestrator.task_retry import _is_retryable_task_error
 
     registry_error = ContainerRegistryError("manifest unknown")
     wrapper = RuntimeError("wrapped unauthorized registry failure")

@@ -18,13 +18,13 @@ from unittest.mock import MagicMock, call
 
 from conftest import _build_mock_evaluator, _build_mock_llm, _build_mock_runtime  # noqa: F401
 
-from kcsi.models import GenerationConfig, TaskSpec, TaskTrace
-from kcsi.orchestrator.distillation_phase import DistillationPhaseInput, DistillationPhaseResult
-from kcsi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
-from kcsi.orchestrator.forum_phase import CrossTaskForumPhaseInput, PerTaskForumPhaseInput
-from kcsi.orchestrator.phase_services import EngineImprovementPhaseServices
-from kcsi.orchestrator.seeding_phase import SeedingPhaseInput, SeedingPhaseResult
-from kcsi.orchestrator.strategy import (
+from ksi.models import GenerationConfig, TaskSpec, TaskTrace
+from ksi.orchestrator.distillation_phase import DistillationPhaseInput, DistillationPhaseResult
+from ksi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
+from ksi.orchestrator.forum_phase import CrossTaskForumPhaseInput, PerTaskForumPhaseInput
+from ksi.orchestrator.phase_services import EngineImprovementPhaseServices
+from ksi.orchestrator.seeding_phase import SeedingPhaseInput, SeedingPhaseResult
+from ksi.orchestrator.strategy import (
     DefaultKnowledgeStrategy,
     GenerationContext,
     ImprovementPhaseServices,
@@ -510,7 +510,7 @@ def test_raw_attempts_equivalent_to_flag_combination_at_knowledge_boundary():
 # Strategy registry + CLI selection (PR3): make the seam selectable by name.
 # --------------------------------------------------------------------------- #
 def test_strategy_registry_resolves_builtins():
-    from kcsi.orchestrator.strategy import get_strategy_spec, supported_strategies
+    from ksi.orchestrator.strategy import get_strategy_spec, supported_strategies
 
     assert supported_strategies() == ("knowledge", "raw_attempts")
     assert supported_strategies(include_aliases=True) == ("knowledge", "raw_attempts", "raw")
@@ -523,7 +523,7 @@ def test_strategy_registry_resolves_builtins():
 def test_strategy_registry_unknown_raises():
     import pytest
 
-    from kcsi.orchestrator.strategy import get_strategy_spec
+    from ksi.orchestrator.strategy import get_strategy_spec
 
     with pytest.raises(ValueError) as exc:
         get_strategy_spec("does_not_exist")
@@ -533,7 +533,7 @@ def test_strategy_registry_unknown_raises():
 def test_strategy_registry_register_duplicate_raises_then_replace():
     import pytest
 
-    from kcsi.orchestrator.strategy import (
+    from ksi.orchestrator.strategy import (
         STRATEGY_REGISTRY,
         StrategySpec,
         register_strategy,
@@ -551,7 +551,7 @@ def test_strategy_registry_register_duplicate_raises_then_replace():
 
 
 def test_cli_parser_accepts_improvement_strategy_flag():
-    from kcsi.cli import build_parser
+    from ksi.cli import build_parser
 
     parser = build_parser()
     args = parser.parse_args(
@@ -570,7 +570,7 @@ def test_cli_parser_accepts_improvement_strategy_flag():
 
 
 def test_improvement_strategy_defaults_to_knowledge():
-    from kcsi.cli import build_parser
+    from ksi.cli import build_parser
 
     parser = build_parser()
     args = parser.parse_args(
@@ -589,7 +589,7 @@ def test_improvement_strategy_defaults_to_knowledge():
 def test_cli_wiring_contract_sets_strategy_on_orchestrator():
     """Exercise the exact contract cli.main() uses to apply the flag:
     get_strategy_spec(args.improvement_strategy).factory() -> set on engine."""
-    from kcsi.orchestrator.strategy import get_strategy_spec
+    from ksi.orchestrator.strategy import get_strategy_spec
 
     orch = _make_orch(GenerationConfig(num_generations=1, num_agents=1))
     orch.set_improvement_strategy(get_strategy_spec("raw_attempts").factory())
@@ -605,7 +605,7 @@ def test_default_strategy_matches_engine_autoinstalled_default():
     auto-installed default — that equivalence is what makes the default
     --improvement-strategy behavior-preserving. Pin the type so a future
     divergence (engine default changes, or 'knowledge' maps elsewhere) fails."""
-    from kcsi.orchestrator.strategy import get_strategy_spec
+    from ksi.orchestrator.strategy import get_strategy_spec
 
     orch = _make_orch(GenerationConfig(num_generations=1, num_agents=1))
     engine_autoinstalled = type(orch._improvement_strategy)

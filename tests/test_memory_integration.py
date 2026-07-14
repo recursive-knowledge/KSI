@@ -3,11 +3,11 @@
 import json
 from unittest.mock import MagicMock
 
-from kcsi.memory.store import MemoryStore
-from kcsi.models import GenerationConfig, TaskSpec
-from kcsi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
-from kcsi.runtime.types import RuntimeResult
-from kcsi.tokens import LLMResponse, TokenUsage
+from ksi.memory.store import MemoryStore
+from ksi.models import GenerationConfig, TaskSpec
+from ksi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
+from ksi.runtime.types import RuntimeResult
+from ksi.tokens import LLMResponse, TokenUsage
 
 # ---------------------------------------------------------------------------
 # Transcript persistence tests (from PR #67 / #70)
@@ -523,7 +523,7 @@ def test_tool_call_counts_logged(tmp_path, caplog, mock_evaluator, mock_llm):
     orch._embedder = None
 
     tasks = [TaskSpec(id="task-0", repo="r", prompt="Fix bug")]
-    with caplog.at_level(logging.INFO, logger="kcsi.orchestrator.engine"):
+    with caplog.at_level(logging.INFO, logger="ksi.orchestrator.engine"):
         orch.run(tasks)
 
     # Should log memory tool counts

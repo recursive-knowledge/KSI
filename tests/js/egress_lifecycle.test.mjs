@@ -67,11 +67,11 @@ describe('buildContainerArgs egress behavior (real invocation, not source-pin)',
   // the conditional (e.g. moving --dns into the wrong branch) would still
   // pass it. These call the REAL function and inspect the actual returned
   // docker argv.
-  const egress = { internalNet: 'kcsi-egress-net', proxyAlias: 'kcsi-proxy', proxyPort: 3128 };
+  const egress = { internalNet: 'ksi-egress-net', proxyAlias: 'ksi-proxy', proxyPort: 3128 };
 
   it('isolated mode: attaches to the internal network and blackholes DNS (issue #934)', () => {
     const argv = buildContainerArgs(egress);
-    assert.equal(argv[argv.indexOf('--network') + 1], 'kcsi-egress-net');
+    assert.equal(argv[argv.indexOf('--network') + 1], 'ksi-egress-net');
     const dnsIdx = argv.indexOf('--dns');
     assert.ok(dnsIdx >= 0, 'expected a --dns flag in isolated mode');
     assert.equal(argv[dnsIdx + 1], '0.0.0.0');
@@ -79,16 +79,16 @@ describe('buildContainerArgs egress behavior (real invocation, not source-pin)',
 
   it('isolated mode: injects upper+lower-case proxy env vars pointed at the sidecar', () => {
     const pairs = envPairs(buildContainerArgs(egress));
-    assert.ok(pairs.includes('HTTPS_PROXY=http://kcsi-proxy:3128'));
-    assert.ok(pairs.includes('HTTP_PROXY=http://kcsi-proxy:3128'));
-    assert.ok(pairs.includes('https_proxy=http://kcsi-proxy:3128'));
-    assert.ok(pairs.includes('http_proxy=http://kcsi-proxy:3128'));
+    assert.ok(pairs.includes('HTTPS_PROXY=http://ksi-proxy:3128'));
+    assert.ok(pairs.includes('HTTP_PROXY=http://ksi-proxy:3128'));
+    assert.ok(pairs.includes('https_proxy=http://ksi-proxy:3128'));
+    assert.ok(pairs.includes('http_proxy=http://ksi-proxy:3128'));
     assert.ok(pairs.some((p) => p.startsWith('NO_PROXY=')));
     assert.ok(pairs.some((p) => p.startsWith('no_proxy=')));
   });
 
   it('open mode (egress=null): no --dns blackhole, no proxy env, resolves the plain docker network', () => {
-    const argv = buildContainerArgs(null, { KCSI_DOCKER_NETWORK: '' });
+    const argv = buildContainerArgs(null, { KSI_DOCKER_NETWORK: '' });
     assert.equal(argv.indexOf('--dns'), -1, 'must NOT blackhole DNS in open mode');
     const pairs = envPairs(argv);
     assert.ok(!pairs.some((p) => p.startsWith('HTTPS_PROXY=') || p.startsWith('HTTP_PROXY=')));
@@ -99,8 +99,8 @@ describe('buildContainerArgs egress behavior (real invocation, not source-pin)',
 });
 
 describe('container_args egress lifecycle', () => {
-  it('honors the KCSI_EGRESS=open escape hatch', () => {
-    assert.match(args, /KCSI_EGRESS/);
+  it('honors the KSI_EGRESS=open escape hatch', () => {
+    assert.match(args, /KSI_EGRESS/);
     assert.match(args, /'open'/);
   });
   it('creates an internal (no-route) network when isolated', () => {
@@ -108,7 +108,7 @@ describe('container_args egress lifecycle', () => {
   });
   it('derives the allowlist and passes it to the proxy sidecar', () => {
     assert.match(args, /deriveEgressAllowlist/);
-    assert.match(args, /KCSI_EGRESS_ALLOWLIST/);
+    assert.match(args, /KSI_EGRESS_ALLOWLIST/);
   });
   it('injects HTTPS_PROXY for the agent container when isolated', () => {
     assert.match(args, /HTTPS_PROXY/);
@@ -154,10 +154,10 @@ describe('container_args egress lifecycle', () => {
           labelValue: argv[argv.indexOf('--label') + 1],
         }));
       `,
-      { KCSI_RUN_ID: 'allowlist-test' },
+      { KSI_RUN_ID: 'allowlist-test' },
     );
     assert.equal(out.hasLabel, true);
-    assert.equal(out.labelValue, `kcsi.egress.allowlist-sha256=${out.signature}`);
+    assert.equal(out.labelValue, `ksi.egress.allowlist-sha256=${out.signature}`);
   });
   it('tears the infra down idempotently on signals/exit', () => {
     assert.match(args, /teardownEgressInfra/);
@@ -168,19 +168,19 @@ describe('container_args egress lifecycle', () => {
       `
         import { egressResourceNames, sanitizeEgressRunId } from ${JSON.stringify(CONTAINER_ARGS_MOD)};
         console.log(JSON.stringify({
-          sanitized: sanitizeEgressRunId(process.env.KCSI_RUN_ID),
+          sanitized: sanitizeEgressRunId(process.env.KSI_RUN_ID),
           names: egressResourceNames(),
         }));
       `,
-      { KCSI_RUN_ID: ' Campaign 123/Blue ' },
+      { KSI_RUN_ID: ' Campaign 123/Blue ' },
     );
     assert.equal(out.sanitized, 'campaign-123-blue');
-    assert.equal(out.names.internalNet, 'kcsi-egress-int-campaign-123-blue');
-    assert.equal(out.names.externalNet, 'kcsi-egress-ext-campaign-123-blue');
-    assert.equal(out.names.proxyContainer, 'kcsi-egress-proxy-campaign-123-blue');
+    assert.equal(out.names.internalNet, 'ksi-egress-int-campaign-123-blue');
+    assert.equal(out.names.externalNet, 'ksi-egress-ext-campaign-123-blue');
+    assert.equal(out.names.proxyContainer, 'ksi-egress-proxy-campaign-123-blue');
   });
   it('tracks one process lease idempotently and releases it', () => {
-    const leaseRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'kcsi-egress-lease-test-'));
+    const leaseRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'ksi-egress-lease-test-'));
     try {
       const out = runContainerArgsSnippet(
         `
@@ -192,7 +192,7 @@ describe('container_args egress lifecycle', () => {
           const released = activeEgressLeaseCount();
           console.log(JSON.stringify({ samePath: first === second, held, released }));
         `,
-        { KCSI_RUN_ID: 'lease-test', KCSI_EGRESS_LEASE_DIR: leaseRoot },
+        { KSI_RUN_ID: 'lease-test', KSI_EGRESS_LEASE_DIR: leaseRoot },
       );
       assert.equal(out.samePath, true);
       assert.equal(out.held, 1);
@@ -202,7 +202,7 @@ describe('container_args egress lifecycle', () => {
     }
   });
   it('keeps a sibling lease alive after the current process releases its lease', () => {
-    const leaseRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'kcsi-egress-sibling-lease-test-'));
+    const leaseRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'ksi-egress-sibling-lease-test-'));
     try {
       const out = runContainerArgsSnippet(
         `
@@ -224,7 +224,7 @@ describe('container_args egress lifecycle', () => {
           const afterBogusIdentity = activeEgressLeaseCount();
           console.log(JSON.stringify({ held, afterRelease, afterSiblingRemoved, afterBogusIdentity }));
         `,
-        { KCSI_RUN_ID: 'sibling-lease-test', KCSI_EGRESS_LEASE_DIR: leaseRoot },
+        { KSI_RUN_ID: 'sibling-lease-test', KSI_EGRESS_LEASE_DIR: leaseRoot },
       );
       assert.equal(out.held, 2);
       assert.equal(out.afterRelease, 1);
@@ -235,15 +235,15 @@ describe('container_args egress lifecycle', () => {
     }
   });
   it('does not break a stale-looking lock whose owner process is still alive', () => {
-    const leaseRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'kcsi-egress-lock-test-'));
+    const leaseRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'ksi-egress-lock-test-'));
     try {
       const out = runContainerArgsSnippet(
         `
           import fs from 'fs';
           import path from 'path';
           import { sanitizeEgressRunId, shouldBreakEgressLeaseLock } from ${JSON.stringify(CONTAINER_ARGS_MOD)};
-          const runId = sanitizeEgressRunId(process.env.KCSI_RUN_ID);
-          const lockDir = path.join(process.env.KCSI_EGRESS_LEASE_DIR, runId, '.lock');
+          const runId = sanitizeEgressRunId(process.env.KSI_RUN_ID);
+          const lockDir = path.join(process.env.KSI_EGRESS_LEASE_DIR, runId, '.lock');
           fs.mkdirSync(lockDir, { recursive: true });
           fs.writeFileSync(path.join(lockDir, 'owner.json'), JSON.stringify({ pid: process.pid }), 'utf-8');
           const old = new Date(Date.now() - 600_000);
@@ -253,7 +253,7 @@ describe('container_args egress lifecycle', () => {
           const deadOwner = shouldBreakEgressLeaseLock(lockDir);
           console.log(JSON.stringify({ liveOwner, deadOwner }));
         `,
-        { KCSI_RUN_ID: 'lock-test', KCSI_EGRESS_LEASE_DIR: leaseRoot },
+        { KSI_RUN_ID: 'lock-test', KSI_EGRESS_LEASE_DIR: leaseRoot },
       );
       assert.equal(out.liveOwner, false);
       assert.equal(out.deadOwner, true);

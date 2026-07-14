@@ -19,8 +19,8 @@
 #   - uv sync --extra swebench-pro
 #
 # Environment variables:
-#   SWEBENCH_PRO_JSONL    (default: $KCSI_ROOT/benchmarks/swebench_pro/dataset/test.jsonl)
-#   SWEBENCH_PRO_TASK_MAP (default: $KCSI_ROOT/benchmarks/swebench_pro/task_maps/swebench_pro_test_50_seed0_v1.json)
+#   SWEBENCH_PRO_JSONL    (default: $KSI_ROOT/benchmarks/swebench_pro/dataset/test.jsonl)
+#   SWEBENCH_PRO_TASK_MAP (default: $KSI_ROOT/benchmarks/swebench_pro/task_maps/swebench_pro_test_50_seed0_v1.json)
 #   HAIKU_PROFILE / OPENAI_PROFILE, GENERATIONS (default 10),
 #   SEEDS (default "1"), RUNTIME_TIMEOUT (default 1800), SWEBENCH_TIMEOUT (default 3600)
 
@@ -41,8 +41,8 @@ GENERATIONS="${GENERATIONS:-10}"
 # CROSS_RUNNER_AGENT_TIMEOUT_SEC from the shell (cli.py reads that env var as the
 # --runtime-timeout-sec default).
 RUNTIME_TIMEOUT="${RUNTIME_TIMEOUT:-1800}"
-SWEBENCH_PRO_JSONL="${SWEBENCH_PRO_JSONL:-$KCSI_ROOT/benchmarks/swebench_pro/dataset/test.jsonl}"
-SWEBENCH_PRO_TASK_MAP="${SWEBENCH_PRO_TASK_MAP:-$KCSI_ROOT/benchmarks/swebench_pro/task_maps/swebench_pro_test_50_seed0_v1.json}"
+SWEBENCH_PRO_JSONL="${SWEBENCH_PRO_JSONL:-$KSI_ROOT/benchmarks/swebench_pro/dataset/test.jsonl}"
+SWEBENCH_PRO_TASK_MAP="${SWEBENCH_PRO_TASK_MAP:-$KSI_ROOT/benchmarks/swebench_pro/task_maps/swebench_pro_test_50_seed0_v1.json}"
 SWEBENCH_TIMEOUT="${SWEBENCH_TIMEOUT:-3600}"
 
 maybe_validate_file "$SWEBENCH_PRO_JSONL" "SWE-bench Pro JSONL"

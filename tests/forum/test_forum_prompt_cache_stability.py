@@ -24,7 +24,7 @@ See: feedback_cache_stability_invariant, project_pr564_cache_regression.
 
 from __future__ import annotations
 
-from kcsi.forum import (
+from ksi.forum import (
     build_cross_task_discussion_parts,
     build_per_task_discussion_parts,
 )

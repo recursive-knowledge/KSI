@@ -8,13 +8,13 @@ from unittest.mock import MagicMock, patch
 import pytest
 from conftest import REPO_ROOT
 
-from kcsi.benchmarks.polyglot_harness import DEFAULT_POLYGLOT_TIMEOUT_SEC
-from kcsi.errors import AuthenticationFailure
-from kcsi.models import TaskSpec
-from kcsi.runtime.container_host import (
+from ksi.benchmarks.polyglot_harness import DEFAULT_POLYGLOT_TIMEOUT_SEC
+from ksi.errors import AuthenticationFailure
+from ksi.models import TaskSpec
+from ksi.runtime.container_host import (
     _ARC_ATTEMPT_PRESTUB,
     _ARC_VALIDATE_PREDICTION_SCRIPT,
-    KcsiContainerExecutor,
+    KsiContainerExecutor,
     _arc_attempt_stub_files,
     _build_runner_env,
     _build_tools_md,
@@ -24,8 +24,8 @@ from kcsi.runtime.container_host import (
     _tail,
     _validate_provider_auth,
 )
-from kcsi.runtime.seeding import seed_package_to_memory_md
-from kcsi.runtime.swebench_images import _swebench_runner_image
+from ksi.runtime.seeding import seed_package_to_memory_md
+from ksi.runtime.swebench_images import _swebench_runner_image
 
 
 def _runner_stdout(
@@ -89,11 +89,11 @@ def test_swebench_runner_image_prefers_container_image_over_legacy_alias():
     assert (
         _swebench_runner_image(
             {
-                "CONTAINER_IMAGE": "kcsi-agent:from-container",
-                "KCSI_CONTAINER_IMAGE": "kcsi-agent:from-legacy",
+                "CONTAINER_IMAGE": "ksi-agent:from-container",
+                "KSI_CONTAINER_IMAGE": "ksi-agent:from-legacy",
             }
         )
-        == "kcsi-agent:from-container"
+        == "ksi-agent:from-container"
     )
 
 
@@ -180,7 +180,7 @@ def test_build_tools_md_non_arc_default_off_does_not_advertise_web_tools():
     assert "WebSearch, WebFetch, TodoWrite, NotebookEdit" not in tools_md
     # Web tools are surfaced as disabled-by-default with the opt-in flag.
     assert "WebSearch and WebFetch are disabled by default" in tools_md
-    assert "KCSI_ALLOW_WEB_TOOLS=1" in tools_md
+    assert "KSI_ALLOW_WEB_TOOLS=1" in tools_md
     # Utility tools that are genuinely always available are still advertised.
     assert "TodoWrite, NotebookEdit" in tools_md
     # Not the ARC-offline wording either.
@@ -188,7 +188,7 @@ def test_build_tools_md_non_arc_default_off_does_not_advertise_web_tools():
 
 
 def test_build_tools_md_non_arc_advertises_web_tools_when_enabled():
-    """When KCSI_ALLOW_WEB_TOOLS is set (web_tools_enabled=True), the non-ARC
+    """When KSI_ALLOW_WEB_TOOLS is set (web_tools_enabled=True), the non-ARC
     TOOLS.md advertises WebSearch/WebFetch as enabled for the run."""
     task = TaskSpec(
         id="swe-001",
@@ -216,7 +216,7 @@ def test_agent_runner_index_ts_guards_web_tools_for_arc():
     `disallowedTools` JSDoc; runtime_runner/agent-runner pins the SDK at ^0.1.0,
     where it is in entrypoints/sdk/runtimeTypes.d.ts, exact path varies by
     version).
-    Web tools are enabled only when `KCSI_ALLOW_WEB_TOOLS` is truthy AND the
+    Web tools are enabled only when `KSI_ALLOW_WEB_TOOLS` is truthy AND the
     task is not ARC; otherwise they are disallowed.
     """
     runner_src = REPO_ROOT / "runtime_runner" / "agent-runner" / "src"
@@ -231,9 +231,9 @@ def test_agent_runner_index_ts_guards_web_tools_for_arc():
     # tested in tests/js/web_tools_gating.test.mjs); index.ts imports it.
     assert "from './web_tools.js'" in src
     assert "const webToolGating = buildWebToolGating(sdkEnv, isOffline)" in src
-    # Web tools are default-OFF: gated behind KCSI_ALLOW_WEB_TOOLS, AND-gated
+    # Web tools are default-OFF: gated behind KSI_ALLOW_WEB_TOOLS, AND-gated
     # with !isOffline so ARC is always denied (issue #666).
-    assert "KCSI_ALLOW_WEB_TOOLS" in web
+    assert "KSI_ALLOW_WEB_TOOLS" in web
     assert "const webToolsEnabled = webToolsAllowedByFlag && !isOffline" in web
     # Allowlist adds web tools ONLY when enabled; the old always-on-for-non-ARC
     # pattern must be gone from both files.
@@ -273,7 +273,7 @@ class TestKnowledgeDbPathInPayload:
             },
         )
         defaults.update(kw)
-        return KcsiContainerExecutor(**defaults)
+        return KsiContainerExecutor(**defaults)
 
     def test_knowledge_db_path_present_when_memory_configured(self, tmp_path):
         """When knowledge_db_path is set, payload.knowledge should include knowledge_db_path."""
@@ -290,7 +290,7 @@ class TestKnowledgeDbPathInPayload:
             )
 
         with patch(
-            "kcsi.runtime.container_host._run_command_with_backstop",
+            "ksi.runtime.container_host._run_command_with_backstop",
             side_effect=fake_run,
         ):
             ex = self._make_executor(tmp_path, knowledge_db_path=str(knowledge_db_path))
@@ -325,7 +325,7 @@ class TestKnowledgeDbPathInPayload:
             )
 
         with patch(
-            "kcsi.runtime.container_host._run_command_with_backstop",
+            "ksi.runtime.container_host._run_command_with_backstop",
             side_effect=fake_run,
         ):
             ex = self._make_executor(tmp_path, knowledge_db_path="")
@@ -355,7 +355,7 @@ class TestKnowledgeDbPathInPayload:
             )
 
         with patch(
-            "kcsi.runtime.container_host._run_command_with_backstop",
+            "ksi.runtime.container_host._run_command_with_backstop",
             side_effect=fake_run,
         ):
             ex = self._make_executor(
@@ -407,7 +407,7 @@ class TestKnowledgeDbPathInPayload:
             )
 
         with patch(
-            "kcsi.runtime.container_host._run_command_with_backstop",
+            "ksi.runtime.container_host._run_command_with_backstop",
             side_effect=fake_run,
         ):
             ex = self._make_executor(tmp_path, knowledge_db_path=str(knowledge_db_path))
@@ -448,7 +448,7 @@ class TestKnowledgeDbPathInPayload:
             )
 
         with patch(
-            "kcsi.runtime.container_host._run_command_with_backstop",
+            "ksi.runtime.container_host._run_command_with_backstop",
             side_effect=fake_run,
         ):
             ex = self._make_executor(
@@ -534,7 +534,7 @@ class TestKnowledgeSnapshotFailureFlag:
             },
         )
         defaults.update(kw)
-        return KcsiContainerExecutor(**defaults)
+        return KsiContainerExecutor(**defaults)
 
     def _materialize(self, executor, tmp_path, snapshot):
         payload: dict = {}
@@ -571,7 +571,7 @@ class TestKnowledgeSnapshotFailureFlag:
 
 class TestRunnerEnvelopeIdentity:
     def _make_executor(self, tmp_path):
-        return KcsiContainerExecutor(
+        return KsiContainerExecutor(
             command=["echo", "dummy"],
             working_dir=str(tmp_path),
             instruction_path=str(tmp_path / "INSTRUCTION.md"),
@@ -599,7 +599,7 @@ class TestRunnerEnvelopeIdentity:
         meta_override: dict,
     ):
         trace_dir = tmp_path / "traces"
-        monkeypatch.setenv("KCSI_TRACE_DIR", str(trace_dir))
+        monkeypatch.setenv("KSI_TRACE_DIR", str(trace_dir))
         stdout = _runner_stdout(task_id="t1", meta=meta_override)
         ex = self._make_executor(tmp_path)
 
@@ -607,7 +607,7 @@ class TestRunnerEnvelopeIdentity:
             return MagicMock(returncode=0, stdout=stdout, stderr="")
 
         with patch(
-            "kcsi.runtime.container_host._run_command_with_backstop",
+            "ksi.runtime.container_host._run_command_with_backstop",
             side_effect=fake_run,
         ):
             with pytest.raises(RuntimeError, match="Container stdout protocol error"):
@@ -639,7 +639,7 @@ class TestRunnerEnvelopeIdentity:
             return MagicMock(returncode=0, stdout=stdout, stderr="")
 
         with patch(
-            "kcsi.runtime.container_host._run_command_with_backstop",
+            "ksi.runtime.container_host._run_command_with_backstop",
             side_effect=fake_run,
         ):
             result = ex.run_task(
@@ -681,7 +681,7 @@ class TestArcToolsPayloadBlock:
             },
         )
         defaults.update(kw)
-        return KcsiContainerExecutor(**defaults)
+        return KsiContainerExecutor(**defaults)
 
     def _capture_payload(self, ex, task):
         captured = []
@@ -696,7 +696,7 @@ class TestArcToolsPayloadBlock:
             )
 
         with patch(
-            "kcsi.runtime.container_host._run_command_with_backstop",
+            "ksi.runtime.container_host._run_command_with_backstop",
             side_effect=fake_run,
         ):
             ex.run_task(
@@ -767,7 +767,7 @@ class TestArcToolsPayloadBlock:
         """When the container returns an unparseable envelope, container_host raises
         RuntimeError and records a runtime.parse_error event."""
         trace_dir = tmp_path / "traces"
-        monkeypatch.setenv("KCSI_TRACE_DIR", str(trace_dir))
+        monkeypatch.setenv("KSI_TRACE_DIR", str(trace_dir))
 
         ex = self._make_executor(
             tmp_path,
@@ -779,7 +779,7 @@ class TestArcToolsPayloadBlock:
             return MagicMock(returncode=0, stdout="not-json", stderr="")
 
         with patch.object(
-            KcsiContainerExecutor,
+            KsiContainerExecutor,
             "_run_runner_command",
             side_effect=fake_run,
         ):
@@ -913,11 +913,11 @@ class TestCrossTaskForumTimeout:
             },
         )
         defaults.update(kw)
-        return KcsiContainerExecutor(**defaults)
+        return KsiContainerExecutor(**defaults)
 
     def _run_and_capture_timeout_env(
         self,
-        executor: KcsiContainerExecutor,
+        executor: KsiContainerExecutor,
         task: TaskSpec,
     ) -> dict:
         seen = {}
@@ -932,7 +932,7 @@ class TestCrossTaskForumTimeout:
             )
 
         with patch(
-            "kcsi.runtime.container_host._run_command_with_backstop",
+            "ksi.runtime.container_host._run_command_with_backstop",
             side_effect=fake_run,
         ):
             executor.run_task(
@@ -1013,7 +1013,7 @@ class TestSwebenchProOfficialContainers:
             },
         )
         defaults.update(kw)
-        return KcsiContainerExecutor(**defaults)
+        return KsiContainerExecutor(**defaults)
 
     def test_official_base_image_prefers_image_name(self):
         task = TaskSpec(
@@ -1059,18 +1059,18 @@ class TestSwebenchProOfficialContainers:
 
         with (
             patch(
-                "kcsi.runtime.swebench_images._ensure_swebench_agent_image",
-                return_value=("kcsi-swebench-pro-agent:abc123", "kcsi-agent:bench"),
+                "ksi.runtime.swebench_images._ensure_swebench_agent_image",
+                return_value=("ksi-swebench-pro-agent:abc123", "ksi-agent:bench"),
             ) as ensure_image,
             # Overlay is now built only for a positively-detected glibc base
             # (fail-closed). Pin glibc so this overlay-wiring test exercises the
             # build path without a real docker libc probe / pre-pull.
             patch(
-                "kcsi.runtime.swebench_images._detect_base_image_libc",
+                "ksi.runtime.swebench_images._detect_base_image_libc",
                 return_value="glibc",
             ),
             patch(
-                "kcsi.runtime.container_host._run_command_with_backstop",
+                "ksi.runtime.container_host._run_command_with_backstop",
                 side_effect=fake_run,
             ),
         ):
@@ -1102,11 +1102,11 @@ class TestSwebenchProOfficialContainers:
         assert payload["runtime"]["official_container_image"] == (
             "customhub/sweap-images:demo.repo-instance_demo__repo-123"
         )
-        assert payload["runtime"]["container_image"] == "kcsi-swebench-pro-agent:abc123"
-        assert payload["runtime"]["runner_image"] == "kcsi-agent:bench"
+        assert payload["runtime"]["container_image"] == "ksi-swebench-pro-agent:abc123"
+        assert payload["runtime"]["runner_image"] == "ksi-agent:bench"
         assert payload["runtime"]["repo_container_path"] == "/workspace/task/workspace/repo"
         assert payload["runtime"]["official_repo_container_path"] == "/app"
-        assert payload["runtime"]["runner_root"] == "/kcsi-runner"
+        assert payload["runtime"]["runner_root"] == "/ksi-runner"
         assert payload["task"]["metadata"]["repo_container_path"] == "/workspace/task/workspace/repo"
         assert payload["task"]["metadata"]["official_repo_container_path"] == "/app"
         # In upstream-strict mode (no swebench_pro_seed_tests flag) the run_script
@@ -1116,10 +1116,10 @@ class TestSwebenchProOfficialContainers:
         # (test names withheld in upstream-strict mode).
         assert "'tests/test_widget.py'" not in payload["workspace_seed"]["task_md"]
         assert payload["knowledge"]["disable_memory_tools"] is True
-        assert env["KCSI_CONTAINER_IMAGE"] == "kcsi-swebench-pro-agent:abc123"
-        assert env["CONTAINER_IMAGE"] == "kcsi-swebench-pro-agent:abc123"
-        assert env["KCSI_TASK_REPO_CONTAINER_PATH"] == "/app"
-        assert env["KCSI_RUNNER_ROOT"] == "/kcsi-runner"
+        assert env["KSI_CONTAINER_IMAGE"] == "ksi-swebench-pro-agent:abc123"
+        assert env["CONTAINER_IMAGE"] == "ksi-swebench-pro-agent:abc123"
+        assert env["KSI_TASK_REPO_CONTAINER_PATH"] == "/app"
+        assert env["KSI_RUNNER_ROOT"] == "/ksi-runner"
 
 
 # ── Credential scrubbing ──────────────────────────────────────────────────────
@@ -1168,19 +1168,19 @@ class TestBuildRunnerEnv:
         assert "LOG_LEVEL" not in base
 
     def test_sets_parent_process_egress_run_id_by_default(self, monkeypatch):
-        monkeypatch.delenv("KCSI_RUN_ID", raising=False)
+        monkeypatch.delenv("KSI_RUN_ID", raising=False)
         env = _build_runner_env({}, timeout_sec=120)
-        assert env["KCSI_RUN_ID"] == f"kcsi-{os.getpid()}"
+        assert env["KSI_RUN_ID"] == f"ksi-{os.getpid()}"
 
     def test_threads_host_egress_run_id_when_present(self, monkeypatch):
-        monkeypatch.setenv("KCSI_RUN_ID", "campaign-abc")
+        monkeypatch.setenv("KSI_RUN_ID", "campaign-abc")
         env = _build_runner_env({}, timeout_sec=120)
-        assert env["KCSI_RUN_ID"] == "campaign-abc"
+        assert env["KSI_RUN_ID"] == "campaign-abc"
 
     def test_base_env_egress_run_id_wins_over_host_default(self, monkeypatch):
-        monkeypatch.setenv("KCSI_RUN_ID", "host-campaign")
-        env = _build_runner_env({"KCSI_RUN_ID": "profile-campaign"}, timeout_sec=120)
-        assert env["KCSI_RUN_ID"] == "profile-campaign"
+        monkeypatch.setenv("KSI_RUN_ID", "host-campaign")
+        env = _build_runner_env({"KSI_RUN_ID": "profile-campaign"}, timeout_sec=120)
+        assert env["KSI_RUN_ID"] == "profile-campaign"
 
     def test_sets_default_log_level_and_idle_timeout(self):
         env = _build_runner_env({}, timeout_sec=120)
@@ -1408,7 +1408,7 @@ class TestForumMemoryMdTaskId:
             },
         )
         defaults.update(kw)
-        return KcsiContainerExecutor(**defaults)
+        return KsiContainerExecutor(**defaults)
 
     def test_forum_task_uses_assigned_task_id_in_memory_md(self, tmp_path):
         """Forum path: assigned_task_id from seed_package is used, not synthetic task.id."""
@@ -1436,7 +1436,7 @@ class TestForumMemoryMdTaskId:
         }
 
         with patch(
-            "kcsi.runtime.container_host._run_command_with_backstop",
+            "ksi.runtime.container_host._run_command_with_backstop",
             side_effect=fake_run,
         ):
             ex = self._make_executor(tmp_path)
@@ -1473,7 +1473,7 @@ class TestForumMemoryMdTaskId:
         }
 
         with patch(
-            "kcsi.runtime.container_host._run_command_with_backstop",
+            "ksi.runtime.container_host._run_command_with_backstop",
             side_effect=fake_run,
         ):
             ex = self._make_executor(tmp_path)
@@ -1508,7 +1508,7 @@ class TestForumMemoryMdTaskId:
         }
 
         with patch(
-            "kcsi.runtime.container_host._run_command_with_backstop",
+            "ksi.runtime.container_host._run_command_with_backstop",
             side_effect=fake_run,
         ):
             ex = self._make_executor(tmp_path)
@@ -1530,7 +1530,7 @@ class TestForumMemoryMdTaskId:
 
 
 class TestRunTaskTimeout:
-    """Tests for the timeout handling in KcsiContainerExecutor.run_task()."""
+    """Tests for the timeout handling in KsiContainerExecutor.run_task()."""
 
     def _make_executor(self, tmp_path, **kw):
         defaults = dict(
@@ -1547,7 +1547,7 @@ class TestRunTaskTimeout:
             },
         )
         defaults.update(kw)
-        return KcsiContainerExecutor(**defaults)
+        return KsiContainerExecutor(**defaults)
 
     def test_timeout_expired_raises_runtime_error(self, tmp_path):
         """When _run_runner_command raises TimeoutExpired, run_task wraps it in RuntimeError."""
@@ -1630,14 +1630,14 @@ def test_swebench_overlay_dockerfile_does_not_copy_npm_npx_binaries() -> None:
     """
     dockerfile = _swebench_agent_overlay_dockerfile(
         base_image="jefzda/sweap-images:demo",
-        runner_image="kcsi-agent:bench",
+        runner_image="ksi-agent:bench",
     )
 
-    assert "COPY --from=kcsi_runner /usr/local/bin/npm" not in dockerfile, (
+    assert "COPY --from=ksi_runner /usr/local/bin/npm" not in dockerfile, (
         "Direct COPY of /usr/local/bin/npm dereferences the symlink and "
         "breaks npm-cli.js's relative `require('../lib/cli.js')` resolution."
     )
-    assert "COPY --from=kcsi_runner /usr/local/bin/npx" not in dockerfile, (
+    assert "COPY --from=ksi_runner /usr/local/bin/npx" not in dockerfile, (
         "Direct COPY of /usr/local/bin/npx dereferences the symlink and "
         "breaks npx-cli.js's relative `require('../lib/cli.js')` resolution."
     )
@@ -1646,8 +1646,8 @@ def test_swebench_overlay_dockerfile_does_not_copy_npm_npx_binaries() -> None:
     assert "ln -s ../lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm" in dockerfile
     assert "ln -s ../lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx" in dockerfile
     # node_modules and the node binary must still come over from the runner.
-    assert "COPY --from=kcsi_runner /usr/local/bin/node /usr/local/bin/node" in dockerfile
-    assert "COPY --from=kcsi_runner /usr/local/lib/node_modules /usr/local/lib/node_modules" in dockerfile
+    assert "COPY --from=ksi_runner /usr/local/bin/node /usr/local/bin/node" in dockerfile
+    assert "COPY --from=ksi_runner /usr/local/lib/node_modules /usr/local/lib/node_modules" in dockerfile
 
 
 def _swebench_pro_task() -> TaskSpec:
@@ -1669,7 +1669,7 @@ def test_swebench_overlay_skips_on_inconclusive_libc(monkeypatch) -> None:
     task on it crashed non-retryably. Skipping unless positively glibc routes
     the task to the working legacy shared-runner instead.
     """
-    from kcsi.runtime import swebench_images as si
+    from ksi.runtime import swebench_images as si
 
     monkeypatch.setattr(si, "_swebench_official_base_image", lambda t, e: "jefzda/sweap-images:demo.repo-1")
     monkeypatch.setattr(si, "_detect_base_image_libc", lambda b, e=None: "")
@@ -1683,7 +1683,7 @@ def test_swebench_overlay_skips_on_inconclusive_libc(monkeypatch) -> None:
 
 def test_swebench_overlay_skips_on_musl_libc(monkeypatch) -> None:
     """Regression guard: a positively-detected musl base skips the overlay."""
-    from kcsi.runtime import swebench_images as si
+    from ksi.runtime import swebench_images as si
 
     monkeypatch.setattr(si, "_swebench_official_base_image", lambda t, e: "jefzda/sweap-images:demo.repo-1")
     monkeypatch.setattr(si, "_detect_base_image_libc", lambda b, e=None: "musl")
@@ -1697,7 +1697,7 @@ def test_swebench_overlay_skips_on_musl_libc(monkeypatch) -> None:
 
 def test_swebench_overlay_builds_on_glibc_libc(monkeypatch) -> None:
     """Positive path preserved: a positively-detected glibc base builds the overlay."""
-    from kcsi.runtime import swebench_images as si
+    from ksi.runtime import swebench_images as si
 
     monkeypatch.setattr(si, "_swebench_official_base_image", lambda t, e: "jefzda/sweap-images:demo.repo-1")
     monkeypatch.setattr(si, "_detect_base_image_libc", lambda b, e=None: "glibc")
@@ -1710,7 +1710,7 @@ def test_swebench_overlay_builds_on_glibc_libc(monkeypatch) -> None:
 def test_detect_base_image_libc_does_not_cache_inconclusive(monkeypatch) -> None:
     """A '' (inconclusive) probe result must not be cached — a later warm re-probe
     (after the image finishes pulling) must be able to return the real libc."""
-    from kcsi.runtime import swebench_images as si
+    from ksi.runtime import swebench_images as si
 
     si._BASE_IMAGE_LIBC_CACHE.pop("some/base:img", None)
     calls = {"n": 0}
@@ -1842,7 +1842,7 @@ class TestSnapshotCleanupOnFallbackTimeout:
             },
         )
         defaults.update(kw)
-        return KcsiContainerExecutor(**defaults)
+        return KsiContainerExecutor(**defaults)
 
     def test_snapshot_unlinked_when_npx_fallback_times_out(self, tmp_path):
         knowledge_db_path = tmp_path / "foo_knowledge.sqlite"
@@ -1862,7 +1862,7 @@ class TestSnapshotCleanupOnFallbackTimeout:
             raise subprocess.TimeoutExpired(cmd, timeout)
 
         with patch.object(
-            KcsiContainerExecutor,
+            KsiContainerExecutor,
             "_run_runner_command",
             side_effect=fake_run,
         ):
@@ -1910,7 +1910,7 @@ class TestSnapshotCleanupOnFallbackTimeout:
         payload_path = tmp_path / "payload.json"
         payload_path.write_text("{}", encoding="utf-8")
 
-        with patch.object(KcsiContainerExecutor, "_run_runner_command", side_effect=fake_run):
+        with patch.object(KsiContainerExecutor, "_run_runner_command", side_effect=fake_run):
             ex._execute_runner_with_fallback(
                 payload_path=payload_path,
                 runner_env={},
@@ -1952,7 +1952,7 @@ class TestSnapshotCleanupOnFallbackTimeout:
             return MagicMock(returncode=0, stdout="", stderr="")
 
         with patch.object(
-            KcsiContainerExecutor,
+            KsiContainerExecutor,
             "_run_runner_command",
             side_effect=fake_run,
         ):
@@ -1987,8 +1987,8 @@ def test_polyglot_workspace_runtime_meta_points_at_seeded_repo_dir(tmp_path):
     extraction (92/12-run forensics: real workspace code scored
     ``no_solution`` without any test run).
     """
-    from kcsi.runtime.barrier import BarrierEvent
-    from kcsi.runtime.container_host import _polyglot_workspace_runtime_meta
+    from ksi.runtime.barrier import BarrierEvent
+    from ksi.runtime.container_host import _polyglot_workspace_runtime_meta
 
     workspace_root = tmp_path / "ws-root"
     repo_dir = workspace_root / "workspace" / "repo"
@@ -2013,9 +2013,9 @@ def test_polyglot_feedback_barrier_eval_scores_production_workspace_layout(tmp_p
     code block must still resolve ``solution_source=workspace_files`` — not
     fall through to ``status=no_solution`` with zero test runs.
     """
-    from kcsi.benchmarks.polyglot_harness import PolyglotHarnessEvaluator
-    from kcsi.runtime.barrier import BarrierEvent
-    from kcsi.runtime.container_host import _polyglot_workspace_runtime_meta
+    from ksi.benchmarks.polyglot_harness import PolyglotHarnessEvaluator
+    from ksi.runtime.barrier import BarrierEvent
+    from ksi.runtime.container_host import _polyglot_workspace_runtime_meta
 
     workspace_root = tmp_path / "ws-root"
     repo_dir = workspace_root / "workspace" / "repo"
@@ -2059,7 +2059,7 @@ def test_launch_polyglot_test_feedback_watcher_scores_live_workspace_files(tmp_p
     separate, still-sanitized research-bookkeeping summary is built
     independently on the TS side).
     """
-    from kcsi.runtime.barrier import response_filename, sentinel_filename
+    from ksi.runtime.barrier import response_filename, sentinel_filename
 
     class _FakeEvaluator:
         def __init__(self):
@@ -2077,7 +2077,7 @@ def test_launch_polyglot_test_feedback_watcher_scores_live_workspace_files(tmp_p
             }
 
     evaluator = _FakeEvaluator()
-    executor = KcsiContainerExecutor(
+    executor = KsiContainerExecutor(
         command=["fake"],
         working_dir=str(tmp_path),
         timeout_sec=60,
@@ -2157,8 +2157,8 @@ def test_launch_phase1_watcher_scores_live_workspace_files(tmp_path):
     no test run, and (because the reflection turn cannot edit the workspace)
     that wrong result was reused verbatim as the FINAL score.
     """
-    from kcsi.benchmarks.polyglot_harness import PolyglotHarnessEvaluator
-    from kcsi.runtime.barrier import response_filename, sentinel_filename
+    from ksi.benchmarks.polyglot_harness import PolyglotHarnessEvaluator
+    from ksi.runtime.barrier import response_filename, sentinel_filename
 
     task = TaskSpec(
         id="python__adder",
@@ -2167,7 +2167,7 @@ def test_launch_phase1_watcher_scores_live_workspace_files(tmp_path):
         metadata={"task_source": "polyglot", "language": "python", "starter_code": {"solution.py": ""}},
     )
     evaluator = PolyglotHarnessEvaluator(skip_docker=True)
-    executor = KcsiContainerExecutor(
+    executor = KsiContainerExecutor(
         command=["fake"],
         working_dir=str(tmp_path),
         timeout_sec=60,
@@ -2230,7 +2230,7 @@ def test_launch_polyglot_test_feedback_watcher_answers_multiple_rounds(tmp_path)
     first — this is the production wiring a single-shot watcher would
     silently break for any ``--polyglot-test-feedback-tries`` above the
     default of 2."""
-    from kcsi.runtime.barrier import response_filename, sentinel_filename
+    from ksi.runtime.barrier import response_filename, sentinel_filename
 
     class _FakeEvaluator:
         def __init__(self):
@@ -2248,7 +2248,7 @@ def test_launch_polyglot_test_feedback_watcher_answers_multiple_rounds(tmp_path)
             }
 
     evaluator = _FakeEvaluator()
-    executor = KcsiContainerExecutor(
+    executor = KsiContainerExecutor(
         command=["fake"],
         working_dir=str(tmp_path),
         timeout_sec=60,
@@ -2305,7 +2305,7 @@ def test_launch_polyglot_test_feedback_watcher_refuses_rounds_beyond_max_rounds(
     ``triesRemaining`` -- a Bash-capable agent could otherwise write
     sentinel files directly in a tight loop and force unbounded real Docker
     evaluations."""
-    from kcsi.runtime.barrier import response_filename, sentinel_filename
+    from ksi.runtime.barrier import response_filename, sentinel_filename
 
     class _FakeEvaluator:
         def __init__(self):
@@ -2316,7 +2316,7 @@ def test_launch_polyglot_test_feedback_watcher_refuses_rounds_beyond_max_rounds(
             return {"native_score": 0.0, "resolved": False, "status": "ok", "test_exit_code": 1}
 
     evaluator = _FakeEvaluator()
-    executor = KcsiContainerExecutor(
+    executor = KsiContainerExecutor(
         command=["fake"],
         working_dir=str(tmp_path),
         timeout_sec=60,
@@ -2382,7 +2382,7 @@ def test_execute_runner_with_fallback_waits_for_inflight_polyglot_watcher(tmp_pa
     import subprocess
     import threading as pythreading
 
-    from kcsi.runtime.barrier import sentinel_filename
+    from ksi.runtime.barrier import sentinel_filename
 
     class _SlowEvaluator:
         timeout_sec = 1
@@ -2398,7 +2398,7 @@ def test_execute_runner_with_fallback_waits_for_inflight_polyglot_watcher(tmp_pa
             return {"native_score": 0.0, "resolved": False, "status": "ok", "test_exit_code": 1}
 
     evaluator = _SlowEvaluator()
-    executor = KcsiContainerExecutor(
+    executor = KsiContainerExecutor(
         command=["fake"],
         working_dir=str(tmp_path),
         timeout_sec=60,
@@ -2490,7 +2490,7 @@ def test_maybe_setup_polyglot_test_feedback_scales_min_effective_timeout_with_tr
 
 
 def test_launch_polyglot_test_feedback_watcher_returns_none_without_evaluator(tmp_path):
-    executor = KcsiContainerExecutor(
+    executor = KsiContainerExecutor(
         command=["fake"],
         working_dir=str(tmp_path),
         timeout_sec=60,
@@ -2523,11 +2523,11 @@ def _make_polyglot_executor(tmp_path, **kw):
         },
     )
     defaults.update(kw)
-    return KcsiContainerExecutor(**defaults)
+    return KsiContainerExecutor(**defaults)
 
 
 def test_cross_task_r1_response_poll_timeout_outlives_forum_timeout(tmp_path):
-    from kcsi.orchestrator.forum_phase import _cross_task_coordinator_timeout_sec
+    from ksi.orchestrator.forum_phase import _cross_task_coordinator_timeout_sec
 
     executor = _make_polyglot_executor(tmp_path)
     payload_path = tmp_path / "payload.json"
@@ -2566,7 +2566,7 @@ def test_cross_task_r1_response_poll_timeout_outlives_forum_timeout(tmp_path):
     assert poll_ms == 880_000
     assert poll_ms < container_timeout_ms, (poll_ms, container_timeout_ms)
     assert poll_ms > coord_timeout_ms, (poll_ms, coord_timeout_ms)
-    assert runner_env["KCSI_BARRIER_WORKSPACE_FILE"] == str(state["workspace_file"])
+    assert runner_env["KSI_BARRIER_WORKSPACE_FILE"] == str(state["workspace_file"])
     launch.assert_called_once()
 
 
@@ -2802,11 +2802,11 @@ def test_run_task_injects_polyglot_test_feedback_into_payload_and_launches_watch
 
     with (
         patch(
-            "kcsi.runtime.container_host._run_command_with_backstop",
+            "ksi.runtime.container_host._run_command_with_backstop",
             side_effect=fake_run,
         ),
         patch.object(
-            KcsiContainerExecutor,
+            KsiContainerExecutor,
             "_launch_polyglot_test_feedback_watcher",
             return_value=fake_watcher,
         ) as mock_launch,
@@ -2836,7 +2836,7 @@ def test_run_task_injects_polyglot_test_feedback_into_payload_and_launches_watch
 
     # runner_env carries the barrier workspace file for the watcher to poll.
     assert captured_env[0] is not None
-    assert "KCSI_BARRIER_WORKSPACE_FILE" in captured_env[0]
+    assert "KSI_BARRIER_WORKSPACE_FILE" in captured_env[0]
 
     # The watcher must be stopped once the runner subprocess completes.
     fake_watcher.stop.assert_called_once()
@@ -2874,10 +2874,10 @@ def test_run_task_wires_both_phase1_reflection_and_polyglot_test_feedback(tmp_pa
         )
 
     with (
-        patch("kcsi.runtime.container_host._run_command_with_backstop", side_effect=fake_run),
-        patch.object(KcsiContainerExecutor, "_launch_phase1_watcher", return_value=fake_phase1_watcher),
+        patch("ksi.runtime.container_host._run_command_with_backstop", side_effect=fake_run),
+        patch.object(KsiContainerExecutor, "_launch_phase1_watcher", return_value=fake_phase1_watcher),
         patch.object(
-            KcsiContainerExecutor,
+            KsiContainerExecutor,
             "_launch_polyglot_test_feedback_watcher",
             return_value=fake_polyglot_watcher,
         ),
@@ -2944,9 +2944,9 @@ def test_run_task_reuses_cached_polyglot_eval_when_final_eval_matches_output(tmp
         )
 
     with (
-        patch("kcsi.runtime.container_host._run_command_with_backstop", side_effect=fake_run),
+        patch("ksi.runtime.container_host._run_command_with_backstop", side_effect=fake_run),
         patch.object(
-            KcsiContainerExecutor,
+            KsiContainerExecutor,
             "_launch_polyglot_test_feedback_watcher",
             return_value=fake_watcher,
         ),
@@ -3004,9 +3004,9 @@ def test_run_task_does_not_reuse_cached_polyglot_eval_when_final_eval_does_not_m
         )
 
     with (
-        patch("kcsi.runtime.container_host._run_command_with_backstop", side_effect=fake_run),
+        patch("ksi.runtime.container_host._run_command_with_backstop", side_effect=fake_run),
         patch.object(
-            KcsiContainerExecutor,
+            KsiContainerExecutor,
             "_launch_polyglot_test_feedback_watcher",
             return_value=fake_watcher,
         ),
@@ -3036,11 +3036,11 @@ def test_run_task_does_not_inject_polyglot_test_feedback_for_non_polyglot(tmp_pa
 
     with (
         patch(
-            "kcsi.runtime.container_host._run_command_with_backstop",
+            "ksi.runtime.container_host._run_command_with_backstop",
             side_effect=fake_run,
         ),
         patch.object(
-            KcsiContainerExecutor,
+            KsiContainerExecutor,
             "_launch_polyglot_test_feedback_watcher",
         ) as mock_launch,
     ):

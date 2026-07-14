@@ -1,6 +1,6 @@
 # Programmatic API
 
-The CLI (`uv run python -m kcsi.cli`) is one front door; `kcsi.run(...)` is
+The CLI (`uv run python -m ksi.cli`) is one front door; `ksi.run(...)` is
 the other. Use it to drive a generational run from Python or a notebook without
 argparse.
 
@@ -8,21 +8,21 @@ argparse.
 import os
 from pathlib import Path
 
-import kcsi
-from kcsi.benchmarks import ArcSessionEvaluator
-from kcsi.runtime import KcsiContainerExecutor
-from kcsi.runtime.llm import build_llm_caller
-from kcsi.tasks.loaders import load_tasks_for_source
+import ksi
+from ksi.benchmarks import ArcSessionEvaluator
+from ksi.runtime import KsiContainerExecutor
+from ksi.runtime.llm import build_llm_caller
+from ksi.tasks.loaders import load_tasks_for_source
 
 tasks = load_tasks_for_source(task_source="arc", tasks_path=my_tasks_path)
 
 knowledge_db_path = str(Path("runtime_state") / "programmatic_api_knowledge.sqlite")
-config = kcsi.GenerationConfig(num_generations=1, num_agents=1, knowledge_db_path=knowledge_db_path)
+config = ksi.GenerationConfig(num_generations=1, num_agents=1, knowledge_db_path=knowledge_db_path)
 llm = build_llm_caller(provider="anthropic", model="claude-sonnet-4-6")
 evaluator = ArcSessionEvaluator()
 
 # Provider env is REQUIRED — the container host validates provider auth and
-# raises before running if it is missing. Unlike the CLI, `kcsi.run` does NOT
+# raises before running if it is missing. Unlike the CLI, `ksi.run` does NOT
 # load a provider profile for you, so pass the env explicitly. This minimal
 # dict is what the anthropic/api path needs; supply your own key via the
 # environment (e.g. `export ANTHROPIC_API_KEY=...`).
@@ -33,14 +33,14 @@ provider_env = {
     "ANTHROPIC_API_KEY": os.environ["ANTHROPIC_API_KEY"],
 }
 
-runtime = KcsiContainerExecutor(
+runtime = KsiContainerExecutor(
     command=["npx", "--yes", "--prefix", "runtime_runner", "tsx", "runtime_runner/src/main.ts"],
     working_dir=".",
     knowledge_db_path=config.knowledge_db_path,
     env=provider_env,
 )
 
-traces = kcsi.run(config, tasks, runtime=runtime, evaluator=evaluator, llm=llm)
+traces = ksi.run(config, tasks, runtime=runtime, evaluator=evaluator, llm=llm)
 ```
 
 For OpenAI, use `{"MODEL_PROVIDER": "openai", "MODEL": "gpt-5.4-mini",
@@ -50,18 +50,18 @@ For OpenAI, use `{"MODEL_PROVIDER": "openai", "MODEL": "gpt-5.4-mini",
 
 Rather than hand-building this dict, you can reuse the exact helper the CLI
 uses to load a [provider profile](./glossary.md#provider-profile) — the local
-`.env.*` files under `configs/kcsi/` (copy a committed `*.template`, add your
+`.env.*` files under `configs/ksi/` (copy a committed `*.template`, add your
 real key, keep it untracked; same files `--provider-profile` reads):
 
 ```python
-from kcsi.providers import load_provider_profile
+from ksi.providers import load_provider_profile
 
-provider_env = load_provider_profile("configs/kcsi/.env.sonnet")
-runtime = KcsiContainerExecutor(..., knowledge_db_path=config.knowledge_db_path, env=provider_env)
+provider_env = load_provider_profile("configs/ksi/.env.sonnet")
+runtime = KsiContainerExecutor(..., knowledge_db_path=config.knowledge_db_path, env=provider_env)
 ```
 
 A complete runnable script is in
-[`examples/programmatic/run_arc_demo.py`](https://github.com/recursive-knowledge/KCSI/blob/main/examples/programmatic/run_arc_demo.py).
+[`examples/programmatic/run_arc_demo.py`](https://github.com/recursive-knowledge/KSI/blob/main/examples/programmatic/run_arc_demo.py).
 
 `GenerationConfig` requires `num_generations` and `num_agents`; pass those
 explicitly, so the minimal valid form is
@@ -77,7 +77,7 @@ container/LLM cost, e.g.
 To disable forums programmatically, zero both `per_task_forum_rounds` and
 `cross_task_forum_rounds`. (The legacy `forum_rounds` field was removed along
 with the `--forum-rounds` CLI flag, which now hard-errors.)
-One migration note: `experiment_name` now defaults to `"kcsi"` everywhere
+One migration note: `experiment_name` now defaults to `"ksi"` everywhere
 (previously the programmatic default was `"default"` and the CLI default was
 `"swarms_v2"`). Resuming an experiment created under either old default
 requires passing the old name explicitly (`experiment_name="default"` or
@@ -86,7 +86,7 @@ name, finds nothing, and starts fresh.
 
 ## The contract
 
-`kcsi.run(config, tasks, *, runtime, evaluator, llm, persistence=None,
+`ksi.run(config, tasks, *, runtime, evaluator, llm, persistence=None,
 working_dir=".") -> list[TaskTrace]` is a thin, behavior-preserving wrapper
 around `GenerationalOrchestrator(...).run(tasks=...)` — the orchestrator
 construction and run match the CLI path. CLI-only conveniences are not applied:
@@ -99,14 +99,14 @@ explicit about what it depends on.
 
 | Piece | Where | Notes |
 |-------|-------|-------|
-| `run` | `kcsi.run` | the entry point |
-| `GenerationConfig` | `kcsi.GenerationConfig` | run parameters |
-| `GenerationalOrchestrator` | `kcsi.GenerationalOrchestrator` | the engine (use `run` instead of constructing directly unless you need to) |
-| LLM caller | `kcsi.runtime.llm.build_llm_caller` | provider/model → `LLMCaller` |
-| Evaluators | `kcsi.eval` (`NoopEvaluator`) / `kcsi.benchmarks` (e.g. `ArcSessionEvaluator`) | or build via the [evaluator registry](./adding_an_evaluator.md) |
-| Runtimes | `kcsi.runtime.KcsiContainerExecutor` | or build via the runtime registry |
-| Tasks | `kcsi.tasks.loaders.load_tasks_for_source` | or construct `TaskSpec(...)` directly |
-| Persistence/callbacks | `kcsi.protocols.PersistenceObserver` | optional; the CLI's `SqlitePersistence` is one implementation |
+| `run` | `ksi.run` | the entry point |
+| `GenerationConfig` | `ksi.GenerationConfig` | run parameters |
+| `GenerationalOrchestrator` | `ksi.GenerationalOrchestrator` | the engine (use `run` instead of constructing directly unless you need to) |
+| LLM caller | `ksi.runtime.llm.build_llm_caller` | provider/model → `LLMCaller` |
+| Evaluators | `ksi.eval` (`NoopEvaluator`) / `ksi.benchmarks` (e.g. `ArcSessionEvaluator`) | or build via the [evaluator registry](./adding_an_evaluator.md) |
+| Runtimes | `ksi.runtime.KsiContainerExecutor` | or build via the runtime registry |
+| Tasks | `ksi.tasks.loaders.load_tasks_for_source` | or construct `TaskSpec(...)` directly |
+| Persistence/callbacks | `ksi.protocols.PersistenceObserver` | optional; the CLI's `SqlitePersistence` is one implementation |
 
 ## Custom tasks
 
@@ -115,8 +115,8 @@ built-in `custom` task source as for any benchmark — swap `task_source="arc"`
 + `ArcSessionEvaluator` for `task_source="custom"` + `CommandEvaluator`:
 
 ```python
-from kcsi.eval.command import CommandEvaluator
-from kcsi.tasks.loaders import load_tasks_for_source
+from ksi.eval.command import CommandEvaluator
+from ksi.tasks.loaders import load_tasks_for_source
 
 tasks = load_tasks_for_source(task_source="custom", tasks_path="tasks.jsonl")
 evaluator = CommandEvaluator()
@@ -130,12 +130,12 @@ construct `TaskSpec` objects directly. See
 
 ## Typed package
 
-`kcsi` ships a PEP 561 `py.typed` marker, so type checkers (mypy/pyright) see
+`ksi` ships a PEP 561 `py.typed` marker, so type checkers (mypy/pyright) see
 its annotations when you build on the public API.
 
 ## Prerequisites
 
-`kcsi.run` executes agents in containers, so the same prerequisites as the CLI
-apply: Docker running, the `kcsi-agent:bench` image built, runtime_runner Node
+`ksi.run` executes agents in containers, so the same prerequisites as the CLI
+apply: Docker running, the `ksi-agent:bench` image built, runtime_runner Node
 deps installed, and a provider API key in the environment. See the
-[README](https://github.com/recursive-knowledge/KCSI/blob/main/README.md) and [docs/architecture.md](./architecture.md).
+[README](https://github.com/recursive-knowledge/KSI/blob/main/README.md) and [docs/architecture.md](./architecture.md).

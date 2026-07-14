@@ -6,8 +6,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from kcsi.runtime.llm import AnthropicLLMCaller, OpenAILLMCaller
-from kcsi.tokens import LLMResponse
+from ksi.runtime.llm import AnthropicLLMCaller, OpenAILLMCaller
+from ksi.tokens import LLMResponse
 
 
 def test_call_returns_text_and_usage():
@@ -16,7 +16,7 @@ def test_call_returns_text_and_usage():
     mock_response.usage.input_tokens = 10
     mock_response.usage.output_tokens = 5
 
-    with patch("kcsi.runtime.llm.anthropic") as mock_anthropic:
+    with patch("ksi.runtime.llm.anthropic") as mock_anthropic:
         mock_client = MagicMock()
         mock_client.messages.create.return_value = mock_response
         mock_anthropic.Anthropic.return_value = mock_client
@@ -37,7 +37,7 @@ def test_call_json_mode():
     mock_response.usage.input_tokens = 20
     mock_response.usage.output_tokens = 10
 
-    with patch("kcsi.runtime.llm.anthropic") as mock_anthropic:
+    with patch("ksi.runtime.llm.anthropic") as mock_anthropic:
         mock_client = MagicMock()
         mock_client.messages.create.return_value = mock_response
         mock_anthropic.Anthropic.return_value = mock_client
@@ -49,10 +49,10 @@ def test_call_json_mode():
 
 
 def test_anthropic_client_uses_sdk_timeout_and_retries(monkeypatch):
-    monkeypatch.setenv("KCSI_ANTHROPIC_TIMEOUT_SEC", "17")
-    monkeypatch.setenv("KCSI_DIRECT_LLM_MAX_RETRIES", "4")
+    monkeypatch.setenv("KSI_ANTHROPIC_TIMEOUT_SEC", "17")
+    monkeypatch.setenv("KSI_DIRECT_LLM_MAX_RETRIES", "4")
 
-    with patch("kcsi.runtime.llm.anthropic") as mock_anthropic:
+    with patch("ksi.runtime.llm.anthropic") as mock_anthropic:
         AnthropicLLMCaller(model="claude-sonnet-4-20250514")
 
     assert mock_anthropic.Anthropic.call_args.kwargs["timeout"] == 17
@@ -60,10 +60,10 @@ def test_anthropic_client_uses_sdk_timeout_and_retries(monkeypatch):
 
 
 def test_openai_client_uses_sdk_timeout_and_retries(monkeypatch):
-    monkeypatch.setenv("KCSI_OPENAI_TIMEOUT_SEC", "23")
-    monkeypatch.setenv("KCSI_DIRECT_LLM_MAX_RETRIES", "3")
+    monkeypatch.setenv("KSI_OPENAI_TIMEOUT_SEC", "23")
+    monkeypatch.setenv("KSI_DIRECT_LLM_MAX_RETRIES", "3")
 
-    with patch("kcsi.runtime.llm.OpenAI") as mock_openai:
+    with patch("ksi.runtime.llm.OpenAI") as mock_openai:
         OpenAILLMCaller(model="gpt-5.4-mini")
 
     assert mock_openai.call_args.kwargs["timeout"] == 23
@@ -85,7 +85,7 @@ def test_anthropic_system_is_block_form_with_cache_control():
     mock_response.usage.input_tokens = 1
     mock_response.usage.output_tokens = 1
 
-    with patch("kcsi.runtime.llm.anthropic") as mock_anthropic:
+    with patch("ksi.runtime.llm.anthropic") as mock_anthropic:
         mock_client = MagicMock()
         mock_client.messages.create.return_value = mock_response
         mock_anthropic.Anthropic.return_value = mock_client
@@ -123,7 +123,7 @@ def test_openai_passes_prompt_cache_key_pinned_to_system():
     mock_response.usage.output_tokens = 1
     mock_response.usage.input_tokens_details = None
 
-    with patch("kcsi.runtime.llm.OpenAI") as mock_openai:
+    with patch("ksi.runtime.llm.OpenAI") as mock_openai:
         mock_client = MagicMock()
         mock_client.responses.create.return_value = mock_response
         mock_openai.return_value = mock_client
@@ -159,7 +159,7 @@ def test_openai_prompt_cache_key_excludes_user_content():
     mock_response.usage.output_tokens = 1
     mock_response.usage.input_tokens_details = None
 
-    with patch("kcsi.runtime.llm.OpenAI") as mock_openai:
+    with patch("ksi.runtime.llm.OpenAI") as mock_openai:
         mock_client = MagicMock()
         mock_client.responses.create.return_value = mock_response
         mock_openai.return_value = mock_client
@@ -186,7 +186,7 @@ def test_anthropic_cache_prefix_adds_cached_user_block():
     mock_response.usage.input_tokens = 1
     mock_response.usage.output_tokens = 1
 
-    with patch("kcsi.runtime.llm.anthropic") as mock_anthropic:
+    with patch("ksi.runtime.llm.anthropic") as mock_anthropic:
         mock_client = MagicMock()
         mock_client.messages.create.return_value = mock_response
         mock_anthropic.Anthropic.return_value = mock_client
@@ -211,7 +211,7 @@ def test_anthropic_no_cache_prefix_keeps_plain_user_string():
     mock_response.usage.input_tokens = 1
     mock_response.usage.output_tokens = 1
 
-    with patch("kcsi.runtime.llm.anthropic") as mock_anthropic:
+    with patch("ksi.runtime.llm.anthropic") as mock_anthropic:
         mock_client = MagicMock()
         mock_client.messages.create.return_value = mock_response
         mock_anthropic.Anthropic.return_value = mock_client
@@ -233,7 +233,7 @@ def test_openai_cache_prefix_splits_input_and_keys_cache():
     mock_response.usage.output_tokens = 1
     mock_response.usage.input_tokens_details = None
 
-    with patch("kcsi.runtime.llm.OpenAI") as mock_openai:
+    with patch("ksi.runtime.llm.OpenAI") as mock_openai:
         mock_client = MagicMock()
         mock_client.responses.create.return_value = mock_response
         mock_openai.return_value = mock_client
@@ -264,7 +264,7 @@ def test_anthropic_cache_blocks_moving_breakpoint():
     mock_response.usage.input_tokens = 1
     mock_response.usage.output_tokens = 1
 
-    with patch("kcsi.runtime.llm.anthropic") as mock_anthropic:
+    with patch("ksi.runtime.llm.anthropic") as mock_anthropic:
         mock_client = MagicMock()
         mock_client.messages.create.return_value = mock_response
         mock_anthropic.Anthropic.return_value = mock_client
@@ -301,7 +301,7 @@ def test_openai_cache_blocks_appended_before_tail_key_system_only():
     mock_response.usage.output_tokens = 1
     mock_response.usage.input_tokens_details = None
 
-    with patch("kcsi.runtime.llm.OpenAI") as mock_openai:
+    with patch("ksi.runtime.llm.OpenAI") as mock_openai:
         mock_client = MagicMock()
         mock_client.responses.create.return_value = mock_response
         mock_openai.return_value = mock_client
@@ -339,7 +339,7 @@ def test_anthropic_json_schema_uses_tool_forcing_and_returns_parsed():
     mock_response.usage.input_tokens = 12
     mock_response.usage.output_tokens = 8
 
-    with patch("kcsi.runtime.llm.anthropic") as mock_anthropic:
+    with patch("ksi.runtime.llm.anthropic") as mock_anthropic:
         mock_client = MagicMock()
         mock_client.messages.create.return_value = mock_response
         mock_anthropic.Anthropic.return_value = mock_client
@@ -367,7 +367,7 @@ def test_anthropic_without_json_schema_returns_unparsed_response():
     mock_response.usage.input_tokens = 3
     mock_response.usage.output_tokens = 2
 
-    with patch("kcsi.runtime.llm.anthropic") as mock_anthropic:
+    with patch("ksi.runtime.llm.anthropic") as mock_anthropic:
         mock_client = MagicMock()
         mock_client.messages.create.return_value = mock_response
         mock_anthropic.Anthropic.return_value = mock_client
@@ -392,7 +392,7 @@ def test_openai_json_schema_sets_text_format_and_returns_parsed():
     mock_response.usage.output_tokens = 4
     mock_response.usage.input_tokens_details = None
 
-    with patch("kcsi.runtime.llm.OpenAI") as mock_openai:
+    with patch("ksi.runtime.llm.OpenAI") as mock_openai:
         mock_client = MagicMock()
         mock_client.responses.create.return_value = mock_response
         mock_openai.return_value = mock_client
@@ -425,7 +425,7 @@ def test_openai_json_schema_falls_back_to_output_text_parse():
     mock_response.usage.output_tokens = 4
     mock_response.usage.input_tokens_details = None
 
-    with patch("kcsi.runtime.llm.OpenAI") as mock_openai:
+    with patch("ksi.runtime.llm.OpenAI") as mock_openai:
         mock_client = MagicMock()
         mock_client.responses.create.return_value = mock_response
         mock_openai.return_value = mock_client
@@ -458,7 +458,7 @@ def test_call_returns_llmresponse_on_both_paths():
     mock_response.usage.output_tokens = 4
     mock_response.usage.input_tokens_details = None
 
-    with patch("kcsi.runtime.llm.OpenAI") as mock_openai:
+    with patch("ksi.runtime.llm.OpenAI") as mock_openai:
         mock_client = MagicMock()
         mock_client.responses.create.return_value = mock_response
         mock_openai.return_value = mock_client
@@ -479,11 +479,11 @@ def test_call_returns_llmresponse_on_both_paths():
 
 
 def test_provider_error_is_not_retried_by_outer_wrapper(monkeypatch):
-    with patch("kcsi.runtime.llm.anthropic") as mock_anthropic:
+    with patch("ksi.runtime.llm.anthropic") as mock_anthropic:
         mock_client = MagicMock()
         mock_client.messages.create.side_effect = TimeoutError("request timed out")
         mock_anthropic.Anthropic.return_value = mock_client
-        monkeypatch.setenv("KCSI_DIRECT_LLM_MAX_RETRIES", "2")
+        monkeypatch.setenv("KSI_DIRECT_LLM_MAX_RETRIES", "2")
 
         caller = AnthropicLLMCaller(model="claude-sonnet-4-20250514")
 
@@ -505,7 +505,7 @@ def test_openai_request_never_includes_seed():
     mock_response.usage.output_tokens = 1
     mock_response.usage.input_tokens_details = None
 
-    with patch("kcsi.runtime.llm.OpenAI") as mock_openai:
+    with patch("ksi.runtime.llm.OpenAI") as mock_openai:
         mock_client = MagicMock()
         mock_client.responses.create.return_value = mock_response
         mock_openai.return_value = mock_client
@@ -538,14 +538,14 @@ def test_openai_responses_create_still_has_no_seed_param():
 def test_build_llm_caller_openai_warns_on_nonzero_seed(caplog):
     """Mirrors the Anthropic branch: a non-zero seed on the OpenAI provider
     warns that it will be ignored; the default seed=0 stays quiet."""
-    from kcsi.runtime.llm import build_llm_caller
+    from ksi.runtime.llm import build_llm_caller
 
-    with caplog.at_level("WARNING", logger="kcsi.runtime.llm"):
+    with caplog.at_level("WARNING", logger="ksi.runtime.llm"):
         build_llm_caller(provider="openai", model="gpt-4o-mini", api_key="x", seed=42)
     assert any("seed=42" in r.message and "OpenAI Responses API" in r.message for r in caplog.records)
 
     caplog.clear()
-    with caplog.at_level("WARNING", logger="kcsi.runtime.llm"):
+    with caplog.at_level("WARNING", logger="ksi.runtime.llm"):
         build_llm_caller(provider="openai", model="gpt-4o-mini", api_key="x", seed=0)
     assert not caplog.records
 
@@ -555,7 +555,7 @@ def test_build_llm_caller_rejects_unknown_provider():
     returning an Anthropic caller that would 401 at call time."""
     import pytest
 
-    from kcsi.runtime.llm import build_llm_caller
+    from ksi.runtime.llm import build_llm_caller
 
     with pytest.raises(ValueError):
         build_llm_caller(provider="gemini", model="x", api_key="x")
@@ -563,7 +563,7 @@ def test_build_llm_caller_rejects_unknown_provider():
 
 def test_build_llm_caller_provider_aliases():
     """'anthropic', 'claude', and '' map to Anthropic; 'openai' to OpenAI."""
-    from kcsi.runtime.llm import AnthropicLLMCaller, OpenAILLMCaller, build_llm_caller
+    from ksi.runtime.llm import AnthropicLLMCaller, OpenAILLMCaller, build_llm_caller
 
     for p in ("anthropic", "claude", "", "ANTHROPIC"):
         assert isinstance(build_llm_caller(provider=p, model="m", api_key="x"), AnthropicLLMCaller)

@@ -9,8 +9,8 @@
 import { ContainerOutput } from './shared_types.js';
 
 // Sentinel markers for robust output parsing (must match agent-runner)
-export const OUTPUT_START_MARKER = '---KCSI_OUTPUT_START---';
-export const OUTPUT_END_MARKER = '---KCSI_OUTPUT_END---';
+export const OUTPUT_START_MARKER = '---KSI_OUTPUT_START---';
+export const OUTPUT_END_MARKER = '---KSI_OUTPUT_END---';
 
 export function outputHasExpectedNonce(
   output: ContainerOutput,

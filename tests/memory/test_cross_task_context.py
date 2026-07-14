@@ -1,4 +1,4 @@
-from kcsi.memory.cross_task_context import (
+from ksi.memory.cross_task_context import (
     _backbone_indices,
     _norm_tokens,
     approx_token_count,
@@ -61,7 +61,7 @@ def test_backbone_priority_key_selects_most_relevant_post_per_generation():
 
 
 def test_backbone_reexport_still_importable_from_cross_task():
-    from kcsi.distillation.cross_task import _backbone_indices, _select_cross_posts_for_budget
+    from ksi.distillation.cross_task import _backbone_indices, _select_cross_posts_for_budget
 
     assert callable(_backbone_indices)
     assert callable(_select_cross_posts_for_budget)

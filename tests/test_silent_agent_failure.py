@@ -23,11 +23,11 @@ propagated through ``parse_runner_stdout`` → engine → attempts table with
 ``status='success'``.
 
 Fix surface (tested here):
-  * ``kcsi.runtime.normalize.is_silent_agent_failure`` -- detects the
+  * ``ksi.runtime.normalize.is_silent_agent_failure`` -- detects the
     "success + 0 tokens + empty trace + empty output" fingerprint.
-  * ``kcsi.runtime.normalize.parse_runner_stdout`` -- reclassifies the
+  * ``ksi.runtime.normalize.parse_runner_stdout`` -- reclassifies the
     runtime_meta.status to ``silent_failure`` and adds an ``error`` message.
-  * ``kcsi.runtime.container_host.KcsiContainerExecutor.run_task`` --
+  * ``ksi.runtime.container_host.KsiContainerExecutor.run_task`` --
     raises ``RuntimeError`` when the reclassified status is observed, so
     the engine's ``_eval_stage`` catches it and records ``error_text`` on
     the attempt row (engine path exercised indirectly here).
@@ -39,14 +39,14 @@ import json
 
 import pytest
 
-from kcsi.runtime.normalize import (
+from ksi.runtime.normalize import (
     SILENT_FAILURE_MESSAGE,
     SILENT_FAILURE_STATUS,
     is_silent_agent_failure,
     mark_silent_failure,
     parse_runner_stdout,
 )
-from kcsi.tokens import TokenUsage
+from ksi.tokens import TokenUsage
 
 
 def _silent_stdout_like_real_sweep() -> str:
@@ -259,7 +259,7 @@ class TestParseRunnerStdoutSilentFailure:
 
 
 class TestContainerHostRaisesOnSilentFailure:
-    """End-to-end: container_host.KcsiContainerExecutor.run_task must
+    """End-to-end: container_host.KsiContainerExecutor.run_task must
     raise RuntimeError when the outer envelope matches the silent-failure
     fingerprint, so the engine can catch it and record error_text."""
 
@@ -267,8 +267,8 @@ class TestContainerHostRaisesOnSilentFailure:
         import subprocess
         import types
 
-        from kcsi.runtime import container_host as host_mod
-        from kcsi.runtime.container_host import KcsiContainerExecutor
+        from ksi.runtime import container_host as host_mod
+        from ksi.runtime.container_host import KsiContainerExecutor
 
         fake_env = {
             "MODEL_PROVIDER": "anthropic",
@@ -276,7 +276,7 @@ class TestContainerHostRaisesOnSilentFailure:
             "MODEL": "claude-haiku-4-5-20251001",
             "ANTHROPIC_API_KEY": "sk-ant-test-placeholder",
         }
-        executor = KcsiContainerExecutor(
+        executor = KsiContainerExecutor(
             command=["/bin/true"],
             working_dir=str(tmp_path),
             timeout_sec=60,
@@ -297,7 +297,7 @@ class TestContainerHostRaisesOnSilentFailure:
         return executor, host_mod
 
     def test_run_task_raises_on_silent_failure(self, tmp_path, monkeypatch):
-        from kcsi.models import TaskSpec
+        from ksi.models import TaskSpec
 
         stdout = _silent_stdout_like_real_sweep()
         executor, _host_mod = self._build_executor(tmp_path, stdout=stdout)
@@ -322,7 +322,7 @@ class TestContainerHostRaisesOnSilentFailure:
         assert "55783887" in str(excinfo.value)
 
     def test_run_task_succeeds_on_healthy_output(self, tmp_path):
-        from kcsi.models import TaskSpec
+        from ksi.models import TaskSpec
 
         stdout = json.dumps(
             {

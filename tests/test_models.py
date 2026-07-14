@@ -1,6 +1,6 @@
 """Tests for core data models."""
 
-from kcsi.models import (
+from ksi.models import (
     AgentState,
     Assignment,
     GenerationConfig,

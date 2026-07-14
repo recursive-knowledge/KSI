@@ -3,9 +3,9 @@ from pathlib import Path
 
 import pytest
 
-from kcsi.tasks.custom import load_custom_tasks, validate_custom_tasks_path
-from kcsi.tasks.loaders import load_tasks_for_source
-from kcsi.tasks.registry import resolve_source
+from ksi.tasks.custom import load_custom_tasks, validate_custom_tasks_path
+from ksi.tasks.loaders import load_tasks_for_source
+from ksi.tasks.registry import resolve_source
 
 
 def _write_jsonl(path: Path, records: list[dict]) -> Path:
@@ -138,7 +138,7 @@ def test_absolute_workspace_dir(tmp_path):
 
 
 def test_temp_seed_dirs_registered_for_cleanup(tmp_path):
-    from kcsi.tasks import custom as custom_mod
+    from ksi.tasks import custom as custom_mod
 
     tasks_file = _write_jsonl(
         tmp_path / "t.jsonl",

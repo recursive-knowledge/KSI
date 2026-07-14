@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from kcsi.models import TaskSpec
-from kcsi.prompts import build_execution_prompt, build_task_markdown
+from ksi.models import TaskSpec
+from ksi.prompts import build_execution_prompt, build_task_markdown
 
 
 def test_terminal_bench_2_prompt_contract_uses_native_files() -> None:
@@ -28,7 +28,7 @@ def test_terminal_bench_2_prompt_contract_uses_native_files() -> None:
     assert "Read the native `tb2/instruction.md` first" in prompt
     assert "No prior memory is provided for this run." in prompt
     assert "Read `tb2/task.toml` for task metadata" in prompt
-    assert "Treat the mounted KCSI workspace as task specification only" in prompt
+    assert "Treat the mounted KSI workspace as task specification only" in prompt
     assert "identify the real task surface quickly" in prompt
     assert "Do not spend many steps re-reading the overlay" in prompt
     assert "Prefer short mutate-then-check cycles" in prompt

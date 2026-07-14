@@ -4,8 +4,8 @@ This document covers preparation of static benchmark artifacts under
 `benchmarks/` plus generated benchmark inputs under `data/`. ARC has extra
 payload, prompt, workspace UI, and scorer-prep steps; Polyglot and SWE-bench
 Pro use dataset and task-map preparation. Runtime execution and evaluation for
-all benchmarks go through `kcsi.cli` and `kcsi.eval.*`; see
-[README.md](https://github.com/recursive-knowledge/KCSI/blob/main/README.md) and [benchmarks/README.md](https://github.com/recursive-knowledge/KCSI/blob/main/benchmarks/README.md)
+all benchmarks go through `ksi.cli` and `ksi.eval.*`; see
+[README.md](https://github.com/recursive-knowledge/KSI/blob/main/README.md) and [benchmarks/README.md](https://github.com/recursive-knowledge/KSI/blob/main/benchmarks/README.md)
 for those flows. Those documents describe the current knowledge-centric
 protocol; this page is limited to benchmark artifact preparation.
 
@@ -16,7 +16,7 @@ protocol; this page is limited to benchmark artifact preparation.
 | ARC-AGI-1 / ARC-AGI-2 | This document (task maps, payloads, prompts) | `README.md` direct CLI example and experiment scripts |
 | Polyglot      | This document (generated dataset + task maps) | `README.md` and `benchmarks/README.md` |
 | SWE-bench Pro | This document (dataset export + task map)     | `README.md` and `benchmarks/README.md` |
-| Terminal-Bench 2 | This document (submodule checkout + task maps) | Harbor-native task corpus with KCSI TB2 runtime/evaluator integration |
+| Terminal-Bench 2 | This document (submodule checkout + task maps) | Harbor-native task corpus with KSI TB2 runtime/evaluator integration |
 
 ## Directory layout
 
@@ -43,7 +43,7 @@ benchmarks/
     repo_cache/             pre-checked-out repos (gitignored)
   terminal_bench_2/
     source/                 git submodule checkout of harbor-framework/terminal-bench-2
-    task_maps/              KCSI-side TB2 subset manifests
+    task_maps/              KSI-side TB2 subset manifests
 ```
 
 Per-dataset inputs (task maps, cloned source trees) live under
@@ -91,51 +91,51 @@ Current status:
 
 - the upstream TB2 corpus is pinned locally under `benchmarks/terminal_bench_2/source`
 - task-map generation is supported in this repo
-- faithful execution is wired into `kcsi.cli` through the TB2-specific
+- faithful execution is wired into `ksi.cli` through the TB2-specific
   loader, executor, and evaluator path
-- official timeout contract: KCSI parses each task's `task.toml` at runtime
+- official timeout contract: KSI parses each task's `task.toml` at runtime
   and uses `[agent].timeout_sec` for the agent phase and
   `[verifier].timeout_sec` for the verifier phase. This matches Harbor's
   leaderboard-safe shape: upstream Harbor trial configs default to
   `timeout_multiplier = 1.0` with no agent/verifier override timeout fields
-  (KCSI leaves the multiplier unset rather than emitting a literal `1.0`, so a
-  KCSI submission does not carry that field). The timeout values copied into
-  KCSI task maps are
+  (KSI leaves the multiplier unset rather than emitting a literal `1.0`, so a
+  KSI submission does not carry that field). The timeout values copied into
+  KSI task maps are
   provenance metadata only; runtime rereads the authoritative `task.toml` and
   records `timeout_source = "task.toml"` in preflight and trial metadata.
 - runtime tunables (env vars):
-  - `KCSI_TB2_MAX_STEPS` (default: unlimited, matching canonical Terminus 2's
+  - `KSI_TB2_MAX_STEPS` (default: unlimited, matching canonical Terminus 2's
     `max_episodes=1_000_000`) — bridge loop step ceiling. Set to a positive
     integer to opt into a step cap for CI smoke tests; `0` is the sentinel
     for unlimited; negative or non-numeric values fall through to unlimited.
-  - `KCSI_TB2_NATIVE_TIMEOUT_SCALE` (default `1.0`, minimum `1.0`) —
+  - `KSI_TB2_NATIVE_TIMEOUT_SCALE` (default `1.0`, minimum `1.0`) —
     multiplier on the per-action timeout ceiling for the 5 native actions
     (`read`/`write`/`edit`/`glob`/`grep`). Base ceiling is 120s; set
     `=2.0` to allow 240s per native action when grepping large trees
     or copying large files via `edit`.
-  - `KCSI_TB2_BUILD_TIMEOUT_SEC` (default 1800s floor) — per-image build cap
+  - `KSI_TB2_BUILD_TIMEOUT_SEC` (default 1800s floor) — per-image build cap
     when pull falls back to build; raises only, never lowers. This is an
     image-acquisition tolerance, not an agent/verifier solve-time change. For
     leaderboard-comparable or publication runs, prefer pulled upstream images
-    (`KCSI_TB2_REQUIRE_PULL=1`) and retain the recorded image digest.
-  - `KCSI_TB2_DISABLE_PULL` (unset) — set to `1` to skip pull-first and
+    (`KSI_TB2_REQUIRE_PULL=1`) and retain the recorded image digest.
+  - `KSI_TB2_DISABLE_PULL` (unset) — set to `1` to skip pull-first and
     force a local build (for testing local Dockerfile changes)
-  - `KCSI_TB2_REQUIRE_PULL` (unset) — set to `1` to fail the trial rather than
+  - `KSI_TB2_REQUIRE_PULL` (unset) — set to `1` to fail the trial rather than
     fall back to a local image build when an upstream pull fails. Required-pull
     attempts use the outer `--max-task-retries` budget for transient registry
     failures; deterministic failures do not retry. Healthy sibling trials
     continue, but a generation where every dispatched trial fails during
     registry acquisition aborts after its failed traces are persisted.
-  - `KCSI_TB2_IMAGE_DIGEST_MANIFEST` (unset) — path to a JSON manifest that
+  - `KSI_TB2_IMAGE_DIGEST_MANIFEST` (unset) — path to a JSON manifest that
     pins expected upstream image digests. When set, every TB2 task must have a
     matching digest entry and the runtime aborts before the container starts if
     Docker reports a different registry digest. Supported shapes:
     `{"tasks":{"task-id":"repo/image@sha256:..."}}` or
     `{"images":{"repo/image:tag":"repo/image@sha256:..."}}`.
-  - `KCSI_TB2_KEEP_IMAGES` (default `1`) — retain content-addressed images
+  - `KSI_TB2_KEEP_IMAGES` (default `1`) — retain content-addressed images
     across trials so Docker's layer cache deduplicates work; set to `0` for
     ephemeral cleanup
-  - `KCSI_TB2_REQUIRE_TRUSTED_VERIFIER` (default `1`) — **fail closed**
+  - `KSI_TB2_REQUIRE_TRUSTED_VERIFIER` (default `1`) — **fail closed**
     on the verifier's trusted-toolchain hardening: if the trusted
     image-extracted `bash` cannot be injected (which a root agent can force by
     failing the in-container injection setup), the trial is left **unscored**
@@ -228,7 +228,7 @@ uv run python benchmarks/scripts/arc_prep/prepare_arc_native_prompts.py \
 Optional: `--output-dir <path>`. Default output is
 `benchmarks/arc/native_prompts/<benchmark>/<task_map_stem>/`.
 
-Requires `arc_agi_benchmarking` installed (not a runtime dep of `kcsi`);
+Requires `arc_agi_benchmarking` installed (not a runtime dep of `ksi`);
 the script will hint at cloning it under `benchmarks/arc/benchmarking/`
 if it cannot import it.
 
@@ -244,7 +244,7 @@ cd ../../..
 ## ARC workspace UI
 
 Static UI under `benchmarks/arc/workspace_ui/` (HTML + vanilla JS). See
-[`benchmarks/arc/workspace_ui/README.md`](https://github.com/recursive-knowledge/KCSI/blob/main/benchmarks/arc/workspace_ui/README.md)
+[`benchmarks/arc/workspace_ui/README.md`](https://github.com/recursive-knowledge/KSI/blob/main/benchmarks/arc/workspace_ui/README.md)
 for the full solver workflow. Quick summary:
 
 1. **Generate payloads** — see `benchmarks/scripts/arc_prep/prepare_arc_workspace_payloads.py`
@@ -316,17 +316,17 @@ selection. Set `POLYGLOT_SOURCE_COMMIT` (or pass `--source-commit`) only when
 you intentionally want a different upstream `polyglot-benchmark` checkout.
 
 Committed task maps under `benchmarks/polyglot/task_maps/` define stable task
-ID selections used by baseline adapters and transfer sweeps. The KCSI
+ID selections used by baseline adapters and transfer sweeps. The KSI
 Polyglot runner consumes the generated `data/polyglot_medium.json` dataset.
 
-Build the KCSI evaluator image before running Polyglot experiments:
+Build the KSI evaluator image before running Polyglot experiments:
 
 ```bash
-uv run python -c "from kcsi.benchmarks.polyglot_docker import build_image; build_image()"
+uv run python -c "from ksi.benchmarks.polyglot_docker import build_image; build_image()"
 ```
 
-`kcsi-polyglot-eval:latest` uses the exact HyperAgents `pb.base` Dockerfile
-recipe as its base and adds only the direct-harness tools KCSI needs because
+`ksi-polyglot-eval:latest` uses the exact HyperAgents `pb.base` Dockerfile
+recipe as its base and adds only the direct-harness tools KSI needs because
 it mounts generated task files into one shared image. Polyglot result artifacts
 include `polyglot_environment` labels for the image recipe and source.
 
@@ -341,7 +341,7 @@ access.
 Pin the upstream dataset revision with `--revision` (a HuggingFace git
 tag/branch/commit SHA) so the export is reproducible, and thread the same value
 through `--source-revision` so the task map records which snapshot it was built
-from. The KCSI default pin is
+from. The KSI default pin is
 `7ab5114912baf22bb098818e604c02fe7ad2c11f`; pass an empty string only for an
 explicit unpinned local experiment. A map generated without `--source-revision`
 still records `source_sha256` (used by the run-time integrity tripwire below)
@@ -364,7 +364,7 @@ uv run python benchmarks/scripts/dataprep/generate_swebench_pro_task_map.py \
 # map as --task-ids-file with --task-source swebench_pro re-hashes --tasks-path.
 # Maps that record source_revision fail closed on drift by default. Legacy maps
 # without source_revision warn by default; pass --strict-swebench-dataset-integrity,
-# or set KCSI_STRICT_SWEBENCH_DATASET_INTEGRITY=1, to fail closed for those too.
+# or set KSI_STRICT_SWEBENCH_DATASET_INTEGRITY=1, to fail closed for those too.
 # The standalone benchmarks/scripts/dataprep/validate_task_map.py check remains fail-closed.
 
 uv sync --extra swebench-pro
@@ -376,7 +376,7 @@ uv run python benchmarks/scripts/dataprep/setup_swebench_pro_evaluator.py
 > **Note — the committed `swebench_pro_test_50_seed0_v1.json` map records no
 > `source_revision`, but its `source_sha256` IS reproducible.** The map was
 > generated WITHOUT a pinned revision, from a dataset export that is now
-> gitignored and not in-tree. Exporting the test split at the KCSI default pin
+> gitignored and not in-tree. Exporting the test split at the KSI default pin
 > (`--revision 7ab5114912baf22bb098818e604c02fe7ad2c11f`, as shown above)
 > reproduces the recorded digest byte-for-byte
 > (`59cc275b33ee3477810bffe6d457e187c120c2075ed1ddbae026d9ef32619474`), verified
@@ -387,7 +387,7 @@ uv run python benchmarks/scripts/dataprep/setup_swebench_pro_evaluator.py
 > record a revision (`effective_strict = strict or source_revision is not None`).
 > Since the digest does reproduce, strict enforcement works today: pass
 > `--strict-swebench-dataset-integrity` (or set
-> `KCSI_STRICT_SWEBENCH_DATASET_INTEGRITY=1`) and the check verifies the hash and
+> `KSI_STRICT_SWEBENCH_DATASET_INTEGRITY=1`) and the check verifies the hash and
 > passes. Strict mode only refuses maps that record no `source_sha256` at all,
 > which is not the case here. To get a map that fails closed without a flag,
 > regenerate it with `--revision` / `--source-revision` pinned as shown above.
@@ -406,11 +406,11 @@ with a "would clobber existing tag" error.
 
 ## Polyglot and SWE-bench Pro execution
 
-Use `kcsi.cli` with the corresponding `--task-source` / `--evaluator`
-flags. Use `uv run python -m kcsi.cli --help` for the current flag surface
+Use `ksi.cli` with the corresponding `--task-source` / `--evaluator`
+flags. Use `uv run python -m ksi.cli --help` for the current flag surface
 and `benchmarks/README.md` for maintained wrapper commands.
 
-The `src/kcsi/eval/swebench_pro` adapter delegates to the pinned official
+The `src/ksi/eval/swebench_pro` adapter delegates to the pinned official
 SWE-bench Pro evaluator checkout prepared by
 `benchmarks/scripts/dataprep/setup_swebench_pro_evaluator.py`. The top-level
 `benchmarks/scripts/run_swebench_pro_eval.py` wrapper remains as the compatibility entry

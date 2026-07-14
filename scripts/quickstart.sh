@@ -8,14 +8,14 @@
 #   - a provider profile, synthesized from an ambient ANTHROPIC_API_KEY /
 #     OPENAI_API_KEY if you don't already have one (like GEPA reads the key
 #     from the environment);
-#   - the kcsi-agent:bench Docker image (built on first run if missing);
+#   - the ksi-agent:bench Docker image (built on first run if missing);
 #   - the host runtime_runner Node dependencies.
 # Then it runs a single minimal generation so the demo finishes in a few minutes.
 #
 # Usage:
 #   ANTHROPIC_API_KEY=sk-ant-... bash scripts/quickstart.sh
 #   OPENAI_API_KEY=sk-...        bash scripts/quickstart.sh
-#   PROFILE=configs/kcsi/.env.openai bash scripts/quickstart.sh
+#   PROFILE=configs/ksi/.env.openai bash scripts/quickstart.sh
 #
 # Env knobs:
 #   SKIP_BOOTSTRAP=1   don't build the image / install deps / synthesize a profile
@@ -26,25 +26,25 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-KCSI_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-cd "$KCSI_ROOT"
+KSI_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+cd "$KSI_ROOT"
 
-PROFILE="${PROFILE:-configs/kcsi/.env.haiku}"
+PROFILE="${PROFILE:-configs/ksi/.env.haiku}"
 TASKS_PATH="examples/custom_tasks/tasks.jsonl"
 EXPERIMENT_NAME="${EXPERIMENT_NAME:-quickstart_demo}"
-AGENT_IMAGE="kcsi-agent:bench"
+AGENT_IMAGE="ksi-agent:bench"
 
 # Prefer uv, but fall back to a plain interpreter so a `pip install`d package
 # (no uv) still works. uv is a convenience here, not a hard requirement.
 if command -v uv >/dev/null 2>&1; then
   PYRUN=(uv run python)
-  DOCTOR=(uv run kcsi-doctor)
+  DOCTOR=(uv run ksi-doctor)
 elif command -v python >/dev/null 2>&1; then
   PYRUN=(python)
-  DOCTOR=(python -m kcsi.doctor)
+  DOCTOR=(python -m ksi.doctor)
 elif command -v python3 >/dev/null 2>&1; then
   PYRUN=(python3)
-  DOCTOR=(python3 -m kcsi.doctor)
+  DOCTOR=(python3 -m ksi.doctor)
 else
   echo "ERROR: no uv or python found on PATH." >&2
   exit 1
@@ -54,7 +54,7 @@ fi
 synthesize_profile() {
   # Write a minimal provider profile from an ambient key if none usable exists.
   [[ -f "$PROFILE" ]] && return 0
-  local out="${QUICKSTART_PROFILE_OUT:-configs/kcsi/.env.quickstart}"
+  local out="${QUICKSTART_PROFILE_OUT:-configs/ksi/.env.quickstart}"
   mkdir -p "$(dirname "$out")"
   if [[ -n "${ANTHROPIC_API_KEY:-}" ]]; then
     cat > "$out" <<EOF
@@ -115,7 +115,7 @@ if [[ "${SKIP_BOOTSTRAP:-0}" != "1" ]]; then
 fi
 
 if [[ "${SKIP_DOCTOR:-0}" != "1" ]]; then
-  echo "==> Checking setup (kcsi-doctor)"
+  echo "==> Checking setup (ksi-doctor)"
   "${DOCTOR[@]}"
   echo
 fi
@@ -130,7 +130,7 @@ fi
 # Minimal canonical run: only the required flags plus one fast generation with
 # the discussion/distillation phases off, so the demo finishes quickly.
 CMD=(
-  "${PYRUN[@]}" -m kcsi.cli
+  "${PYRUN[@]}" -m ksi.cli
   --task-source custom
   --tasks-path "$TASKS_PATH"
   --evaluator command
@@ -155,4 +155,4 @@ fi
 echo
 echo "==> Done. Inspect results:"
 echo "    runtime_state/knowledge/${EXPERIMENT_NAME}/${EXPERIMENT_NAME}_knowledge.sqlite"
-echo "    /tmp/kcsi-experiments/${EXPERIMENT_NAME}.log"
+echo "    /tmp/ksi-experiments/${EXPERIMENT_NAME}.log"

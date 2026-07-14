@@ -1,7 +1,7 @@
 import { createEgressProxy, parseAllowlist } from './egress_proxy.js';
 
-const port = Number(process.env.KCSI_EGRESS_PROXY_PORT || 8080);
-const allowlist = parseAllowlist(process.env.KCSI_EGRESS_ALLOWLIST);
+const port = Number(process.env.KSI_EGRESS_PROXY_PORT || 8080);
+const allowlist = parseAllowlist(process.env.KSI_EGRESS_ALLOWLIST);
 
 const server = createEgressProxy(allowlist);
 server.on('error', (err) => {

@@ -18,15 +18,15 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from kcsi.memory.forum_bus import ForumBus
-from kcsi.memory.knowledge_store import KnowledgeStore
-from kcsi.orchestrator.engine import (
+from ksi.memory.forum_bus import ForumBus
+from ksi.memory.knowledge_store import KnowledgeStore
+from ksi.orchestrator.engine import (
     _drain_forum_bus,
     _run_retryable_forum_task,
 )
-from kcsi.runtime.normalize import SilentAgentRuntimeError
-from kcsi.runtime.types import RuntimeResult
-from kcsi.tokens import TokenUsage
+from ksi.runtime.normalize import SilentAgentRuntimeError
+from ksi.runtime.types import RuntimeResult
+from ksi.tokens import TokenUsage
 
 
 def _make_bus(tmp_path: Path, generation: int = 1) -> ForumBus:

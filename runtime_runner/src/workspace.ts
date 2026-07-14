@@ -5,7 +5,7 @@ import path from 'path';
 
 import { resolveWorkspaceRootPath } from './workspace_scope.js';
 
-import { KcsiPayload } from './types.js';
+import { KsiPayload } from './types.js';
 
 export const CONTAINER_WORKSPACE_ROOT = '/workspace/task';
 export const CONTAINER_ACTIVE_WORKSPACE_DIR = `${CONTAINER_WORKSPACE_ROOT}/workspace`;
@@ -34,7 +34,7 @@ export function safeExperimentDir(experimentName: string): string {
 }
 
 export function toWorkspaceKey(
-  payload: KcsiPayload,
+  payload: KsiPayload,
   scope: 'task' | 'agent',
 ): string {
   if (scope === 'agent') {
@@ -412,7 +412,7 @@ function computeRepoFingerprint(srcResolved: string): string {
 }
 
 export function seedWorkspace(
-  payload: KcsiPayload,
+  payload: KsiPayload,
   workspaceKey: string,
   wipeWorkspacePerTask: boolean,
 ): void {
@@ -501,7 +501,7 @@ export function seedWorkspace(
   }
 }
 
-export function buildPrompt(payload: KcsiPayload): string {
+export function buildPrompt(payload: KsiPayload): string {
   const instruction = (payload.execution_prompt || '').trim();
   const configuredRepoPath = String(payload.runtime?.repo_container_path || '').trim();
   const repoContainerPath = configuredRepoPath.startsWith('/')

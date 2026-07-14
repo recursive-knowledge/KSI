@@ -21,13 +21,13 @@ from unittest.mock import MagicMock, patch
 import pytest
 from conftest import _build_make_tasks, _build_mock_evaluator, _build_mock_llm, _build_mock_runtime
 
-from kcsi.cli import CompositePersistence, SqlitePersistence
-from kcsi.errors import AuthenticationFailure, WriteIndeterminateError
-from kcsi.memory.store import MemoryStore
-from kcsi.models import GenerationConfig, TaskTrace
-from kcsi.orchestrator.engine import GenerationalOrchestrator
-from kcsi.runtime.types import RuntimeResult
-from kcsi.tokens import LLMResponse, TokenUsage
+from ksi.cli import CompositePersistence, SqlitePersistence
+from ksi.errors import AuthenticationFailure, WriteIndeterminateError
+from ksi.memory.store import MemoryStore
+from ksi.models import GenerationConfig, TaskTrace
+from ksi.orchestrator.engine import GenerationalOrchestrator
+from ksi.runtime.types import RuntimeResult
+from ksi.tokens import LLMResponse, TokenUsage
 from tests.orchestrator_phase_helpers import per_task_forum
 
 
@@ -197,7 +197,7 @@ def test_sqlite_persistence_on_forum_message_store_construction_failure_retried(
     persist = SqlitePersistence(runtime_db_path="/nonexistent/unused.sqlite", experiment_name="exp")
     store = MagicMock()
 
-    with patch("kcsi.memory.store.MemoryStore", side_effect=[RuntimeError("disk full"), store]) as ctor:
+    with patch("ksi.memory.store.MemoryStore", side_effect=[RuntimeError("disk full"), store]) as ctor:
         with caplog.at_level(logging.WARNING):
             assert persist.on_forum_message(**_forum_kwargs()) is None
 
@@ -221,7 +221,7 @@ def test_sqlite_persistence_on_forum_message_store_construction_persistent_failu
     construction, so a broken store is never cached."""
     persist = SqlitePersistence(runtime_db_path="/nonexistent/unused.sqlite", experiment_name="exp")
 
-    with patch("kcsi.memory.store.MemoryStore", side_effect=RuntimeError("disk full")) as ctor:
+    with patch("ksi.memory.store.MemoryStore", side_effect=RuntimeError("disk full")) as ctor:
         with caplog.at_level(logging.WARNING):
             assert persist.on_forum_message(**_forum_kwargs()) is None
 
@@ -690,7 +690,7 @@ def test_share_runtime_store_adopts_engine_store_no_second_instance(tmp_path):
     try:
         persist = SqlitePersistence(runtime_db_path=str(db), experiment_name="exp")
         # No MemoryStore must be constructed during the share path.
-        with patch("kcsi.memory.store.MemoryStore", side_effect=AssertionError("should not construct")):
+        with patch("ksi.memory.store.MemoryStore", side_effect=AssertionError("should not construct")):
             persist.share_runtime_store(store)
             assert persist._store is store
             assert persist._borrowed_store is True

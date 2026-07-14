@@ -1,9 +1,9 @@
 {
-  "name": "kcsi-runtime-runner",
+  "name": "ksi-runtime-runner",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Host-side launcher for kcsi benchmark container runs",
+  "description": "Host-side launcher for ksi benchmark container runs",
   "engines": {
     "node": ">=22.16.0 <23"
   },

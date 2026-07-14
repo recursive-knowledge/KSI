@@ -1,7 +1,7 @@
 import typing
 
-from kcsi.protocols import ForumMessageContent, PersistenceObserver
-from kcsi.tokens import TokenUsageDict
+from ksi.protocols import ForumMessageContent, PersistenceObserver
+from ksi.tokens import TokenUsageDict
 
 
 def test_on_forum_message_uses_typed_payloads():

@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from kcsi.memory.knowledge_store import KnowledgeStore
+from ksi.memory.knowledge_store import KnowledgeStore
 
 
 def test_reply_to_column_exists_on_fresh_db():
@@ -135,7 +135,7 @@ def test_dangling_reply_to_tolerated_by_default(monkeypatch):
     don't resolve to a real row (see forum_runtime._coerce_post_ref). This must
     remain the default so posts are never dropped on normal runs.
     """
-    monkeypatch.delenv("KCSI_SQLITE_FOREIGN_KEYS", raising=False)
+    monkeypatch.delenv("KSI_SQLITE_FOREIGN_KEYS", raising=False)
     with tempfile.TemporaryDirectory() as tmp:
         ks = KnowledgeStore(str(Path(tmp) / "k.sqlite"), default_experiment="exp")
         try:
@@ -154,7 +154,7 @@ def test_dangling_reply_to_tolerated_by_default(monkeypatch):
 
 def test_reply_to_validation_raises_when_fk_enforced(monkeypatch):
     """FK enforcement ON: an app-level check raises on a dangling reply_to."""
-    monkeypatch.setenv("KCSI_SQLITE_FOREIGN_KEYS", "1")
+    monkeypatch.setenv("KSI_SQLITE_FOREIGN_KEYS", "1")
     with tempfile.TemporaryDirectory() as tmp:
         ks = KnowledgeStore(str(Path(tmp) / "k.sqlite"), default_experiment="exp")
         try:
@@ -172,7 +172,7 @@ def test_reply_to_validation_raises_when_fk_enforced(monkeypatch):
 
 def test_valid_reply_to_still_persists_when_fk_enforced(monkeypatch):
     """FK enforcement ON: a reply_to pointing at a real row still inserts."""
-    monkeypatch.setenv("KCSI_SQLITE_FOREIGN_KEYS", "1")
+    monkeypatch.setenv("KSI_SQLITE_FOREIGN_KEYS", "1")
     with tempfile.TemporaryDirectory() as tmp:
         ks = KnowledgeStore(str(Path(tmp) / "k.sqlite"), default_experiment="exp")
         try:
@@ -192,7 +192,7 @@ def test_valid_reply_to_still_persists_when_fk_enforced(monkeypatch):
 
 def test_fk_pragma_off_by_default(monkeypatch):
     """The PRAGMA is opt-in: default connections keep foreign_keys=OFF."""
-    monkeypatch.delenv("KCSI_SQLITE_FOREIGN_KEYS", raising=False)
+    monkeypatch.delenv("KSI_SQLITE_FOREIGN_KEYS", raising=False)
     with tempfile.TemporaryDirectory() as tmp:
         ks = KnowledgeStore(str(Path(tmp) / "k.sqlite"), default_experiment="exp")
         try:
@@ -208,7 +208,7 @@ def test_fk_pragma_on_when_flag_set_and_bad_fk_raises(monkeypatch):
     ``_ensure_run_locked`` resolution) — SQLite must reject it because
     ``run_id REFERENCES runs(id)`` is now enforced.
     """
-    monkeypatch.setenv("KCSI_SQLITE_FOREIGN_KEYS", "1")
+    monkeypatch.setenv("KSI_SQLITE_FOREIGN_KEYS", "1")
     with tempfile.TemporaryDirectory() as tmp:
         ks = KnowledgeStore(str(Path(tmp) / "k.sqlite"), default_experiment="exp")
         try:

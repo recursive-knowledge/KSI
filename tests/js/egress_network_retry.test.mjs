@@ -45,7 +45,7 @@ function runWithFakeDocker({ name, opts, calls }) {
 
 // Like runWithFakeDocker, but with an injected recording `sleeper` (so the
 // exponential-backoff schedule is observable without real sleeping) and
-// controllable child-process env (so the KCSI_EGRESS_NET_READY_* override
+// controllable child-process env (so the KSI_EGRESS_NET_READY_* override
 // parsing is exercised for real). Env keys default to '' (= unset for the
 // envInt fallback path) so the host machine's environment can't leak in.
 function runScenario({ name, opts = {}, calls, env = {} }) {
@@ -77,8 +77,8 @@ function runScenario({ name, opts = {}, calls, env = {} }) {
     encoding: 'utf-8',
     env: {
       ...process.env,
-      KCSI_EGRESS_NET_READY_ATTEMPTS: '',
-      KCSI_EGRESS_NET_READY_DELAY_MS: '',
+      KSI_EGRESS_NET_READY_ATTEMPTS: '',
+      KSI_EGRESS_NET_READY_DELAY_MS: '',
       ...env,
     },
   });
@@ -89,7 +89,7 @@ function runScenario({ name, opts = {}, calls, env = {} }) {
 describe('ensureEgressDockerNetwork retry behavior', () => {
   it('succeeds immediately when create+inspect both work on the first try', () => {
     const result = runWithFakeDocker({
-      name: 'kcsi-egress-ext-test',
+      name: 'ksi-egress-ext-test',
       opts: { requireInternal: false, attempts: 5 },
       calls: [
         { status: 0 }, // network create
@@ -102,7 +102,7 @@ describe('ensureEgressDockerNetwork retry behavior', () => {
 
   it('retries past a transient inspect failure and succeeds', () => {
     const result = runWithFakeDocker({
-      name: 'kcsi-egress-ext-test',
+      name: 'ksi-egress-ext-test',
       opts: { requireInternal: false, attempts: 5 },
       calls: [
         { status: 0 }, // attempt 1: create
@@ -117,7 +117,7 @@ describe('ensureEgressDockerNetwork retry behavior', () => {
 
   it('gives up and throws after exhausting all attempts', () => {
     const result = runWithFakeDocker({
-      name: 'kcsi-egress-ext-test',
+      name: 'ksi-egress-ext-test',
       opts: { requireInternal: false, attempts: 3 },
       calls: [{ status: 1 }],
     });
@@ -127,7 +127,7 @@ describe('ensureEgressDockerNetwork retry behavior', () => {
 
   it('requires the --internal flag to actually be set when requireInternal is true', () => {
     const result = runWithFakeDocker({
-      name: 'kcsi-egress-int-test',
+      name: 'ksi-egress-int-test',
       opts: { requireInternal: true, attempts: 2 },
       calls: [
         { status: 0 }, // create returns ok
@@ -144,7 +144,7 @@ describe('ensureEgressDockerNetwork backoff and env overrides (concurrent launch
 
   it('defaults to a 10-attempt budget when no attempts option or env override is given', () => {
     const result = runScenario({
-      name: 'kcsi-egress-int-test',
+      name: 'ksi-egress-int-test',
       opts: { requireInternal: true },
       calls: alwaysFail,
     });
@@ -156,7 +156,7 @@ describe('ensureEgressDockerNetwork backoff and env overrides (concurrent launch
 
   it('uses the exact default backoff schedule (300/600/1200/2400/4800 then capped at 5000) with no opts or env override', () => {
     const result = runScenario({
-      name: 'kcsi-egress-int-test',
+      name: 'ksi-egress-int-test',
       opts: { requireInternal: true },
       calls: alwaysFail,
     });
@@ -165,13 +165,13 @@ describe('ensureEgressDockerNetwork backoff and env overrides (concurrent launch
     assert.deepEqual(result.sleeps, [300, 600, 1200, 2400, 4800, 5000, 5000, 5000, 5000]);
   });
 
-  it('falls back to the default attempt budget on duration/scientific/zero/negative KCSI_EGRESS_NET_READY_ATTEMPTS values', () => {
+  it('falls back to the default attempt budget on duration/scientific/zero/negative KSI_EGRESS_NET_READY_ATTEMPTS values', () => {
     for (const bad of ['600s', '1e3', '0', '-3']) {
       const result = runScenario({
-        name: 'kcsi-egress-int-test',
+        name: 'ksi-egress-int-test',
         opts: { requireInternal: true },
         calls: alwaysFail,
-        env: { KCSI_EGRESS_NET_READY_ATTEMPTS: bad },
+        env: { KSI_EGRESS_NET_READY_ATTEMPTS: bad },
       });
       assert.equal(result.ok, false, `attempts=${bad}`);
       assert.match(result.error, /did not become ready after 10 attempt/, `attempts=${bad}`);
@@ -180,7 +180,7 @@ describe('ensureEgressDockerNetwork backoff and env overrides (concurrent launch
 
   it('sleeps with exponential backoff between attempts, capped at 5000ms', () => {
     const result = runScenario({
-      name: 'kcsi-egress-ext-test',
+      name: 'ksi-egress-ext-test',
       opts: { requireInternal: false, attempts: 7, delayMs: 1000 },
       calls: alwaysFail,
     });
@@ -188,34 +188,34 @@ describe('ensureEgressDockerNetwork backoff and env overrides (concurrent launch
     assert.deepEqual(result.sleeps, [1000, 2000, 4000, 5000, 5000, 5000]);
   });
 
-  it('honors KCSI_EGRESS_NET_READY_ATTEMPTS when no explicit attempts option is passed', () => {
+  it('honors KSI_EGRESS_NET_READY_ATTEMPTS when no explicit attempts option is passed', () => {
     const result = runScenario({
-      name: 'kcsi-egress-int-test',
+      name: 'ksi-egress-int-test',
       opts: { requireInternal: true },
       calls: alwaysFail,
-      env: { KCSI_EGRESS_NET_READY_ATTEMPTS: '3' },
+      env: { KSI_EGRESS_NET_READY_ATTEMPTS: '3' },
     });
     assert.equal(result.ok, false);
     assert.match(result.error, /did not become ready after 3 attempt/);
   });
 
-  it('falls back to the default attempt budget on a garbage KCSI_EGRESS_NET_READY_ATTEMPTS', () => {
+  it('falls back to the default attempt budget on a garbage KSI_EGRESS_NET_READY_ATTEMPTS', () => {
     const result = runScenario({
-      name: 'kcsi-egress-int-test',
+      name: 'ksi-egress-int-test',
       opts: { requireInternal: true },
       calls: alwaysFail,
-      env: { KCSI_EGRESS_NET_READY_ATTEMPTS: 'banana' },
+      env: { KSI_EGRESS_NET_READY_ATTEMPTS: 'banana' },
     });
     assert.equal(result.ok, false);
     assert.match(result.error, /did not become ready after 10 attempt/);
   });
 
-  it('honors KCSI_EGRESS_NET_READY_DELAY_MS as the backoff base delay', () => {
+  it('honors KSI_EGRESS_NET_READY_DELAY_MS as the backoff base delay', () => {
     const result = runScenario({
-      name: 'kcsi-egress-ext-test',
+      name: 'ksi-egress-ext-test',
       opts: { requireInternal: false, attempts: 4 },
       calls: alwaysFail,
-      env: { KCSI_EGRESS_NET_READY_DELAY_MS: '50' },
+      env: { KSI_EGRESS_NET_READY_DELAY_MS: '50' },
     });
     assert.equal(result.ok, false);
     assert.deepEqual(result.sleeps, [50, 100, 200]);
@@ -223,10 +223,10 @@ describe('ensureEgressDockerNetwork backoff and env overrides (concurrent launch
 
   it('explicit attempts option wins over the env override', () => {
     const result = runScenario({
-      name: 'kcsi-egress-int-test',
+      name: 'ksi-egress-int-test',
       opts: { requireInternal: true, attempts: 2 },
       calls: alwaysFail,
-      env: { KCSI_EGRESS_NET_READY_ATTEMPTS: '8' },
+      env: { KSI_EGRESS_NET_READY_ATTEMPTS: '8' },
     });
     assert.equal(result.ok, false);
     assert.match(result.error, /did not become ready after 2 attempt/);

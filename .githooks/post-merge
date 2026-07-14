@@ -1,5 +1,5 @@
 #!/bin/bash
-# post-merge hook: rebuild kcsi-agent:bench when a pull/merge brought in TS
+# post-merge hook: rebuild ksi-agent:bench when a pull/merge brought in TS
 # source changes under runtime_runner/agent-runner/src or runtime_runner/src.
 #
 # Enable via: git config core.hooksPath .githooks

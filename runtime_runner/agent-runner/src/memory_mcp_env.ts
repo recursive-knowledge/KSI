@@ -28,8 +28,8 @@ export function buildOpenAIMemoryMcpEnv(
     MEMORY_EXPERIMENT: containerInput.memoryMcp.experiment ?? '',
     EXPERIMENT_NAME: process.env.EXPERIMENT_NAME || containerInput.memoryMcp.experiment || '',
     MEMORY_ENABLE_SEMANTIC_SEARCH: sdkEnv.MEMORY_ENABLE_SEMANTIC_SEARCH || '1',
-    KCSI_EMBEDDING_MODEL:
-      sdkEnv.KCSI_EMBEDDING_MODEL || 'google/embeddinggemma-300m',
+    KSI_EMBEDDING_MODEL:
+      sdkEnv.KSI_EMBEDDING_MODEL || 'google/embeddinggemma-300m',
     USE_TF: sdkEnv.USE_TF || '0',
     TOKENIZERS_PARALLELISM: sdkEnv.TOKENIZERS_PARALLELISM || 'false',
     HF_HOME: sdkEnv.HF_HOME || '/home/node/.cache/huggingface',

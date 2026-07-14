@@ -16,9 +16,9 @@ from __future__ import annotations
 
 import pytest
 
-from kcsi.distillation import DistillOutput
-from kcsi.distillation.types import CrossTaskBundle, PerTaskBundle
-from kcsi.orchestrator.distillation_phase import (
+from ksi.distillation import DistillOutput
+from ksi.distillation.types import CrossTaskBundle, PerTaskBundle
+from ksi.orchestrator.distillation_phase import (
     DistillationPhaseInput,
     EngineDistillationPhaseService,
 )
@@ -62,7 +62,7 @@ def _cross_bundle(marker: str = "cross") -> CrossTaskBundle:
 
 def test_fully_zeroed_generation_logs_error_and_counts(tmp_path, monkeypatch, caplog):
     orch = _make_orch(tmp_path)
-    import kcsi.distillation as dist_pkg
+    import ksi.distillation as dist_pkg
 
     monkeypatch.setattr(dist_pkg, "distill", _zeroed_distill)
 
@@ -76,7 +76,7 @@ def test_fully_zeroed_generation_logs_error_and_counts(tmp_path, monkeypatch, ca
 
 def test_consecutive_zeroed_generations_escalate(tmp_path, monkeypatch, caplog):
     orch = _make_orch(tmp_path)
-    import kcsi.distillation as dist_pkg
+    import ksi.distillation as dist_pkg
 
     monkeypatch.setattr(dist_pkg, "distill", _zeroed_distill)
 
@@ -92,7 +92,7 @@ def test_consecutive_zeroed_generations_escalate(tmp_path, monkeypatch, caplog):
 
 def test_healthy_generation_resets_counter(tmp_path, monkeypatch):
     orch = _make_orch(tmp_path)
-    import kcsi.distillation as dist_pkg
+    import ksi.distillation as dist_pkg
 
     monkeypatch.setattr(dist_pkg, "distill", _zeroed_distill)
     _run(orch, generation=3, task_ids=["t1"])
@@ -106,7 +106,7 @@ def test_healthy_generation_resets_counter(tmp_path, monkeypatch):
 
 def test_distill_raising_entirely_counts_as_zeroed(tmp_path, monkeypatch, caplog):
     orch = _make_orch(tmp_path)
-    import kcsi.distillation as dist_pkg
+    import ksi.distillation as dist_pkg
 
     def _boom(inp, *, unsolved_task_ids=None, newly_solved_task_ids=None):
         raise RuntimeError("connection error")
@@ -121,7 +121,7 @@ def test_distill_raising_entirely_counts_as_zeroed(tmp_path, monkeypatch, caplog
 
 def test_distillation_persistence_failure_counts_as_zeroed(tmp_path, monkeypatch, caplog):
     orch = _make_orch(tmp_path)
-    import kcsi.distillation as dist_pkg
+    import ksi.distillation as dist_pkg
 
     monkeypatch.setattr(dist_pkg, "distill", _healthy_distill)
 
@@ -169,7 +169,7 @@ def test_distillation_persistence_failures_count_all_bundle_paths(
     expected_failures,
 ):
     orch = _make_orch(tmp_path)
-    import kcsi.distillation as dist_pkg
+    import ksi.distillation as dist_pkg
 
     monkeypatch.setattr(dist_pkg, "distill", lambda inp, **_kwargs: distill_output)
 
@@ -189,7 +189,7 @@ def test_distillation_persistence_failures_count_all_bundle_paths(
 
 def test_empty_task_ids_does_not_count_as_zeroed(tmp_path, monkeypatch):
     orch = _make_orch(tmp_path)
-    import kcsi.distillation as dist_pkg
+    import ksi.distillation as dist_pkg
 
     # Prime a nonzero counter, then a legitimate skip (no task ids) must not
     # increment it (nothing was attempted — not an outage).
@@ -207,7 +207,7 @@ def test_empty_task_ids_does_not_count_as_zeroed(tmp_path, monkeypatch):
 def test_abort_disabled_by_default_never_raises(tmp_path, monkeypatch):
     orch = _make_orch(tmp_path)
     assert orch.config.abort_on_distill_stall == 0  # default: disabled
-    import kcsi.distillation as dist_pkg
+    import ksi.distillation as dist_pkg
 
     monkeypatch.setattr(dist_pkg, "distill", _zeroed_distill)
     # Many consecutive zeroed generations, but abort is off — no raise.
@@ -217,11 +217,11 @@ def test_abort_disabled_by_default_never_raises(tmp_path, monkeypatch):
 
 
 def test_abort_raises_at_threshold(tmp_path, monkeypatch):
-    from kcsi.errors import DistillationStalledError
+    from ksi.errors import DistillationStalledError
 
     orch = _make_orch(tmp_path)
     orch.config.abort_on_distill_stall = 3
-    import kcsi.distillation as dist_pkg
+    import ksi.distillation as dist_pkg
 
     monkeypatch.setattr(dist_pkg, "distill", _zeroed_distill)
 
@@ -232,11 +232,11 @@ def test_abort_raises_at_threshold(tmp_path, monkeypatch):
 
 
 def test_abort_streak_must_be_consecutive(tmp_path, monkeypatch):
-    from kcsi.errors import DistillationStalledError
+    from ksi.errors import DistillationStalledError
 
     orch = _make_orch(tmp_path)
     orch.config.abort_on_distill_stall = 2
-    import kcsi.distillation as dist_pkg
+    import ksi.distillation as dist_pkg
 
     monkeypatch.setattr(dist_pkg, "distill", _zeroed_distill)
     _run(orch, generation=1, task_ids=["t1"])  # streak 1

@@ -1,10 +1,10 @@
 import json
 
-from kcsi.distillation.cross_task import (
+from ksi.distillation.cross_task import (
     _select_cross_posts_for_budget,
     distill_cross_task,
 )
-from kcsi.distillation.types import CrossTaskBundle
+from ksi.distillation.types import CrossTaskBundle
 
 
 def test_distill_cross_task_builds_bundle():
@@ -208,7 +208,7 @@ def test_distill_cross_task_caps_output_to_5_items():
 
 def test_cross_task_role_directive_mentions_json_posts():
     """Plan A: cross-task posts now arrive as JSON with concrete_primitive."""
-    from kcsi.distillation.prompts import _CROSS_TASK_ROLE_DIRECTIVE
+    from ksi.distillation.prompts import _CROSS_TASK_ROLE_DIRECTIVE
 
     assert "concrete_primitive" in _CROSS_TASK_ROLE_DIRECTIVE, (
         "Distiller must know posts now have a concrete_primitive field — "
@@ -262,8 +262,8 @@ def test_shared_cross_posts_give_identical_prefix_across_target_sizes():
     cache_prefix (the cache-defeating bug). The shared once-per-generation trim
     must yield a set that re-trims to a no-op for every target, so every target
     gets a byte-identical cache_prefix (issue #1252 item 3)."""
-    from kcsi.distillation.cross_task import select_shared_cross_posts_for_targets
-    from kcsi.distillation.prompts import build_cross_task_distill_prompt_parts
+    from ksi.distillation.cross_task import select_shared_cross_posts_for_targets
+    from ksi.distillation.prompts import build_cross_task_distill_prompt_parts
 
     # ~200K tokens of forum history — comfortably over the ~131.8K budget.
     posts = [
@@ -321,8 +321,8 @@ def test_shared_cross_posts_probe_uses_largest_rendered_target():
     than one with a much longer id — and probing against the raw-longest would
     under-budget the true largest target, diverging its cache_prefix
     (issue #1252 item 3)."""
-    from kcsi.distillation.cross_task import select_shared_cross_posts_for_targets
-    from kcsi.distillation.prompts import _fmt_target_task_section
+    from ksi.distillation.cross_task import select_shared_cross_posts_for_targets
+    from ksi.distillation.prompts import _fmt_target_task_section
 
     posts = [
         {

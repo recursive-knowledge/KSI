@@ -1,8 +1,8 @@
 """Tests for R0 real-time discussion prompt builder."""
 
-from kcsi.forum import build_per_task_discussion_parts
-from kcsi.models import TaskTrace
-from kcsi.tokens import TokenUsage
+from ksi.forum import build_per_task_discussion_parts
+from ksi.models import TaskTrace
+from ksi.tokens import TokenUsage
 
 
 def _make_traces() -> list[TaskTrace]:

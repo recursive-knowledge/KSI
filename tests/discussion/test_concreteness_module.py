@@ -1,6 +1,6 @@
 """Pin the public anti-meta block module — single source of truth."""
 
-from kcsi.discussion.concreteness import (
+from ksi.discussion.concreteness import (
     ANTI_META_BLOCK,
     assert_anti_meta_rules_present,
 )
@@ -49,6 +49,6 @@ def test_assert_helper_raises_on_empty_text():
 
 
 def test_distiller_imports_from_shared_module():
-    from kcsi.distillation import prompts as distill_prompts
+    from ksi.distillation import prompts as distill_prompts
 
     assert distill_prompts._ANTI_META_BLOCK is ANTI_META_BLOCK

@@ -12,7 +12,7 @@ from benchmarks.scripts.dataprep import export_swebench_pro_dataset as export_mo
 from benchmarks.scripts.dataprep import generate_kt_recipient_subsets as kt_module
 from benchmarks.scripts.dataprep import generate_swebench_pro_task_map as task_map_module
 from benchmarks.scripts.dataprep.generate_swebench_pro_task_map import build_task_map
-from kcsi.benchmarks.swebench_pro_external import DATASET_REVISION
+from ksi.benchmarks.swebench_pro_external import DATASET_REVISION
 
 
 def _write_jsonl(path: Path, rows: list[dict]) -> None:
@@ -170,7 +170,7 @@ def test_generate_task_map_cli_defaults_to_pinned_source_revision(monkeypatch, t
 def test_verify_swebench_task_map_source_matching_dataset_never_raises(
     tmp_path: Path,
 ) -> None:
-    from kcsi.cli import _verify_swebench_task_map_source
+    from ksi.cli import _verify_swebench_task_map_source
 
     dataset_path = tmp_path / "test.jsonl"
     dataset_path.write_text('{"instance_id": "task-a"}\n', encoding="utf-8")
@@ -188,7 +188,7 @@ def test_verify_swebench_task_map_source_matching_dataset_never_raises(
 
 
 def test_verify_swebench_task_map_source_default_warns_does_not_raise(tmp_path: Path, caplog) -> None:
-    from kcsi.cli import _verify_swebench_task_map_source
+    from ksi.cli import _verify_swebench_task_map_source
 
     dataset_path = tmp_path / "test.jsonl"
     dataset_path.write_text('{"instance_id": "task-a"}\n', encoding="utf-8")
@@ -205,7 +205,7 @@ def test_verify_swebench_task_map_source_default_warns_does_not_raise(tmp_path: 
     mutated_sha = hashlib.sha256(dataset_path.read_bytes()).hexdigest()
     assert mutated_sha != original_sha
 
-    with caplog.at_level(logging.WARNING, logger="kcsi.cli"):
+    with caplog.at_level(logging.WARNING, logger="ksi.cli"):
         _verify_swebench_task_map_source(str(ids_file), dataset_path)  # no strict
 
     warning_text = "\n".join(r.getMessage() for r in caplog.records if r.levelno >= logging.WARNING)
@@ -214,7 +214,7 @@ def test_verify_swebench_task_map_source_default_warns_does_not_raise(tmp_path: 
 
 
 def test_verify_swebench_task_map_source_strict_fails_closed(tmp_path: Path) -> None:
-    from kcsi.cli import _verify_swebench_task_map_source
+    from ksi.cli import _verify_swebench_task_map_source
 
     dataset_path = tmp_path / "test.jsonl"
     dataset_path.write_text('{"instance_id": "task-a"}\n', encoding="utf-8")
@@ -239,7 +239,7 @@ def test_verify_swebench_task_map_source_strict_fails_closed(tmp_path: Path) -> 
 
 
 def test_verify_swebench_task_map_source_pinned_revision_fails_closed_by_default(tmp_path: Path) -> None:
-    from kcsi.cli import _verify_swebench_task_map_source
+    from ksi.cli import _verify_swebench_task_map_source
 
     dataset_path = tmp_path / "test.jsonl"
     dataset_path.write_text('{"instance_id": "task-a"}\n', encoding="utf-8")
@@ -265,7 +265,7 @@ def test_verify_swebench_task_map_source_pinned_revision_fails_closed_by_default
 
 
 def test_verify_swebench_task_map_source_strict_rejects_missing_sha(tmp_path: Path) -> None:
-    from kcsi.cli import _verify_swebench_task_map_source
+    from ksi.cli import _verify_swebench_task_map_source
 
     dataset_path = tmp_path / "test.jsonl"
     dataset_path.write_text('{"instance_id": "task-a"}\n', encoding="utf-8")

@@ -25,7 +25,7 @@ export function deriveEgressAllowlist(
     addUrlHost(hosts, env.ANTHROPIC_BASE_URL);
   }
 
-  for (const raw of String(env.KCSI_EGRESS_ALLOW || '').split(',')) {
+  for (const raw of String(env.KSI_EGRESS_ALLOW || '').split(',')) {
     const host = raw.trim().toLowerCase();
     if (host) hosts.add(host);
   }

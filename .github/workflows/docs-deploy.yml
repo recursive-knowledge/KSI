@@ -18,7 +18,7 @@ concurrency:
 
 jobs:
   deploy:
-    if: ${{ github.repository == 'recursive-knowledge/KCSI' && github.ref == 'refs/heads/main' }}
+    if: ${{ github.repository == 'recursive-knowledge/KSI' && github.ref == 'refs/heads/main' }}
     permissions:
       contents: write
     runs-on: ubuntu-latest

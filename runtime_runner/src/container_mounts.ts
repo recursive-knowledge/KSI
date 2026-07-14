@@ -60,7 +60,7 @@ export function removePathIfExists(targetPath: string): void {
 }
 
 export function resolveRunnerRoot(): string {
-  const raw = (process.env.KCSI_RUNNER_ROOT || '/app').trim();
+  const raw = (process.env.KSI_RUNNER_ROOT || '/app').trim();
   if (!raw.startsWith('/') || raw === '/') {
     return '/app';
   }
@@ -72,7 +72,7 @@ export function runnerPath(child: string): string {
 }
 
 function resolveTaskRepoContainerPath(): string {
-  const raw = (process.env.KCSI_TASK_REPO_CONTAINER_PATH || '').trim();
+  const raw = (process.env.KSI_TASK_REPO_CONTAINER_PATH || '').trim();
   if (!raw.startsWith('/') || raw === '/' || raw.includes(':')) {
     return '';
   }
@@ -115,7 +115,7 @@ export function buildVolumeMounts(
   const groupSessionsDir = path.join(groupSessionRoot, '.claude');
   fs.mkdirSync(groupSessionsDir, { recursive: true });
   const settingsFile = path.join(groupSessionsDir, 'settings.json');
-  const enableAgentTeams = !process.env.KCSI_DISABLE_AGENT_TEAMS;
+  const enableAgentTeams = !process.env.KSI_DISABLE_AGENT_TEAMS;
   fs.writeFileSync(
     settingsFile,
     JSON.stringify(
@@ -226,7 +226,7 @@ export function buildVolumeMounts(
   });
 
   // Keep the container's agent-runner dependencies aligned with the mounted
-  // KCSI-owned source tree. Without this, the image-baked /app/node_modules
+  // KSI-owned source tree. Without this, the image-baked /app/node_modules
   // can drift from runtime_runner/agent-runner imports and fail compilation
   // before the SDK starts.
   //
@@ -279,7 +279,7 @@ export function buildVolumeMounts(
  * (issue #1009 — defense-in-depth narrowing of the previous whole-directory
  * mount).
  *
- * Both `MemoryStore` and `KnowledgeStore` (src/kcsi/memory/) run
+ * Both `MemoryStore` and `KnowledgeStore` (src/ksi/memory/) run
  * `PRAGMA journal_mode=WAL`, so a DB under active use grows `-wal`/`-shm`
  * sidecars next to the main file for as long as a writer holds it open. A
  * sidecar that doesn't exist yet is skipped rather than mounted: Docker
@@ -403,7 +403,7 @@ export function appendMemoryAndArcMounts(
             );
           }
         }
-        // ForumBus (src/kcsi/memory/forum_bus.py) is a file-backed bus with
+        // ForumBus (src/ksi/memory/forum_bus.py) is a file-backed bus with
         // dynamically-named, per-generation JSONL files under
         // <dbDir>/forum_bus/ — genuinely directory-shaped, multi-writer
         // state, not a fixed filename we can allowlist like the DBs above.

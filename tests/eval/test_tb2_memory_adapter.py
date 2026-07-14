@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from kcsi.models import TaskTrace
-from kcsi.orchestrator.engine import GenerationalOrchestrator, _tb2_attempt_meta
+from ksi.models import TaskTrace
+from ksi.orchestrator.engine import GenerationalOrchestrator, _tb2_attempt_meta
 
 
 def test_tb2_attempt_meta_extracts_normalized_verifier_evidence() -> None:

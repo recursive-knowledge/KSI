@@ -1,6 +1,6 @@
 """Tests for the distillation phase service (Plan Task 14).
 
-The distill phase calls :func:`kcsi.distillation.distill` with a
+The distill phase calls :func:`ksi.distillation.distill` with a
 ``DistillInput`` containing:
 - the current generation
 - the set of task ids that had attempts this generation
@@ -21,15 +21,15 @@ from __future__ import annotations
 import json
 from unittest.mock import MagicMock
 
-from kcsi.memory.knowledge_store import CROSS_TASK_SENTINEL
-from kcsi.models import GenerationConfig
-from kcsi.orchestrator.distillation_phase import (
+from ksi.memory.knowledge_store import CROSS_TASK_SENTINEL
+from ksi.models import GenerationConfig
+from ksi.orchestrator.distillation_phase import (
     DistillationPhaseInput,
     DistillationPhaseResult,
     EngineDistillationPhaseService,
 )
-from kcsi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
-from kcsi.tokens import LLMResponse, TokenUsage
+from ksi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
+from ksi.tokens import LLMResponse, TokenUsage
 from tests.orchestrator_phase_decoupling_guard import functions_referencing_engine
 from tests.orchestrator_phase_helpers import run_distill
 
@@ -82,7 +82,7 @@ def test_distill_phase_test_helper_delegates_to_service(tmp_path):
 
 def test_distill_called_with_generation_and_task_ids(tmp_path, monkeypatch, caplog):
     """``distill`` receives a DistillInput with the right gen + task ids."""
-    from kcsi.distillation import DistillOutput
+    from ksi.distillation import DistillOutput
 
     orch = _make_orch(tmp_path)
 
@@ -96,8 +96,8 @@ def test_distill_called_with_generation_and_task_ids(tmp_path, monkeypatch, capl
         return DistillOutput(per_task={}, cross_task=None)
 
     # Patch at the engine-module import path — the engine imports distill
-    # from kcsi.distillation at call time, so we patch both locations.
-    import kcsi.distillation as dist_pkg
+    # from ksi.distillation at call time, so we patch both locations.
+    import ksi.distillation as dist_pkg
 
     monkeypatch.setattr(dist_pkg, "distill", fake_distill)
 
@@ -116,8 +116,8 @@ def test_distill_called_with_generation_and_task_ids(tmp_path, monkeypatch, capl
 
 def test_persists_per_task_and_cross_task_bundles(tmp_path, monkeypatch):
     """Output bundles land in KnowledgeStore with the right scope/task_id."""
-    from kcsi.distillation import DistillOutput
-    from kcsi.distillation.types import CrossTaskBundle, PerTaskBundle
+    from ksi.distillation import DistillOutput
+    from ksi.distillation.types import CrossTaskBundle, PerTaskBundle
 
     orch = _make_orch(tmp_path)
 
@@ -141,7 +141,7 @@ def test_persists_per_task_and_cross_task_bundles(tmp_path, monkeypatch):
             cross_task=cross_task_bundle,
         )
 
-    import kcsi.distillation as dist_pkg
+    import ksi.distillation as dist_pkg
 
     monkeypatch.setattr(dist_pkg, "distill", fake_distill)
 
@@ -171,8 +171,8 @@ def test_persists_per_task_and_cross_task_bundles(tmp_path, monkeypatch):
 
 def test_per_task_embeddings_computed_in_one_batch_and_aligned(tmp_path, monkeypatch):
     """Per-task bundles embed in a single batch call, aligned to each bundle."""
-    from kcsi.distillation import DistillOutput
-    from kcsi.distillation.types import PerTaskBundle
+    from ksi.distillation import DistillOutput
+    from ksi.distillation.types import PerTaskBundle
 
     orch = _make_orch(tmp_path)
 
@@ -190,7 +190,7 @@ def test_per_task_embeddings_computed_in_one_batch_and_aligned(tmp_path, monkeyp
     def fake_distill(inp, *, unsolved_task_ids=None, newly_solved_task_ids=None):
         return DistillOutput(per_task=bundles, cross_task=None)
 
-    import kcsi.distillation as dist_pkg
+    import ksi.distillation as dist_pkg
 
     monkeypatch.setattr(dist_pkg, "distill", fake_distill)
 
@@ -229,7 +229,7 @@ def test_distill_failure_logs_and_returns(tmp_path, monkeypatch, caplog):
     def fake_distill(inp, *, unsolved_task_ids=None, newly_solved_task_ids=None):
         raise RuntimeError("LLM exploded")
 
-    import kcsi.distillation as dist_pkg
+    import ksi.distillation as dist_pkg
 
     monkeypatch.setattr(dist_pkg, "distill", fake_distill)
 
@@ -256,7 +256,7 @@ def test_distill_failure_logs_and_returns(tmp_path, monkeypatch, caplog):
 
 def test_empty_task_ids_is_noop(tmp_path, monkeypatch):
     """If no tasks had attempts this generation, distill is skipped."""
-    from kcsi.distillation import DistillOutput
+    from ksi.distillation import DistillOutput
 
     orch = _make_orch(tmp_path)
     called = {"n": 0}
@@ -265,7 +265,7 @@ def test_empty_task_ids_is_noop(tmp_path, monkeypatch):
         called["n"] += 1
         return DistillOutput(per_task={}, cross_task=None)
 
-    import kcsi.distillation as dist_pkg
+    import ksi.distillation as dist_pkg
 
     monkeypatch.setattr(dist_pkg, "distill", fake_distill)
 
@@ -280,7 +280,7 @@ def test_distill_model_overrides_are_propagated(tmp_path, monkeypatch):
     ``self.llm.call`` with the corresponding ``model=`` kwarg. The distiller
     then picks those callables over the default ``inp.llm``.
     """
-    from kcsi.distillation import DistillOutput
+    from ksi.distillation import DistillOutput
 
     orch = _make_orch(tmp_path)
     # Configure per-phase overrides on the config (engine reads via getattr).
@@ -300,7 +300,7 @@ def test_distill_model_overrides_are_propagated(tmp_path, monkeypatch):
             inp.llm_cross_task("sys", "u")
         return DistillOutput(per_task={}, cross_task=None)
 
-    import kcsi.distillation as dist_pkg
+    import ksi.distillation as dist_pkg
 
     monkeypatch.setattr(dist_pkg, "distill", fake_distill)
 
@@ -321,7 +321,7 @@ def test_distill_no_overrides_still_builds_labeled_phase_llms(tmp_path, monkeypa
     """Even without model overrides, both per-phase LLMs should be populated
     so distill-time tokens get attributed to the correct phase label in the
     lifecycle accumulator."""
-    from kcsi.distillation import DistillOutput
+    from ksi.distillation import DistillOutput
 
     orch = _make_orch(tmp_path)
     # Do NOT set distill_per_task_model / distill_cross_task_model.
@@ -334,7 +334,7 @@ def test_distill_no_overrides_still_builds_labeled_phase_llms(tmp_path, monkeypa
         captured["llm_default"] = inp.llm
         return DistillOutput(per_task={}, cross_task=None)
 
-    import kcsi.distillation as dist_pkg
+    import ksi.distillation as dist_pkg
 
     monkeypatch.setattr(dist_pkg, "distill", fake_distill)
 
@@ -353,7 +353,7 @@ def test_distill_no_overrides_still_builds_labeled_phase_llms(tmp_path, monkeypa
 def test_distill_adapter_threads_json_schema_to_structured_caller(tmp_path):
     """The distill ``LLMCallable`` adapter passes ``json_schema`` through to a
     structured-capable LLM caller and surfaces the provider's parsed dict."""
-    from kcsi.distillation.types import DistillLLMResult
+    from ksi.distillation.types import DistillLLMResult
 
     orch = _make_orch(tmp_path)
     # The mock LLM advertises schema support and returns an LLMResponse with a
@@ -379,7 +379,7 @@ def test_distill_adapter_threads_json_schema_to_structured_caller(tmp_path):
 def test_distill_adapter_skips_schema_for_unsupported_caller(tmp_path):
     """If the LLM caller does not advertise ``supports_json_schema``, the
     adapter must NOT pass ``json_schema`` and returns plain text."""
-    from kcsi.distillation.types import DistillLLMResult
+    from ksi.distillation.types import DistillLLMResult
 
     orch = _make_orch(tmp_path)
     # Default MagicMock attribute access would be truthy; force it False.
@@ -416,7 +416,7 @@ def test_distill_adapter_reraises_internal_typeerror(tmp_path):
 
 
 def test_distillation_body_has_no_engine_access():
-    from kcsi.orchestrator import distillation_phase
+    from ksi.orchestrator import distillation_phase
 
     offenders = functions_referencing_engine(distillation_phase.__file__)
     assert offenders <= {"_collaborators"}, offenders
@@ -425,7 +425,7 @@ def test_distillation_body_has_no_engine_access():
 def test_distillation_collaborators_is_frozen():
     from dataclasses import FrozenInstanceError
 
-    from kcsi.orchestrator.distillation_phase import DistillationCollaborators
+    from ksi.orchestrator.distillation_phase import DistillationCollaborators
 
     c = DistillationCollaborators(
         config=object(),
@@ -449,8 +449,8 @@ def test_distillation_collaborators_is_frozen():
 def test_persists_per_task_cross_task_when_conditioning_on(tmp_path, monkeypatch):
     """Under target-conditioning, each attempted task's cross-task bundle is
     persisted under its own task_id (scope='cross_task'), not the sentinel."""
-    from kcsi.distillation import DistillOutput
-    from kcsi.distillation.types import CrossTaskBundle
+    from ksi.distillation import DistillOutput
+    from ksi.distillation.types import CrossTaskBundle
 
     orch = _make_orch(tmp_path)
     # Default config has cross_task_distill_target_conditioning = True.
@@ -463,7 +463,7 @@ def test_persists_per_task_cross_task_when_conditioning_on(tmp_path, monkeypatch
         assert inp.cross_task_target_conditioning is True
         return DistillOutput(per_task={}, cross_task=None, cross_task_by_task={"t1": b1, "t2": b2})
 
-    import kcsi.distillation as dist_pkg
+    import ksi.distillation as dist_pkg
 
     monkeypatch.setattr(dist_pkg, "distill", fake_distill)
 
@@ -480,8 +480,8 @@ def test_persists_per_task_cross_task_when_conditioning_on(tmp_path, monkeypatch
 def test_per_target_selection_config_threads_to_distiller(tmp_path, monkeypatch):
     """The GenerationConfig flag ``cross_task_distill_per_target_selection``
     reaches ``DistillInput.cross_task_per_target_selection``; default False."""
-    import kcsi.distillation as dist_pkg
-    from kcsi.distillation import DistillOutput
+    import ksi.distillation as dist_pkg
+    from ksi.distillation import DistillOutput
 
     captured: dict = {}
 
@@ -510,7 +510,7 @@ def test_holdout_not_leaked_into_learning_set_on_solved_set_exception(tmp_path, 
     ``task_ids`` in place, reintroducing hold-out ids into the learning set
     (``DistillInput.task_ids``) and violating the hold-out exclusion invariant.
     """
-    from kcsi.distillation import DistillOutput
+    from ksi.distillation import DistillOutput
 
     orch = _make_orch(tmp_path)
     # Conditioning + drop_solved on (defaults) so the mutation-prone fallback
@@ -536,7 +536,7 @@ def test_holdout_not_leaked_into_learning_set_on_solved_set_exception(tmp_path, 
         captured["cross_task_target_ids"] = list(inp.cross_task_target_ids or [])
         return DistillOutput(per_task={}, cross_task=None)
 
-    import kcsi.distillation as dist_pkg
+    import ksi.distillation as dist_pkg
 
     monkeypatch.setattr(dist_pkg, "distill", fake_distill)
 

@@ -2,7 +2,7 @@
 
 import pytest
 
-from kcsi.discussion.prompts import (
+from ksi.discussion.prompts import (
     _LESSON_EXTRACTION_SYSTEM,
     _TASK_INSIGHT_SYSTEM,
     build_task_reflection_and_lessons_prompt,

@@ -16,10 +16,10 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from kcsi.layout import RUNTIME_STATE_DIR
-from kcsi.models import GenerationConfig
-from kcsi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
-from kcsi.tokens import LLMResponse, TokenUsage
+from ksi.layout import RUNTIME_STATE_DIR
+from ksi.models import GenerationConfig
+from ksi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
+from ksi.tokens import LLMResponse, TokenUsage
 
 
 @contextmanager
@@ -52,13 +52,13 @@ def _make_vector_enabled_engine(monkeypatch, tmp_path) -> GenerationalOrchestrat
 
     Gate: ``self._knowledge is not None and self._vector_enabled and
     not self.config.no_memory`` — vector search is opt-in, so this requires
-    ``require_vector=True`` (with KCSI_DISABLE_VECTOR unset). ``--require-vector``
+    ``require_vector=True`` (with KSI_DISABLE_VECTOR unset). ``--require-vector``
     also fail-fasts unless the knowledge store's vec index came up, so
     ``_init_vec`` is stubbed to report the index ready without needing a real
     sqlite-vec build in the test environment.
     """
     monkeypatch.setattr(
-        "kcsi.memory.knowledge_store.KnowledgeStore._init_vec",
+        "ksi.memory.knowledge_store.KnowledgeStore._init_vec",
         lambda self, dim: setattr(self, "_vec_enabled", True),
     )
     # The engine writes MEMORY_ENABLE_SEMANTIC_SEARCH directly; delenv so
@@ -113,9 +113,9 @@ def test_engine_points_embedder_cache_at_shared_dir(monkeypatch, tmp_path):
         def wait_ready(self, timeout=None):
             return True
 
-    monkeypatch.setattr("kcsi.memory.embeddings.Embedder", FakeEmbedder)
+    monkeypatch.setattr("ksi.memory.embeddings.Embedder", FakeEmbedder)
     # Ensure the vector-disable gate is open so the Embedder block is entered.
-    monkeypatch.delenv("KCSI_DISABLE_VECTOR", raising=False)
+    monkeypatch.delenv("KSI_DISABLE_VECTOR", raising=False)
 
     with _restored_cache_env():
         _make_vector_enabled_engine(monkeypatch, tmp_path)
@@ -143,8 +143,8 @@ def test_run_blocks_on_wait_ready_and_false_is_nonfatal(monkeypatch, tmp_path, c
             return True
 
     # Patch the constructed embedder so engine build stays offline/deterministic.
-    monkeypatch.setattr("kcsi.memory.embeddings.Embedder", _ConstructEmbedder)
-    monkeypatch.delenv("KCSI_DISABLE_VECTOR", raising=False)
+    monkeypatch.setattr("ksi.memory.embeddings.Embedder", _ConstructEmbedder)
+    monkeypatch.delenv("KSI_DISABLE_VECTOR", raising=False)
 
     with _restored_cache_env():
         engine = _make_vector_enabled_engine(monkeypatch, tmp_path)
@@ -169,7 +169,7 @@ def test_run_blocks_on_wait_ready_and_false_is_nonfatal(monkeypatch, tmp_path, c
         # Empty task list reaches the wait block (right after the accumulator reset)
         # then short-circuits the generation loop ("no remaining tasks") and returns,
         # so this stays offline and never touches a container.
-        with caplog.at_level(logging.WARNING, logger="kcsi.orchestrator.engine"):
+        with caplog.at_level(logging.WARNING, logger="ksi.orchestrator.engine"):
             traces = engine.run([])
 
         assert calls == [600], f"run() must call wait_ready(timeout=600); got {calls}"
@@ -192,14 +192,14 @@ def test_vector_off_by_default_uses_fts(monkeypatch, tmp_path):
         def __init__(self, *args, **kwargs):
             raise AssertionError("Embedder must not be constructed on the FTS-default path")
 
-    monkeypatch.setattr("kcsi.memory.embeddings.Embedder", _BoomEmbedder)
+    monkeypatch.setattr("ksi.memory.embeddings.Embedder", _BoomEmbedder)
     # If enable_vec were (wrongly) True, _init_vec would flip _vec_enabled to
     # True; asserting it stays False proves the store was opened enable_vec=False.
     monkeypatch.setattr(
-        "kcsi.memory.knowledge_store.KnowledgeStore._init_vec",
+        "ksi.memory.knowledge_store.KnowledgeStore._init_vec",
         lambda self, dim: setattr(self, "_vec_enabled", True),
     )
-    monkeypatch.delenv("KCSI_DISABLE_VECTOR", raising=False)
+    monkeypatch.delenv("KSI_DISABLE_VECTOR", raising=False)
     monkeypatch.delenv("MEMORY_ENABLE_SEMANTIC_SEARCH", raising=False)
 
     db_path = str(tmp_path / "knowledge.sqlite")
@@ -248,8 +248,8 @@ def test_require_vector_run_summary_raises_on_zero_embeddings(monkeypatch, tmp_p
         def wait_ready(self, timeout=None):
             return True
 
-    monkeypatch.setattr("kcsi.memory.embeddings.Embedder", _ReadyEmbedder)
-    monkeypatch.delenv("KCSI_DISABLE_VECTOR", raising=False)
+    monkeypatch.setattr("ksi.memory.embeddings.Embedder", _ReadyEmbedder)
+    monkeypatch.delenv("KSI_DISABLE_VECTOR", raising=False)
 
     with _restored_cache_env():
         engine = _make_vector_enabled_engine(monkeypatch, tmp_path)

@@ -13,8 +13,8 @@ from pathlib import Path
 
 import pytest
 
-from kcsi import cli as cli_module
-from kcsi.tasks import get_spec
+from ksi import cli as cli_module
+from ksi.tasks import get_spec
 
 
 def _run_cli(monkeypatch, tmp_path, *, source, evaluator, tasks_path):
@@ -113,7 +113,7 @@ def test_validate_tasks_path_hook_swebench_evals(tmp_path):
 def test_custom_source_validate_hook_is_dispatched(tmp_path):
     """A registered source's ``validate_tasks_path`` hook drives CLI path
     validation with no ``path_kind`` edit in the cli."""
-    from kcsi.tasks import registry
+    from ksi.tasks import registry
 
     def _validate(tasks_path: Path, *, evals_path):
         return None if tasks_path.suffix == ".weird" else f"need .weird, got {tasks_path}"

@@ -12,11 +12,11 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from kcsi.models import TaskSpec
-from kcsi.orchestrator.engine import GenerationalOrchestrator
-from kcsi.orchestrator.enrichment_phase import ArcAnswerSanitizationError, EngineEnrichmentPhaseService
-from kcsi.orchestrator.strategy import DefaultKnowledgeStrategy
-from kcsi.tasks.registry import REGISTRY, TaskSourceSpec, register_task_source
+from ksi.models import TaskSpec
+from ksi.orchestrator.engine import GenerationalOrchestrator
+from ksi.orchestrator.enrichment_phase import ArcAnswerSanitizationError, EngineEnrichmentPhaseService
+from ksi.orchestrator.strategy import DefaultKnowledgeStrategy
+from ksi.tasks.registry import REGISTRY, TaskSourceSpec, register_task_source
 
 TRAIN_PAIRS = [{"input": [[0]], "output": [[1]]}]
 TEST_PAIRS = [{"input": [[2]], "output": [[3]]}]

@@ -12,8 +12,8 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from kcsi.tasks.loaders import load_tasks_for_source  # noqa: E402
-from kcsi.tasks.repo_cache import prepare_swebench_repo_snapshots, validate_repo_cache_task_id  # noqa: E402
+from ksi.tasks.loaders import load_tasks_for_source  # noqa: E402
+from ksi.tasks.repo_cache import prepare_swebench_repo_snapshots, validate_repo_cache_task_id  # noqa: E402
 
 DEFAULT_TASKS_PATH = REPO_ROOT / "benchmarks" / "swebench_pro" / "dataset" / "test.jsonl"
 DEFAULT_TASK_MAP = REPO_ROOT / "benchmarks" / "swebench_pro" / "task_maps" / "swebench_pro_test_50_seed0_v1.json"

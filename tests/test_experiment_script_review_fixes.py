@@ -4,7 +4,7 @@ import subprocess
 
 from conftest import REPO_ROOT
 
-PROFILE = "configs/kcsi/.env.haiku.template"
+PROFILE = "configs/ksi/.env.haiku.template"
 SETUP_ALL = REPO_ROOT / "scripts" / "setup_all.sh"
 
 
@@ -20,10 +20,10 @@ def _run_script(rel_path: str, args: list[str], env_overrides: dict[str, str]) -
     )
 
 
-def test_run_kcsi_task_source_override_supports_missing_dataset_dry_run():
-    name = "pytest_run_kcsi_override"
+def test_run_ksi_task_source_override_supports_missing_dataset_dry_run():
+    name = "pytest_run_ksi_override"
     result = _run_script(
-        "scripts/run_kcsi.sh",
+        "scripts/run_ksi.sh",
         [
             "--data",
             "missing.json",
@@ -50,8 +50,8 @@ def test_run_kcsi_task_source_override_supports_missing_dataset_dry_run():
         shutil.rmtree(REPO_ROOT / "results" / name, ignore_errors=True)
 
 
-def test_run_kcsi_missing_option_value_is_clean_error():
-    result = _run_script("scripts/run_kcsi.sh", ["--model"], {"DRY_RUN": "true"})
+def test_run_ksi_missing_option_value_is_clean_error():
+    result = _run_script("scripts/run_ksi.sh", ["--model"], {"DRY_RUN": "true"})
 
     assert result.returncode == 2
     assert "Missing value for --model" in result.stderr

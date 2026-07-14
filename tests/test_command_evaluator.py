@@ -1,9 +1,9 @@
 from pathlib import Path
 
-from kcsi.eval.command import CommandEvaluator
-from kcsi.eval.registry import resolve_evaluator
-from kcsi.models import TaskSpec
-from kcsi.orchestrator.scoring import score_from_eval_results
+from ksi.eval.command import CommandEvaluator
+from ksi.eval.registry import resolve_evaluator
+from ksi.models import TaskSpec
+from ksi.orchestrator.scoring import score_from_eval_results
 
 
 def _task(tmp_path, command="true", **md):

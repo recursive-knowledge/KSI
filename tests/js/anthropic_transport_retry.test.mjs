@@ -6,8 +6,8 @@
  * `createMessage`. Previously it was a single `fetch` with no retry, so a
  * transient 429/5xx or a dropped connection failed the whole attempt. The
  * transport now retries 429 + 5xx + network-level errors with exponential
- * backoff, tunable via KCSI_ANTHROPIC_MAX_RETRIES /
- * KCSI_ANTHROPIC_RETRY_BASE_MS (base set to 0 here to keep tests fast).
+ * backoff, tunable via KSI_ANTHROPIC_MAX_RETRIES /
+ * KSI_ANTHROPIC_RETRY_BASE_MS (base set to 0 here to keep tests fast).
  *
  * These run the real TS through tsx with a stubbed global fetch so the
  * actual retry control-flow is exercised (not a regex over source text).
@@ -76,7 +76,7 @@ describe('anthropic_direct_transport createMessage — retry/backoff', () => {
         return calls === 1 ? ${errResponse(429)} : ${OK_RESPONSE};
       };
       const res = await createMessage(
-        { ANTHROPIC_API_KEY: 'k', KCSI_ANTHROPIC_RETRY_BASE_MS: '0' },
+        { ANTHROPIC_API_KEY: 'k', KSI_ANTHROPIC_RETRY_BASE_MS: '0' },
         { model: 'm' },
         'test',
       );
@@ -95,7 +95,7 @@ describe('anthropic_direct_transport createMessage — retry/backoff', () => {
         return calls < 3 ? ${errResponse(503)} : ${OK_RESPONSE};
       };
       const res = await createMessage(
-        { ANTHROPIC_API_KEY: 'k', KCSI_ANTHROPIC_RETRY_BASE_MS: '0' },
+        { ANTHROPIC_API_KEY: 'k', KSI_ANTHROPIC_RETRY_BASE_MS: '0' },
         { model: 'm' },
         'test',
       );
@@ -115,7 +115,7 @@ describe('anthropic_direct_transport createMessage — retry/backoff', () => {
         return ${OK_RESPONSE};
       };
       const res = await createMessage(
-        { ANTHROPIC_API_KEY: 'k', KCSI_ANTHROPIC_RETRY_BASE_MS: '0' },
+        { ANTHROPIC_API_KEY: 'k', KSI_ANTHROPIC_RETRY_BASE_MS: '0' },
         { model: 'm' },
         'test',
       );
@@ -131,7 +131,7 @@ describe('anthropic_direct_transport createMessage — retry/backoff', () => {
       let calls = 0;
       globalThis.fetch = async () => { calls += 1; return ${errResponse(400)}; };
       await assert.rejects(
-        createMessage({ ANTHROPIC_API_KEY: 'k', KCSI_ANTHROPIC_RETRY_BASE_MS: '0' }, { model: 'm' }, 'test'),
+        createMessage({ ANTHROPIC_API_KEY: 'k', KSI_ANTHROPIC_RETRY_BASE_MS: '0' }, { model: 'm' }, 'test'),
         /Anthropic API error 400: boom 400/,
       );
       assert.equal(calls, 1, '4xx (non-429) must not be retried');
@@ -146,7 +146,7 @@ describe('anthropic_direct_transport createMessage — retry/backoff', () => {
       globalThis.fetch = async () => { calls += 1; return ${errResponse(500)}; };
       await assert.rejects(
         createMessage(
-          { ANTHROPIC_API_KEY: 'k', KCSI_ANTHROPIC_RETRY_BASE_MS: '0', KCSI_ANTHROPIC_MAX_RETRIES: '2' },
+          { ANTHROPIC_API_KEY: 'k', KSI_ANTHROPIC_RETRY_BASE_MS: '0', KSI_ANTHROPIC_MAX_RETRIES: '2' },
           { model: 'm' },
           'test',
         ),
@@ -156,7 +156,7 @@ describe('anthropic_direct_transport createMessage — retry/backoff', () => {
     `);
   });
 
-  it('disables retries when KCSI_ANTHROPIC_MAX_RETRIES=0', { skip: tsxSkip }, () => {
+  it('disables retries when KSI_ANTHROPIC_MAX_RETRIES=0', { skip: tsxSkip }, () => {
     runTsxFixture(`
       import { strict as assert } from 'node:assert';
       const { createMessage } = await import('./agent-runner/src/anthropic_direct_transport.ts');
@@ -164,7 +164,7 @@ describe('anthropic_direct_transport createMessage — retry/backoff', () => {
       globalThis.fetch = async () => { calls += 1; return ${errResponse(429)}; };
       await assert.rejects(
         createMessage(
-          { ANTHROPIC_API_KEY: 'k', KCSI_ANTHROPIC_MAX_RETRIES: '0' },
+          { ANTHROPIC_API_KEY: 'k', KSI_ANTHROPIC_MAX_RETRIES: '0' },
           { model: 'm' },
           'test',
         ),

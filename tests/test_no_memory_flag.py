@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from unittest.mock import patch
 
-from kcsi.cli import _resolve_runtime_db_path, build_parser
-from kcsi.models import GenerationConfig, TaskSpec
-from kcsi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
+from ksi.cli import _resolve_runtime_db_path, build_parser
+from ksi.models import GenerationConfig, TaskSpec
+from ksi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
 
 
 class TestNoMemoryFlag:
@@ -156,14 +156,14 @@ class TestNoMemoryEngineGuards:
             seed_bundle_path="/tmp/bundle.json",
         )
         # We test by creating a minimal orchestrator mock and calling the method
-        from kcsi.orchestrator.engine import GenerationalOrchestrator
+        from ksi.orchestrator.engine import GenerationalOrchestrator
 
         orch = GenerationalOrchestrator.__new__(GenerationalOrchestrator)
         orch.config = config
         orch.agents = []
 
         # Should return without trying to read the file
-        with patch("kcsi.orchestrator.engine.Path") as mock_path:
+        with patch("ksi.orchestrator.engine.Path") as mock_path:
             orch._inject_seed_bundle("/tmp/bundle.json")
             # Path should NOT be constructed since we return early
             mock_path.assert_not_called()
@@ -175,9 +175,9 @@ class TestNoMemoryEngineGuards:
             num_agents=1,
             no_memory=True,
         )
-        from kcsi.orchestrator.engine import GenerationalOrchestrator
-        from kcsi.orchestrator.enrichment_phase import EngineEnrichmentPhaseService
-        from kcsi.orchestrator.strategy import DefaultKnowledgeStrategy
+        from ksi.orchestrator.engine import GenerationalOrchestrator
+        from ksi.orchestrator.enrichment_phase import EngineEnrichmentPhaseService
+        from ksi.orchestrator.strategy import DefaultKnowledgeStrategy
 
         orch = GenerationalOrchestrator.__new__(GenerationalOrchestrator)
         orch.config = config

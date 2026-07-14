@@ -1,4 +1,4 @@
-"""Unit tests for kcsi.cli -- parser defaults and task filtering."""
+"""Unit tests for ksi.cli -- parser defaults and task filtering."""
 
 from __future__ import annotations
 
@@ -9,9 +9,9 @@ from pathlib import Path
 
 import pytest
 
-from kcsi import cli as cli_module
-from kcsi.benchmarks.polyglot_harness import DEFAULT_POLYGLOT_TIMEOUT_SEC, PolyglotHarnessEvaluator
-from kcsi.cli import (
+from ksi import cli as cli_module
+from ksi.benchmarks.polyglot_harness import DEFAULT_POLYGLOT_TIMEOUT_SEC, PolyglotHarnessEvaluator
+from ksi.cli import (
     _choose_evaluator,
     _ensure_trace_dir,
     _filter_tasks,
@@ -23,8 +23,8 @@ from kcsi.cli import (
     _validate_and_normalize_args,
     build_parser,
 )
-from kcsi.models import TaskSpec
-from kcsi.tasks.registry import REGISTRY, TaskSourceSpec, register_task_source
+from ksi.models import TaskSpec
+from ksi.tasks.registry import REGISTRY, TaskSourceSpec, register_task_source
 
 
 class TestBuildParser:
@@ -181,7 +181,7 @@ class TestBuildParser:
         """The CLI argparse defaults for the three-phase fields must equal the
         GenerationConfig dataclass defaults (single source of truth, issue #702).
         Guards against the cross_task_forum_rounds 1-vs-2 divergence recurring."""
-        from kcsi.models import GenerationConfig
+        from ksi.models import GenerationConfig
 
         parser = build_parser()
         args = parser.parse_args(
@@ -222,7 +222,7 @@ class TestBuildParser:
         of scope for this Python test; the filename contract is what binds the
         prompt to behavior.)
         """
-        from kcsi.prompts import _build_arc_no_mcp_execution_prompt
+        from ksi.prompts import _build_arc_no_mcp_execution_prompt
 
         single = _build_arc_no_mcp_execution_prompt(has_memory=False, generation=1, test_count=1)
         assert "attempt_1.txt" in single
@@ -309,16 +309,16 @@ class TestBuildParser:
         assert "--task-source polyglot must be an existing .json file" in captured.err
 
     def test_temporary_env_override_restores_existing(self, monkeypatch):
-        monkeypatch.setenv("KCSI_TMP_ENV_OVERRIDE_TEST", "old")
-        with _temporary_env_override("KCSI_TMP_ENV_OVERRIDE_TEST", "new"):
-            assert cli_module.os.environ["KCSI_TMP_ENV_OVERRIDE_TEST"] == "new"
-        assert cli_module.os.environ["KCSI_TMP_ENV_OVERRIDE_TEST"] == "old"
+        monkeypatch.setenv("KSI_TMP_ENV_OVERRIDE_TEST", "old")
+        with _temporary_env_override("KSI_TMP_ENV_OVERRIDE_TEST", "new"):
+            assert cli_module.os.environ["KSI_TMP_ENV_OVERRIDE_TEST"] == "new"
+        assert cli_module.os.environ["KSI_TMP_ENV_OVERRIDE_TEST"] == "old"
 
     def test_temporary_env_override_removes_new_value(self, monkeypatch):
-        monkeypatch.delenv("KCSI_TMP_ENV_OVERRIDE_TEST", raising=False)
-        with _temporary_env_override("KCSI_TMP_ENV_OVERRIDE_TEST", "new"):
-            assert cli_module.os.environ["KCSI_TMP_ENV_OVERRIDE_TEST"] == "new"
-        assert "KCSI_TMP_ENV_OVERRIDE_TEST" not in cli_module.os.environ
+        monkeypatch.delenv("KSI_TMP_ENV_OVERRIDE_TEST", raising=False)
+        with _temporary_env_override("KSI_TMP_ENV_OVERRIDE_TEST", "new"):
+            assert cli_module.os.environ["KSI_TMP_ENV_OVERRIDE_TEST"] == "new"
+        assert "KSI_TMP_ENV_OVERRIDE_TEST" not in cli_module.os.environ
 
     def test_swebench_network_mode_none_maps_to_block_network(self):
         parser = build_parser()
@@ -423,7 +423,7 @@ class TestBuildParser:
             ]
         )
         evaluator = _choose_evaluator(args)
-        from kcsi.benchmarks import TerminalBench2Evaluator
+        from ksi.benchmarks import TerminalBench2Evaluator
 
         assert isinstance(evaluator, TerminalBench2Evaluator)
 
@@ -563,7 +563,7 @@ class TestBuildParser:
             ]
         )
 
-        with caplog.at_level(logging.WARNING, logger="kcsi.cli"):
+        with caplog.at_level(logging.WARNING, logger="ksi.cli"):
             cli_module._validate_and_normalize_args(args, parser)
 
         assert any(
@@ -585,7 +585,7 @@ class TestBuildParser:
         )
         assert args.drop_solved is True
 
-        with caplog.at_level(logging.WARNING, logger="kcsi.cli"):
+        with caplog.at_level(logging.WARNING, logger="ksi.cli"):
             cli_module._validate_and_normalize_args(args, parser)
 
         assert not any("--no-drop-solved is enabled" in rec.message for rec in caplog.records)
@@ -595,7 +595,7 @@ class TestBuildParser:
         # upstream_strict flag, not a parallel hardcoded list — otherwise a
         # future published source registered but not added here would silently
         # skip the disclosure warning (issue #1143 follow-up).
-        from kcsi.tasks import upstream_strict_task_sources
+        from ksi.tasks import upstream_strict_task_sources
 
         assert cli_module._PUBLISHED_BENCHMARK_TASK_SOURCES == frozenset(upstream_strict_task_sources())
 
@@ -676,7 +676,7 @@ class TestBuildParser:
     @pytest.mark.parametrize("timeout", [0, 600, 1800])
     def test_nonnegative_runtime_timeout_rejected_for_tb2(self, timeout, capsys):
         """TB2's timeout is NOT user-configurable: the per-task task.toml
-        [agent].timeout_sec is authoritative, so any KCSI-side hard cap (a
+        [agent].timeout_sec is authoritative, so any KSI-side hard cap (a
         non-negative value) is rejected — it could only truncate a task below
         its official budget."""
         parser, args = self._parse_with_timeout("terminal_bench_2", timeout)
@@ -822,7 +822,7 @@ class TestFilterTasks:
 
 class TestTraceDirDefaults:
     def test_default_trace_dir_when_env_unset(self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
-        monkeypatch.delenv("KCSI_TRACE_DIR", raising=False)
+        monkeypatch.delenv("KSI_TRACE_DIR", raising=False)
         monkeypatch.chdir(tmp_path)
         out = _ensure_trace_dir("arc 5a/5g:10t")
         p = Path(out)
@@ -832,7 +832,7 @@ class TestTraceDirDefaults:
 
     def test_preserve_existing_trace_dir_env(self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
         custom = tmp_path / "custom_traces" / "expA"
-        monkeypatch.setenv("KCSI_TRACE_DIR", str(custom))
+        monkeypatch.setenv("KSI_TRACE_DIR", str(custom))
         out = _ensure_trace_dir("ignored_experiment_name")
         p = Path(out)
         assert p.exists()
@@ -843,11 +843,11 @@ class TestTraceDirDefaults:
 class TestContainerNamePrefix:
     """Prefix must match container_runner.ts naming so `docker ps --filter` hits
     only containers belonging to this experiment. Regression guard: prior cleanup
-    filtered on `kcsi-runtime-` alone and cross-killed sibling experiments."""
+    filtered on `ksi-runtime-` alone and cross-killed sibling experiments."""
 
     def test_basic_experiment_name(self):
         # layout.sanitize_key keeps '_', then JS-side replace converts '_' to '-'
-        assert _runtime_container_name_prefix("arc2_audit_v3") == "kcsi-runtime-task--arc2-audit-v3--"
+        assert _runtime_container_name_prefix("arc2_audit_v3") == "ksi-runtime-task--arc2-audit-v3--"
 
     def test_differing_experiments_produce_distinct_prefixes(self):
         a = _runtime_container_name_prefix("arc2_audit")
@@ -857,7 +857,7 @@ class TestContainerNamePrefix:
 
     def test_empty_name_falls_back_to_default(self):
         # Matches layout.sanitize_key fallback behavior.
-        assert _runtime_container_name_prefix("") == "kcsi-runtime-task--default--"
+        assert _runtime_container_name_prefix("") == "ksi-runtime-task--default--"
 
     def test_name_longer_than_24_chars_is_truncated(self):
         # sanitize_key caps experiment_part at 24 chars so the container-name
@@ -865,13 +865,13 @@ class TestContainerNamePrefix:
         name = "very_long_experiment_name_that_exceeds_twenty_four_chars"
         prefix = _runtime_container_name_prefix(name)
         # Strip literal wrapper to recover the experiment-part segment.
-        segment = prefix[len("kcsi-runtime-task--") : -len("--")]
+        segment = prefix[len("ksi-runtime-task--") : -len("--")]
         assert len(segment) <= 24
 
     def test_special_characters_replaced(self):
         # sanitize_key converts non-[A-Za-z0-9._-] to '_', then JS replace
         # converts '_' and '.' to '-'. Slashes and spaces all collapse to '-'.
-        assert _runtime_container_name_prefix("arc 5a/5g:10t") == "kcsi-runtime-task--arc-5a-5g-10t--"
+        assert _runtime_container_name_prefix("arc 5a/5g:10t") == "ksi-runtime-task--arc-5a-5g-10t--"
 
 
 class TestContainerPrefixAutoSuffixDesync:
@@ -897,7 +897,7 @@ class TestContainerPrefixAutoSuffixDesync:
     def test_helper_updates_module_level_prefix(self):
         _set_container_name_prefix("arc_audit")
         assert cli_module._container_name_prefix == _runtime_container_name_prefix("arc_audit")
-        assert cli_module._container_name_prefix == "kcsi-runtime-task--arc-audit--"
+        assert cli_module._container_name_prefix == "ksi-runtime-task--arc-audit--"
 
     def test_recapture_after_engine_auto_suffix_hits_suffixed_prefix(self, tmp_path: Path):
         """Simulate the real bug: initial name "arc_audit" exists in the DB,
@@ -909,13 +909,13 @@ class TestContainerPrefixAutoSuffixDesync:
         original_name = "arc_audit"
         _set_container_name_prefix(original_name)
         initial_prefix = cli_module._container_name_prefix
-        assert initial_prefix == "kcsi-runtime-task--arc-audit--"
+        assert initial_prefix == "ksi-runtime-task--arc-audit--"
 
         # Phase 2: simulate engine.__init__ auto-suffix on DB collision. We
         # don't spin up the full orchestrator, but we do exercise the real
         # MemoryStore probe to prove has_experiment / next_experiment_name
         # produce the suffix the engine would apply.
-        from kcsi.memory.store import MemoryStore
+        from ksi.memory.store import MemoryStore
 
         db_path = str(tmp_path / "memory.sqlite")
         seed = MemoryStore(db_path, default_experiment=original_name)
@@ -938,7 +938,7 @@ class TestContainerPrefixAutoSuffixDesync:
         _set_container_name_prefix(suffixed)
 
         final_prefix = cli_module._container_name_prefix
-        assert final_prefix == "kcsi-runtime-task--arc-audit-2--"
+        assert final_prefix == "ksi-runtime-task--arc-audit-2--"
         assert final_prefix != initial_prefix, (
             "prefix must change after auto-suffix; else atexit cleanup targets "
             "the stale unsuffixed prefix and misses this run's containers"
@@ -947,7 +947,7 @@ class TestContainerPrefixAutoSuffixDesync:
     def test_no_auto_suffix_leaves_prefix_stable(self, tmp_path: Path):
         """'Starts clean' path -- no collision, no suffix. Re-capturing with
         the unchanged experiment name must be a no-op (same prefix value)."""
-        from kcsi.memory.store import MemoryStore
+        from ksi.memory.store import MemoryStore
 
         name = "fresh_experiment"
         _set_container_name_prefix(name)
@@ -969,7 +969,7 @@ class TestContainerPrefixAutoSuffixDesync:
 class TestDbPathValidation:
     def test_identical_runtime_and_knowledge_db_path_raises(self, tmp_path):
         """F5: two stores on same file recreates AB-BA hazard (PR #368)."""
-        from kcsi.cli import _validate_db_paths
+        from ksi.cli import _validate_db_paths
 
         shared = str(tmp_path / "shared.sqlite")
         with pytest.raises(ValueError, match="must differ"):
@@ -980,13 +980,13 @@ class TestDbPathValidation:
         real.touch()
         link = tmp_path / "link.sqlite"
         link.symlink_to(real)
-        from kcsi.cli import _validate_db_paths
+        from ksi.cli import _validate_db_paths
 
         with pytest.raises(ValueError, match="must differ"):
             _validate_db_paths(runtime_db_path=str(real), knowledge_db_path=str(link))
 
     def test_different_paths_accepted(self, tmp_path):
-        from kcsi.cli import _validate_db_paths
+        from ksi.cli import _validate_db_paths
 
         _validate_db_paths(
             runtime_db_path=str(tmp_path / "runtime.sqlite"),
@@ -998,7 +998,7 @@ class TestDbPathValidation:
         (runtime_runner/src/container_mounts.ts::addSqliteFileMounts) — a
         basename collision across different directories makes Docker refuse
         to start the container with "Duplicate mount point"."""
-        from kcsi.cli import _validate_db_paths
+        from ksi.cli import _validate_db_paths
 
         (tmp_path / "a").mkdir()
         (tmp_path / "b").mkdir()
@@ -1009,7 +1009,7 @@ class TestDbPathValidation:
             )
 
     def test_empty_runtime_path_accepted(self, tmp_path):
-        from kcsi.cli import _validate_db_paths
+        from ksi.cli import _validate_db_paths
 
         _validate_db_paths(
             runtime_db_path="",
@@ -1065,7 +1065,7 @@ def test_cleanup_containers_scoped_to_experiment_prefix(monkeypatch):
     prefix only (never cross-kill a sibling experiment's workers)."""
     import subprocess as sp_mod
 
-    import kcsi.cli as cli_module
+    import ksi.cli as cli_module
 
     seen_filters = []
 
@@ -1077,7 +1077,7 @@ def test_cleanup_containers_scoped_to_experiment_prefix(monkeypatch):
             seen_filters.append(cmd[-1])
         return _Result()
 
-    monkeypatch.setattr(cli_module, "_container_name_prefix", "kcsi-runtime-task--myexp--")
+    monkeypatch.setattr(cli_module, "_container_name_prefix", "ksi-runtime-task--myexp--")
     monkeypatch.setattr(sp_mod, "run", fake_run)
     cli_module._cleanup_containers()
-    assert seen_filters == ["name=kcsi-runtime-task--myexp--"]
+    assert seen_filters == ["name=ksi-runtime-task--myexp--"]

@@ -1,6 +1,6 @@
 # Custom-tasks demo
 
-Runs KCSI on three self-contained tasks (`fizzbuzz`, `reverse-words`,
+Runs KSI on three self-contained tasks (`fizzbuzz`, `reverse-words`,
 `anagram-groups`) defined entirely in `tasks.jsonl` — no benchmark dataset
 download required. Each eval only needs host `python3`, no pip deps.
 
@@ -32,14 +32,14 @@ reach by construction. Exit 0 scores 1.0, nonzero scores 0.0 (a `score.json`
 credit).
 
 **SECURITY:** the eval command comes straight from the tasks file you point
-KCSI at. Do not run a custom tasks file you don't trust.
+KSI at. Do not run a custom tasks file you don't trust.
 
 ## Run it
 
 CLI form:
 
 ```bash
-PROVIDER_PROFILE=configs/kcsi/.env.haiku bash examples/custom_tasks/run.sh
+PROVIDER_PROFILE=configs/ksi/.env.haiku bash examples/custom_tasks/run.sh
 ```
 
 Programmatic form:
@@ -48,8 +48,8 @@ Programmatic form:
 uv run python examples/custom_tasks/run.py
 ```
 
-Both need Docker running, the `kcsi-agent:bench` image built, and a
-provider profile with a real API key (see `configs/kcsi/*.template`).
+Both need Docker running, the `ksi-agent:bench` image built, and a
+provider profile with a real API key (see `configs/ksi/*.template`).
 
 ## Expected output
 

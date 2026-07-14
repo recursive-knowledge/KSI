@@ -12,8 +12,8 @@ import json
 
 import pytest
 
-from kcsi.cli import _resolve_holdout_ids, _select_holdout_tasks, build_parser
-from kcsi.models import GenerationConfig, TaskSpec
+from ksi.cli import _resolve_holdout_ids, _select_holdout_tasks, build_parser
+from ksi.models import GenerationConfig, TaskSpec
 
 
 def _tasks(*ids: str) -> list[TaskSpec]:

@@ -2,7 +2,7 @@
 
 
 def test_forum_package_reexports_public_api():
-    from kcsi.forum import (
+    from ksi.forum import (
         ForumPromptParts,
         build_cross_task_discussion_parts,
         build_per_task_discussion_parts,
@@ -14,6 +14,6 @@ def test_forum_package_reexports_public_api():
 
 
 def test_private_inject_chars_accessible_via_prompt_module():
-    from kcsi.forum.prompt import _NATIVE_MEMORY_FORUM_INJECT_CHARS
+    from ksi.forum.prompt import _NATIVE_MEMORY_FORUM_INJECT_CHARS
 
     assert isinstance(_NATIVE_MEMORY_FORUM_INJECT_CHARS, int)

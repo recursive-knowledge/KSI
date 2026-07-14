@@ -21,9 +21,9 @@ import threading
 import time
 from unittest.mock import MagicMock, patch
 
-from kcsi.memory.forum_bus import ForumBus
-from kcsi.models import GenerationConfig, TaskTrace
-from kcsi.orchestrator.engine import (
+from ksi.memory.forum_bus import ForumBus
+from ksi.models import GenerationConfig, TaskTrace
+from ksi.orchestrator.engine import (
     GenerationalOrchestrator,
     NoopPersistence,
     _all_expected_signalled,
@@ -32,8 +32,8 @@ from kcsi.orchestrator.engine import (
     _read_done_agent_ids,
     _read_done_signals,
 )
-from kcsi.runtime.types import RuntimeResult
-from kcsi.tokens import LLMResponse, TokenUsage
+from ksi.runtime.types import RuntimeResult
+from ksi.tokens import LLMResponse, TokenUsage
 from tests.orchestrator_phase_helpers import per_task_forum
 
 # ---------------------------------------------------------------------------
@@ -164,7 +164,7 @@ def test_forum_container_prefix_per_task():
         generation=2,
         phase="per_task",
     )
-    assert pfx == "kcsi-runtime-task--myexp--forum--g2"
+    assert pfx == "ksi-runtime-task--myexp--forum--g2"
 
 
 def test_forum_container_prefix_cross_task():
@@ -173,7 +173,7 @@ def test_forum_container_prefix_cross_task():
         generation=2,
         phase="cross_task",
     )
-    assert pfx == "kcsi-runtime-task--myexp--cross-task-forum--g2"
+    assert pfx == "ksi-runtime-task--myexp--cross-task-forum--g2"
 
 
 # ---------------------------------------------------------------------------
@@ -192,7 +192,7 @@ def _start_watcher(bus, *, expected=None, expected_agents=None, agent_only=False
         round_num=round_num,
         stop_event=stop_event,
         triggered_event=triggered,
-        container_name_prefixes=["kcsi-runtime-task--test-noop"],
+        container_name_prefixes=["ksi-runtime-task--test-noop"],
         poll_interval_sec=poll_sec,
         phase_label="unittest",
     )
@@ -221,7 +221,7 @@ def test_watcher_triggers_when_all_agents_signal(tmp_path):
         poll_sec=0.05,
     )
     # Stub the docker-stop helper so tests don't touch the daemon
-    with patch("kcsi.orchestrator.forum_runtime._stop_forum_containers", return_value=0):
+    with patch("ksi.orchestrator.forum_runtime._stop_forum_containers", return_value=0):
         watcher.start()
         # Wait up to 5s for the watcher to notice and trigger
         assert triggered.wait(timeout=5.0), "watcher did not trigger on all-done"
@@ -265,7 +265,7 @@ def test_watcher_respects_hard_timeout_when_no_signals(tmp_path):
         expected={"t1": {"a", "b"}},
         poll_sec=0.05,
     )
-    with patch("kcsi.orchestrator.forum_runtime._stop_forum_containers", return_value=0):
+    with patch("ksi.orchestrator.forum_runtime._stop_forum_containers", return_value=0):
         watcher.start()
         # Sleep longer than several poll intervals; watcher should NOT trigger.
         time.sleep(0.3)
@@ -297,7 +297,7 @@ def test_watcher_partial_signals_no_trigger(tmp_path):
         expected={"t1": {"a", "b", "c"}},
         poll_sec=0.05,
     )
-    with patch("kcsi.orchestrator.forum_runtime._stop_forum_containers", return_value=0):
+    with patch("ksi.orchestrator.forum_runtime._stop_forum_containers", return_value=0):
         watcher.start()
         time.sleep(0.3)
         assert not triggered.is_set(), "watcher fired on partial signals"
@@ -313,7 +313,7 @@ def test_watcher_triggers_after_late_signal(tmp_path):
         expected={"t1": {"a", "b"}},
         poll_sec=0.05,
     )
-    with patch("kcsi.orchestrator.forum_runtime._stop_forum_containers", return_value=0):
+    with patch("ksi.orchestrator.forum_runtime._stop_forum_containers", return_value=0):
         watcher.start()
         time.sleep(0.15)  # a few polls where no signals exist
         assert not triggered.is_set()
@@ -346,7 +346,7 @@ def test_watcher_cross_task_agent_only_trigger(tmp_path):
         agent_only=True,
         poll_sec=0.05,
     )
-    with patch("kcsi.orchestrator.forum_runtime._stop_forum_containers", return_value=0):
+    with patch("ksi.orchestrator.forum_runtime._stop_forum_containers", return_value=0):
         watcher.start()
         assert triggered.wait(timeout=5.0)
         stop_event.set()
@@ -362,7 +362,7 @@ def test_watcher_cross_task_partial_no_trigger(tmp_path):
         agent_only=True,
         poll_sec=0.05,
     )
-    with patch("kcsi.orchestrator.forum_runtime._stop_forum_containers", return_value=0):
+    with patch("ksi.orchestrator.forum_runtime._stop_forum_containers", return_value=0):
         watcher.start()
         time.sleep(0.3)
         assert not triggered.is_set()
@@ -402,7 +402,7 @@ def _start_watcher_with_quorum(
         round_num=round_num,
         stop_event=stop_event,
         triggered_event=triggered,
-        container_name_prefixes=["kcsi-runtime-task--test-noop"],
+        container_name_prefixes=["ksi-runtime-task--test-noop"],
         poll_interval_sec=poll_sec,
         phase_label="unittest",
         quorum_pct=quorum_pct,
@@ -426,7 +426,7 @@ def test_watcher_default_quorum_100_never_cuts_off_stragglers(tmp_path):
         agent_only=True,
         quorum_grace_sec=0.1,  # grace configured, but quorum_pct still 100 (default)
     )
-    with patch("kcsi.orchestrator.forum_runtime._stop_forum_containers", return_value=0):
+    with patch("ksi.orchestrator.forum_runtime._stop_forum_containers", return_value=0):
         watcher.start()
         time.sleep(0.4)  # well past the grace window
         assert not triggered.is_set(), "default quorum_pct=100 must require every agent"
@@ -447,7 +447,7 @@ def test_watcher_quorum_below_threshold_no_trigger(tmp_path):
         quorum_pct=75.0,
         quorum_grace_sec=0.1,
     )
-    with patch("kcsi.orchestrator.forum_runtime._stop_forum_containers", return_value=0):
+    with patch("ksi.orchestrator.forum_runtime._stop_forum_containers", return_value=0):
         watcher.start()
         time.sleep(0.4)
         assert not triggered.is_set(), "watcher fired below the configured quorum"
@@ -471,7 +471,7 @@ def test_watcher_quorum_triggers_after_grace_window_cross_task(tmp_path):
         quorum_pct=75.0,
         quorum_grace_sec=0.1,
     )
-    with patch("kcsi.orchestrator.forum_runtime._stop_forum_containers", return_value=0):
+    with patch("ksi.orchestrator.forum_runtime._stop_forum_containers", return_value=0):
         watcher.start()
         assert triggered.wait(timeout=5.0), "watcher never fired on quorum+grace"
         stop_event.set()
@@ -491,7 +491,7 @@ def test_watcher_quorum_triggers_after_grace_window_per_task(tmp_path):
         quorum_pct=60.0,
         quorum_grace_sec=0.1,
     )
-    with patch("kcsi.orchestrator.forum_runtime._stop_forum_containers", return_value=0):
+    with patch("ksi.orchestrator.forum_runtime._stop_forum_containers", return_value=0):
         watcher.start()
         assert triggered.wait(timeout=5.0), "per-task watcher never fired on quorum+grace"
         stop_event.set()
@@ -514,7 +514,7 @@ def test_watcher_quorum_does_not_trigger_before_grace_elapses(tmp_path):
         quorum_pct=75.0,
         quorum_grace_sec=1.0,  # long enough that an immediate fire would be caught
     )
-    with patch("kcsi.orchestrator.forum_runtime._stop_forum_containers", return_value=0):
+    with patch("ksi.orchestrator.forum_runtime._stop_forum_containers", return_value=0):
         watcher.start()
         time.sleep(0.3)  # quorum reached well before this, but grace has not elapsed
         assert not triggered.is_set(), "watcher fired before the grace window elapsed"
@@ -528,7 +528,7 @@ def test_watcher_quorum_does_not_trigger_before_grace_elapses(tmp_path):
 
 
 def test_cli_forum_early_exit_default_off():
-    from kcsi.cli import build_parser
+    from ksi.cli import build_parser
 
     parser = build_parser()
     args = parser.parse_args(["--task-source", "arc", "--tasks-path", "/tmp/x"])
@@ -536,7 +536,7 @@ def test_cli_forum_early_exit_default_off():
 
 
 def test_cli_forum_early_exit_can_opt_in():
-    from kcsi.cli import build_parser
+    from ksi.cli import build_parser
 
     parser = build_parser()
     args = parser.parse_args(["--task-source", "arc", "--tasks-path", "/tmp/x", "--forum-early-exit", "true"])
@@ -544,7 +544,7 @@ def test_cli_forum_early_exit_can_opt_in():
 
 
 def test_cli_forum_early_exit_off():
-    from kcsi.cli import build_parser
+    from ksi.cli import build_parser
 
     parser = build_parser()
     args = parser.parse_args(["--task-source", "arc", "--tasks-path", "/tmp/x", "--forum-early-exit", "off"])
@@ -552,7 +552,7 @@ def test_cli_forum_early_exit_off():
 
 
 def test_cli_forum_early_exit_poll_override():
-    from kcsi.cli import build_parser
+    from ksi.cli import build_parser
 
     parser = build_parser()
     args = parser.parse_args(["--task-source", "arc", "--tasks-path", "/tmp/x", "--forum-early-exit-poll-sec", "1.5"])
@@ -561,7 +561,7 @@ def test_cli_forum_early_exit_poll_override():
 
 def test_cli_forum_early_exit_quorum_pct_default_is_100():
     """Default must preserve the pre-#1045 all-required behavior."""
-    from kcsi.cli import build_parser
+    from ksi.cli import build_parser
 
     parser = build_parser()
     args = parser.parse_args(["--task-source", "arc", "--tasks-path", "/tmp/x"])
@@ -569,7 +569,7 @@ def test_cli_forum_early_exit_quorum_pct_default_is_100():
 
 
 def test_cli_forum_early_exit_quorum_pct_override():
-    from kcsi.cli import build_parser
+    from ksi.cli import build_parser
 
     parser = build_parser()
     args = parser.parse_args(["--task-source", "arc", "--tasks-path", "/tmp/x", "--forum-early-exit-quorum-pct", "80"])
@@ -577,7 +577,7 @@ def test_cli_forum_early_exit_quorum_pct_override():
 
 
 def test_cli_forum_early_exit_quorum_grace_sec_default_is_zero():
-    from kcsi.cli import build_parser
+    from ksi.cli import build_parser
 
     parser = build_parser()
     args = parser.parse_args(["--task-source", "arc", "--tasks-path", "/tmp/x"])
@@ -585,7 +585,7 @@ def test_cli_forum_early_exit_quorum_grace_sec_default_is_zero():
 
 
 def test_cli_forum_early_exit_quorum_grace_sec_override():
-    from kcsi.cli import build_parser
+    from ksi.cli import build_parser
 
     parser = build_parser()
     args = parser.parse_args(
@@ -625,7 +625,7 @@ def _make_orch(tmp_path, runtime, *, early_exit_enabled: bool = True) -> Generat
         num_agents=2,
         knowledge_db_path=db_path,
         # Pin explicitly: the ForumBus writes below use experiment="default",
-        # and the dataclass default is now "kcsi" (CLI parity, #732).
+        # and the dataclass default is now "ksi" (CLI parity, #732).
         experiment_name="default",
     )
     config.per_task_forum_rounds = 1
@@ -692,7 +692,7 @@ def test_per_task_forum_phase_triggers_early_exit(tmp_path):
         called.append(list(prefixes))
         return 0
 
-    with patch("kcsi.orchestrator.forum_runtime._stop_forum_containers", side_effect=fake_stop):
+    with patch("ksi.orchestrator.forum_runtime._stop_forum_containers", side_effect=fake_stop):
         per_task_forum(orch, generation=1, traces=traces)
 
     # The watcher should have fired once (both agents signalled done on t1)
@@ -743,7 +743,7 @@ def test_per_task_forum_phase_no_early_exit_when_flag_off(tmp_path):
     called: list[list[str]] = []
 
     with patch(
-        "kcsi.orchestrator.forum_runtime._stop_forum_containers",
+        "ksi.orchestrator.forum_runtime._stop_forum_containers",
         side_effect=lambda p: called.append(list(p)) or 0,
     ):
         per_task_forum(orch, generation=1, traces=traces)

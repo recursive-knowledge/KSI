@@ -1,6 +1,6 @@
 # Your own tasks
 
-The built-in `custom` task source runs KCSI on any set of tasks you define —
+The built-in `custom` task source runs KSI on any set of tasks you define —
 no benchmark dataset, no loader code. Point `--task-source custom` (or
 `load_tasks_for_source(task_source="custom", ...)`) at a `.json` or `.jsonl`
 file, and each record becomes one attempt.
@@ -21,7 +21,7 @@ file, and each record becomes one attempt.
 | Field | Required | Notes |
 |-------|----------|-------|
 | `task_id` | yes | Must be unique within the file. |
-| `prompt` | yes | The instruction shown to the agent. KCSI appends a short note pointing it at `repo/` (see below). |
+| `prompt` | yes | The instruction shown to the agent. KSI appends a short note pointing it at `repo/` (see below). |
 | `workspace_dir` | no | A directory of starting files, resolved relative to the tasks file. Mutually exclusive with `files`. |
 | `files` | no | An inline `{relative/path: content}` map of starting files, materialized into a temp directory at load time. Mutually exclusive with `workspace_dir`. Paths must be relative and may not contain `..`. |
 | `eval` | no | `{"command": "...", "timeout_sec": 300}`. Omit entirely for an unscored/manual-inspection task. |
@@ -35,7 +35,7 @@ starts the agent from an empty `repo/`.
 
 ## The workspace / `repo/` contract
 
-Whichever way you supply starting files, KCSI seeds them into the agent's
+Whichever way you supply starting files, KSI seeds them into the agent's
 workspace under a `repo/` directory before the attempt starts (the same seam
 the benchmark task sources use). The agent is told in its prompt that
 `repo/` holds the task's starting files and that it should create or edit
@@ -43,7 +43,7 @@ files there. After the attempt, the `command` evaluator (below) runs in a
 post-attempt copy of that same directory.
 
 **Known limitation — workspace capture is capped at 12 files.** By default
-KCSI wipes the container workspace after each task
+KSI wipes the container workspace after each task
 (`--wipe-workspace-per-task true`), so grading runs against a *captured* copy
 of `repo/` rather than the live container filesystem. For a generic (non
 -benchmark) task source, that capture channel reads back at most 12 files
@@ -66,7 +66,7 @@ assets staying pristine.
 
 ## The `command` evaluator contract
 
-`--evaluator command` (`kcsi.eval.command.CommandEvaluator`) runs
+`--evaluator command` (`ksi.eval.command.CommandEvaluator`) runs
 `eval.command` as a shell command in the workspace described above, **on the
 host** — never inside the agent's container.
 
@@ -84,8 +84,8 @@ host** — never inside the agent's container.
   that fails to spawn is unscored for the same reason.
 
 **Security:** the eval command comes straight from the tasks file you point
-KCSI at, and runs with the privileges of whoever launches the run. **Do not
-point KCSI at a tasks file you don't trust.**
+KSI at, and runs with the privileges of whoever launches the run. **Do not
+point KSI at a tasks file you don't trust.**
 
 ## JSONL vs. Python `TaskSpec` forms
 
@@ -94,7 +94,7 @@ The JSONL/JSON file form above is the quickest path and is what
 [Programmatic API](programmatic_api.md)), you can either load the same file:
 
 ```python
-from kcsi.tasks.loaders import load_tasks_for_source
+from ksi.tasks.loaders import load_tasks_for_source
 
 tasks = load_tasks_for_source(task_source="custom", tasks_path="tasks.jsonl")
 ```
@@ -103,7 +103,7 @@ or hand-build `TaskSpec` objects directly, bypassing the file entirely — this
 is what `load_custom_tasks` produces under the hood:
 
 ```python
-from kcsi.models import TaskSpec
+from ksi.models import TaskSpec
 
 tasks = [
     TaskSpec(

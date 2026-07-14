@@ -1,8 +1,8 @@
 from unittest.mock import MagicMock, call
 
-from kcsi.models import GenerationConfig, TaskTrace
-from kcsi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
-from kcsi.orchestrator.forum_phase import (
+from ksi.models import GenerationConfig, TaskTrace
+from ksi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
+from ksi.orchestrator.forum_phase import (
     CrossTaskForumPhaseInput,
     EngineForumPhaseService,
     PerTaskForumPhaseInput,
@@ -78,7 +78,7 @@ def test_shared_container_service_accepts_phase_arguments():
 
 
 def test_forum_body_has_no_engine_access():
-    from kcsi.orchestrator import forum_phase
+    from ksi.orchestrator import forum_phase
 
     offenders = functions_referencing_engine(forum_phase.__file__)
     assert offenders <= {"_collaborators"}, offenders
@@ -87,7 +87,7 @@ def test_forum_body_has_no_engine_access():
 def test_forum_collaborators_is_frozen():
     from dataclasses import FrozenInstanceError
 
-    from kcsi.orchestrator.forum_phase import ForumCollaborators
+    from ksi.orchestrator.forum_phase import ForumCollaborators
 
     c = ForumCollaborators(
         config=object(),

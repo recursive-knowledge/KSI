@@ -6,7 +6,7 @@
  * the upstream fix/issue/PR instead of solving the task, and only Claude got
  * these tools (GPT had none) — a provider asymmetry on top of the
  * contamination risk. This fix makes web tools default OFF for ALL benchmark
- * tasks; an operator opts a run in with KCSI_ALLOW_WEB_TOOLS=1. ARC stays
+ * tasks; an operator opts a run in with KSI_ALLOW_WEB_TOOLS=1. ARC stays
  * strictly offline regardless of the flag.
  *
  * These are source-text invariant pins. CI runs `node tests/js/*.test.mjs`
@@ -16,7 +16,7 @@
  * exercise the pure truthy semantics by re-implementing them.
  *
  * They guarantee:
- *   1. The web-tool opt-in is GATED behind KCSI_ALLOW_WEB_TOOLS (default OFF).
+ *   1. The web-tool opt-in is GATED behind KSI_ALLOW_WEB_TOOLS (default OFF).
  *   2. Web tools are added to allowedTools ONLY when enabled (flag on + non-ARC).
  *   3. The DENIAL is enforced via disallowedTools (not mere omission) whenever
  *      web tools are not enabled — the claude_code preset would otherwise
@@ -58,7 +58,7 @@ const containerRunner = fs.readFileSync(
   'utf-8',
 );
 const containerHost = fs.readFileSync(
-  path.join(repoRoot, 'src', 'kcsi', 'runtime', 'container_host.py'),
+  path.join(repoRoot, 'src', 'ksi', 'runtime', 'container_host.py'),
   'utf-8',
 );
 
@@ -67,7 +67,7 @@ const containerHost = fs.readFileSync(
 // web_tools.ts is exercised behaviorally (via tsx) in
 // tests/js/web_tools_gating.test.mjs; here we only pin the source contract.
 function isWebToolsAllowed(env) {
-  const raw = String(env.KCSI_ALLOW_WEB_TOOLS ?? '').trim().toLowerCase();
+  const raw = String(env.KSI_ALLOW_WEB_TOOLS ?? '').trim().toLowerCase();
   if (!raw) return false;
   return !['0', 'false', 'no', 'off'].includes(raw);
 }
@@ -75,14 +75,14 @@ function isWebToolsAllowed(env) {
 describe('Web tools — flag truthiness (default OFF)', () => {
   it('treats unset / empty as OFF', () => {
     assert.equal(isWebToolsAllowed({}), false);
-    assert.equal(isWebToolsAllowed({ KCSI_ALLOW_WEB_TOOLS: '' }), false);
-    assert.equal(isWebToolsAllowed({ KCSI_ALLOW_WEB_TOOLS: '   ' }), false);
+    assert.equal(isWebToolsAllowed({ KSI_ALLOW_WEB_TOOLS: '' }), false);
+    assert.equal(isWebToolsAllowed({ KSI_ALLOW_WEB_TOOLS: '   ' }), false);
   });
 
   it('treats false-y tokens as OFF', () => {
     for (const v of ['0', 'false', 'no', 'off', 'FALSE', 'Off', 'NO']) {
       assert.equal(
-        isWebToolsAllowed({ KCSI_ALLOW_WEB_TOOLS: v }),
+        isWebToolsAllowed({ KSI_ALLOW_WEB_TOOLS: v }),
         false,
         `expected ${v} to be OFF`,
       );
@@ -92,7 +92,7 @@ describe('Web tools — flag truthiness (default OFF)', () => {
   it('treats 1/true and other non-empty values as ON', () => {
     for (const v of ['1', 'true', 'yes', 'on', 'TRUE']) {
       assert.equal(
-        isWebToolsAllowed({ KCSI_ALLOW_WEB_TOOLS: v }),
+        isWebToolsAllowed({ KSI_ALLOW_WEB_TOOLS: v }),
         true,
         `expected ${v} to be ON`,
       );
@@ -101,9 +101,9 @@ describe('Web tools — flag truthiness (default OFF)', () => {
 });
 
 describe('Web tools — web_tools.ts gating logic (issue #666)', () => {
-  it('exports isWebToolsAllowed reading KCSI_ALLOW_WEB_TOOLS with false-y off-list', () => {
+  it('exports isWebToolsAllowed reading KSI_ALLOW_WEB_TOOLS with false-y off-list', () => {
     assert.match(webTools, /export function isWebToolsAllowed\(/);
-    assert.match(webTools, /KCSI_ALLOW_WEB_TOOLS/);
+    assert.match(webTools, /KSI_ALLOW_WEB_TOOLS/);
     assert.match(webTools, /\['0', 'false', 'no', 'off'\]/);
   });
 
@@ -171,23 +171,23 @@ describe('Web tools — index.ts wiring (issue #666)', () => {
     assert.match(index, /webToolGating\.reason/);
     // ARC reason, flag-on reason, default-off reason all present (in web_tools.ts).
     assert.match(webTools, /ARC offline benchmark \(web tools always denied\)/);
-    assert.match(webTools, /KCSI_ALLOW_WEB_TOOLS=1/);
+    assert.match(webTools, /KSI_ALLOW_WEB_TOOLS=1/);
     assert.match(webTools, /default-off/);
   });
 });
 
 describe('Web tools — host -> container threading (issue #666)', () => {
-  it('container_args.ts forwards KCSI_ALLOW_WEB_TOOLS into the container env', () => {
-    assert.match(containerRunner, /'KCSI_ALLOW_WEB_TOOLS'/);
+  it('container_args.ts forwards KSI_ALLOW_WEB_TOOLS into the container env', () => {
+    assert.match(containerRunner, /'KSI_ALLOW_WEB_TOOLS'/);
   });
 
-  it('container_host.py threads KCSI_ALLOW_WEB_TOOLS from host env into the runner env', () => {
-    assert.match(containerHost, /KCSI_ALLOW_WEB_TOOLS/);
+  it('container_host.py threads KSI_ALLOW_WEB_TOOLS from host env into the runner env', () => {
+    assert.match(containerHost, /KSI_ALLOW_WEB_TOOLS/);
     // Threaded via the same setdefault-from-os.environ pattern as the other
     // runtime knobs (does not clobber a provider-profile-supplied value).
     assert.match(
       containerHost,
-      /for web_key in \("KCSI_ALLOW_WEB_TOOLS",\):/,
+      /for web_key in \("KSI_ALLOW_WEB_TOOLS",\):/,
     );
   });
 });

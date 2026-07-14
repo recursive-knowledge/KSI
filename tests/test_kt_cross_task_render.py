@@ -17,7 +17,7 @@ import json
 from pathlib import Path
 from unittest.mock import MagicMock
 
-from kcsi.runtime.seeding import _render_bundle_item
+from ksi.runtime.seeding import _render_bundle_item
 
 
 def test_render_bundle_item_structured_dict_produces_clean_markdown(structured_insight):
@@ -109,13 +109,13 @@ def _build_orchestrator_with_two_agents(no_memory: bool = False):
     (which silently breaks if ``__init__`` adds new required state).
 
     Adaptation: the canonical config class is ``GenerationConfig`` from
-    ``kcsi.models`` (not ``OrchestratorConfig`` -- the latter does not
+    ``ksi.models`` (not ``OrchestratorConfig`` -- the latter does not
     exist in this repo). We construct a 2-agent config and then replace
     ``orch.agents`` with stubs whose ``seed_package`` defaults to
     ``None`` so we can assert "untouched" cleanly.
     """
-    from kcsi.models import GenerationConfig
-    from kcsi.orchestrator.engine import GenerationalOrchestrator
+    from ksi.models import GenerationConfig
+    from ksi.orchestrator.engine import GenerationalOrchestrator
 
     config = GenerationConfig(
         num_generations=1,

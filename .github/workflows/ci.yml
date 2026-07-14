@@ -46,7 +46,7 @@ jobs:
         run: uv run ruff format --check src tests scripts examples
 
       - name: Mypy (whole package)
-        # Runs over ALL of src/kcsi so every NEW module is type-checked by
+        # Runs over ALL of src/ksi so every NEW module is type-checked by
         # default — honoring the shipped py.typed marker (#1227). The modules
         # that still carry pre-existing errors are EXPLICITLY opted out via
         # per-module `[[tool.mypy.overrides]] ignore_errors = true` entries in
@@ -54,27 +54,27 @@ jobs:
         # visible in config rather than hidden behind a hand-picked path list.
         # Ratchet: delete a module from that override list as it reaches zero
         # errors. --follow-imports=silent keeps cross-module noise out.
-        run: uv run mypy src/kcsi --follow-imports=silent
+        run: uv run mypy src/ksi --follow-imports=silent
 
       - name: Cache polyglot eval Docker image
-        # kcsi-polyglot-eval:latest is a multi-language toolchain image
+        # ksi-polyglot-eval:latest is a multi-language toolchain image
         # (Go/Rust/JDK/Miniconda/npm) — rebuilding it from scratch on every
         # CI run would badly slow the hot PR-gating job. Cache the saved
         # image keyed on the recipe file so a full rebuild only happens when
         # the recipe itself changes (#1027).
         uses: actions/cache@v4
         with:
-          path: ~/docker-cache/kcsi-polyglot-eval.tar
-          key: polyglot-eval-image-${{ hashFiles('src/kcsi/benchmarks/polyglot_docker.py') }}
+          path: ~/docker-cache/ksi-polyglot-eval.tar
+          key: polyglot-eval-image-${{ hashFiles('src/ksi/benchmarks/polyglot_docker.py') }}
 
       - name: Build or restore polyglot eval Docker image
         run: |
           mkdir -p ~/docker-cache
-          if [ -f ~/docker-cache/kcsi-polyglot-eval.tar ]; then
-            docker load -i ~/docker-cache/kcsi-polyglot-eval.tar
+          if [ -f ~/docker-cache/ksi-polyglot-eval.tar ]; then
+            docker load -i ~/docker-cache/ksi-polyglot-eval.tar
           else
-            uv run python -c "from kcsi.benchmarks.polyglot_docker import build_image; build_image()"
-            docker save kcsi-polyglot-eval:latest -o ~/docker-cache/kcsi-polyglot-eval.tar
+            uv run python -c "from ksi.benchmarks.polyglot_docker import build_image; build_image()"
+            docker save ksi-polyglot-eval:latest -o ~/docker-cache/ksi-polyglot-eval.tar
           fi
 
       - name: Install runtime runner dependencies
@@ -91,7 +91,7 @@ jobs:
           # Fail hard if tooling (npm/node/tsc) is unavailable or `npm ci`
           # fails, instead of silently skipping and going green (issue #1226).
           # GitHub Actions already sets CI=true; this is belt-and-suspenders.
-          KCSI_TYPECHECK_STRICT: "1"
+          KSI_TYPECHECK_STRICT: "1"
 
       - name: JavaScript regression tests
         # Single built-in runner aggregates failures across all files. A bash
@@ -133,7 +133,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: benchmarks/swebench_pro/evaluator
-          key: swebench-pro-evaluator-${{ hashFiles('src/kcsi/benchmarks/swebench_pro_external.py', 'benchmarks/scripts/dataprep/setup_swebench_pro_evaluator.py', 'benchmarks/swebench_pro/evaluator_patches/*.patch') }}
+          key: swebench-pro-evaluator-${{ hashFiles('src/ksi/benchmarks/swebench_pro_external.py', 'benchmarks/scripts/dataprep/setup_swebench_pro_evaluator.py', 'benchmarks/swebench_pro/evaluator_patches/*.patch') }}
 
       - name: Setup SWE-bench Pro evaluator (no dataset)
         run: >-

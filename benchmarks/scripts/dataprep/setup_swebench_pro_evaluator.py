@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Install and verify the external SWE-bench Pro evaluator checkout.
 
-The kcsi repository keeps SWE-bench Pro dataset/task-map artifacts in tree,
+The ksi repository keeps SWE-bench Pro dataset/task-map artifacts in tree,
 but the official evaluator is an external benchmark oracle. This script pins
 that checkout, verifies the per-instance assets needed by the local dataset,
 and creates compatibility links for older baseline adapters.
@@ -19,7 +19,7 @@ import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 
-from kcsi.benchmarks.swebench_pro_external import (
+from ksi.benchmarks.swebench_pro_external import (
     DEFAULT_DATASET_RELATIVE,
     DEFAULT_EVALUATOR_RELATIVE,
     EVALUATOR_PATCHES_RELATIVE,
@@ -34,7 +34,7 @@ DEFAULT_REPO_URL = EVALUATOR_REPO_URL
 DEFAULT_REVISION = EVALUATOR_REVISION
 DEFAULT_EVALUATOR_DIR = REPO_ROOT / DEFAULT_EVALUATOR_RELATIVE
 DEFAULT_DATASET_PATH = REPO_ROOT / DEFAULT_DATASET_RELATIVE
-KCSI_EVALUATOR_PATCHES_DIR = REPO_ROOT / EVALUATOR_PATCHES_RELATIVE
+KSI_EVALUATOR_PATCHES_DIR = REPO_ROOT / EVALUATOR_PATCHES_RELATIVE
 
 COMPATIBILITY_LINKS = (REPO_ROOT / "benchmarks" / "swebench_pro" / "source",)
 
@@ -204,12 +204,12 @@ def _write_patch_state(evaluator_dir: Path, records: list[dict[str, str]]) -> No
     _patch_state_path(evaluator_dir).write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
-def apply_kcsi_evaluator_patches(
+def apply_ksi_evaluator_patches(
     *,
     evaluator_dir: Path,
-    patches_dir: Path = KCSI_EVALUATOR_PATCHES_DIR,
+    patches_dir: Path = KSI_EVALUATOR_PATCHES_DIR,
 ) -> None:
-    """Apply kcsi-side patches to the SWE-bench Pro evaluator checkout.
+    """Apply ksi-side patches to the SWE-bench Pro evaluator checkout.
 
     The official evaluator at scaleapi/SWE-bench_Pro-os has a few rough edges
     that block long-running DGM baseline experiments (notably:
@@ -226,7 +226,7 @@ def apply_kcsi_evaluator_patches(
     timeout and memory-limit changes above, both in swe_bench_pro_eval.py)
     must ship as hunks within ONE patch file, not as separate patch files.
 
-    Idempotency: each patch's target file should contain a `KCSI PATCH:`
+    Idempotency: each patch's target file should contain a `KSI PATCH:`
     (or pre-rename `SWARMS PATCH:`)
     marker comment after it lands. We check for that marker before applying;
     if present, the patch is considered applied and we skip it. We also write
@@ -245,7 +245,7 @@ def apply_kcsi_evaluator_patches(
     patch_files = sorted(p for p in patches_dir.glob("*.patch") if p.is_file())
     if not patch_files:
         return
-    print(f"Applying {len(patch_files)} kcsi patch(es) to {evaluator_dir}")
+    print(f"Applying {len(patch_files)} ksi patch(es) to {evaluator_dir}")
     applied: list[tuple[Path, str]] = []  # (patch_file, target_rel) for rollback
     patch_state = _read_patch_state(evaluator_dir)
     records: list[dict[str, str]] = []
@@ -262,9 +262,9 @@ def apply_kcsi_evaluator_patches(
             continue
         target_path = evaluator_dir / target_rel
         # "SWARMS PATCH:" is the pre-rename marker (issue #758); checkouts
-        # patched before the kcsi rename still carry it.
+        # patched before the ksi rename still carry it.
         target_text = target_path.read_text(errors="ignore") if target_path.is_file() else ""
-        if "KCSI PATCH:" in target_text or "SWARMS PATCH:" in target_text:
+        if "KSI PATCH:" in target_text or "SWARMS PATCH:" in target_text:
             existing = patch_state.get(patch_file.name)
             if existing and existing.get("sha256") != patch_sha256:
                 # The patch content changed since this checkout was patched.
@@ -272,7 +272,7 @@ def apply_kcsi_evaluator_patches(
                 # so the operator reinstalls from a consistent (unpatched) state.
                 _rollback_applied(evaluator_dir, applied)
                 raise RuntimeError(
-                    f"{target_rel} already has a KCSI/SWARMS patch marker, but "
+                    f"{target_rel} already has a KSI/SWARMS patch marker, but "
                     f"{PATCH_STATE_MARKER} records a different hash for {patch_file.name}; "
                     "reinstall the evaluator checkout before applying changed patches."
                 )
@@ -476,7 +476,7 @@ def main(argv: list[str] | None = None) -> int:
             repo_url=args.repo_url,
             revision=args.revision,
         )
-        apply_kcsi_evaluator_patches(evaluator_dir=evaluator_dir)
+        apply_ksi_evaluator_patches(evaluator_dir=evaluator_dir)
 
     summary = verify_evaluator_assets(
         evaluator_dir=evaluator_dir,

@@ -18,12 +18,12 @@ import sys
 from unittest import mock
 
 # ---------------------------------------------------------------------------
-# Helper: simulate importing kcsi.cli with a controlled pre-dotenv env
+# Helper: simulate importing ksi.cli with a controlled pre-dotenv env
 # ---------------------------------------------------------------------------
 
 
 def _import_cli_with_env(pre_env: dict[str, str], dotenv_injects: dict[str, str]):
-    """Re-import kcsi.cli with a synthetic pre-dotenv environment.
+    """Re-import ksi.cli with a synthetic pre-dotenv environment.
 
     pre_env       – keys that exist in os.environ BEFORE load_dotenv() runs
     dotenv_injects – additional keys that load_dotenv() would inject
@@ -34,10 +34,10 @@ def _import_cli_with_env(pre_env: dict[str, str], dotenv_injects: dict[str, str]
         # Inject the "dotenv" values into the already-patched os.environ.
         os.environ.update(dotenv_injects)
 
-    # We need a fresh import of kcsi.cli so _PRE_DOTENV_PROVIDER_KEYS is
+    # We need a fresh import of ksi.cli so _PRE_DOTENV_PROVIDER_KEYS is
     # recalculated.  Remove any cached copy first.
     for mod_name in list(sys.modules):
-        if mod_name == "kcsi.cli" or mod_name.startswith("kcsi.cli."):
+        if mod_name == "ksi.cli" or mod_name.startswith("ksi.cli."):
             del sys.modules[mod_name]
 
     with mock.patch.dict(os.environ, pre_env, clear=False):
@@ -47,7 +47,7 @@ def _import_cli_with_env(pre_env: dict[str, str], dotenv_injects: dict[str, str]
             os.environ.pop(key, None)
 
         with mock.patch("dotenv.load_dotenv", side_effect=fake_load_dotenv):
-            import kcsi.cli as cli_mod
+            import ksi.cli as cli_mod
 
             importlib.reload(cli_mod)
 

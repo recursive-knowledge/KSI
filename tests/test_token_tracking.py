@@ -1,6 +1,6 @@
 """Tests for token tracking in the container runtime.
 
-Verifies that KcsiContainerExecutor correctly populates runtime_meta["tokens_used"]
+Verifies that KsiContainerExecutor correctly populates runtime_meta["tokens_used"]
 from the runner JSON output, and that the engine accumulates tokens on agents.
 """
 
@@ -18,85 +18,85 @@ _ROOT = REPO_ROOT
 
 from tests.helpers import _load_by_path
 
-# ── Synthetic kcsi_tt package hierarchy ─────────────────────────────────────
+# ── Synthetic ksi_tt package hierarchy ─────────────────────────────────────
 
-_PKG = "kcsi_tt"
+_PKG = "ksi_tt"
 
 _root_pkg = _types.ModuleType(_PKG)
-_root_pkg.__path__ = [str(_ROOT / "src" / "kcsi")]  # type: ignore[attr-defined]
+_root_pkg.__path__ = [str(_ROOT / "src" / "ksi")]  # type: ignore[attr-defined]
 _root_pkg.__package__ = _PKG
 sys.modules[_PKG] = _root_pkg
 
 # models
-_models_mod = _load_by_path(f"{_PKG}.models", "src/kcsi/models.py", package=_PKG)
+_models_mod = _load_by_path(f"{_PKG}.models", "src/ksi/models.py", package=_PKG)
 TaskSpec = _models_mod.TaskSpec
 AgentState = _models_mod.AgentState
 GenerationConfig = _models_mod.GenerationConfig
 
 # runtime package
 _runtime_pkg = _types.ModuleType(f"{_PKG}.runtime")
-_runtime_pkg.__path__ = [str(_ROOT / "src" / "kcsi" / "runtime")]  # type: ignore[attr-defined]
+_runtime_pkg.__path__ = [str(_ROOT / "src" / "ksi" / "runtime")]  # type: ignore[attr-defined]
 _runtime_pkg.__package__ = f"{_PKG}.runtime"
 sys.modules[f"{_PKG}.runtime"] = _runtime_pkg
 _root_pkg.runtime = _runtime_pkg  # type: ignore[attr-defined]
 
 # runtime.types
-_types_mod = _load_by_path(f"{_PKG}.runtime.types", "src/kcsi/runtime/types.py", package=f"{_PKG}.runtime")
+_types_mod = _load_by_path(f"{_PKG}.runtime.types", "src/ksi/runtime/types.py", package=f"{_PKG}.runtime")
 RuntimeResult = _types_mod.RuntimeResult
 _runtime_pkg.RuntimeResult = RuntimeResult  # type: ignore[attr-defined]
 
 # prompts stub
 _prompts_stub = _types.ModuleType(f"{_PKG}.prompts")
-_prompts_stub.__path__ = [str(_ROOT / "src" / "kcsi" / "prompts")]  # type: ignore[attr-defined]
+_prompts_stub.__path__ = [str(_ROOT / "src" / "ksi" / "prompts")]  # type: ignore[attr-defined]
 _prompts_stub.build_execution_prompt = lambda task, **kw: f"Execute: {task.prompt}"  # type: ignore[attr-defined]
 _prompts_stub.build_task_markdown = lambda task: f"# Task {task.id}\n{task.prompt}"  # type: ignore[attr-defined]
 sys.modules[f"{_PKG}.prompts"] = _prompts_stub
 # engine imports `from ..prompts.kt_adapter import build_kt_adapter_prompts` (#861);
 # load the real submodule (no relative imports of its own) under the synthetic pkg.
 _kt_prompts_mod = _load_by_path(
-    f"{_PKG}.prompts.kt_adapter", "src/kcsi/prompts/kt_adapter.py", package=f"{_PKG}.prompts"
+    f"{_PKG}.prompts.kt_adapter", "src/ksi/prompts/kt_adapter.py", package=f"{_PKG}.prompts"
 )
 _prompts_stub.kt_adapter = _kt_prompts_mod  # type: ignore[attr-defined]
 
 # tokens module (required by container_host)
-_tokens_mod = _load_by_path(f"{_PKG}.tokens", "src/kcsi/tokens.py", package=_PKG)
+_tokens_mod = _load_by_path(f"{_PKG}.tokens", "src/ksi/tokens.py", package=_PKG)
 TokenUsage = _tokens_mod.TokenUsage
 _root_pkg.TokenUsage = TokenUsage  # type: ignore[attr-defined]
 
 # container_host
 _exe_mod = _load_by_path(
     f"{_PKG}.runtime.container_host",
-    "src/kcsi/runtime/container_host.py",
+    "src/ksi/runtime/container_host.py",
     package=f"{_PKG}.runtime",
 )
 _runtime_pkg.container_host = _exe_mod  # type: ignore[attr-defined]
 
-KcsiContainerExecutor = _exe_mod.KcsiContainerExecutor
+KsiContainerExecutor = _exe_mod.KsiContainerExecutor
 _parse_runner_stdout = _exe_mod._parse_runner_stdout
 RUNNER_PATCH = f"{_PKG}.runtime.container_host._run_command_with_backstop"
 
 # discussion package (required by engine)
 _disc_pkg = _types.ModuleType(f"{_PKG}.discussion")
-_disc_pkg.__path__ = [str(_ROOT / "src" / "kcsi" / "discussion")]  # type: ignore[attr-defined]
+_disc_pkg.__path__ = [str(_ROOT / "src" / "ksi" / "discussion")]  # type: ignore[attr-defined]
 _disc_pkg.__package__ = f"{_PKG}.discussion"
 sys.modules[f"{_PKG}.discussion"] = _disc_pkg
 
 _disc_prompts_mod = _load_by_path(
     f"{_PKG}.discussion.prompts",
-    "src/kcsi/discussion/prompts.py",
+    "src/ksi/discussion/prompts.py",
     package=f"{_PKG}.discussion",
 )
 _disc_pkg.prompts = _disc_prompts_mod  # type: ignore[attr-defined]
 
 # seeding package (required by engine)
 _seed_pkg = _types.ModuleType(f"{_PKG}.seeding")
-_seed_pkg.__path__ = [str(_ROOT / "src" / "kcsi" / "seeding")]  # type: ignore[attr-defined]
+_seed_pkg.__path__ = [str(_ROOT / "src" / "ksi" / "seeding")]  # type: ignore[attr-defined]
 _seed_pkg.__package__ = f"{_PKG}.seeding"
 sys.modules[f"{_PKG}.seeding"] = _seed_pkg
 
 _seeder_mod = _load_by_path(
     f"{_PKG}.seeding.seeder",
-    "src/kcsi/seeding/seeder.py",
+    "src/ksi/seeding/seeder.py",
     package=f"{_PKG}.seeding",
 )
 _seed_pkg.seeder = _seeder_mod  # type: ignore[attr-defined]
@@ -105,14 +105,14 @@ _seed_pkg.seeder = _seeder_mod  # type: ignore[attr-defined]
 _db_pkg = _types.ModuleType(f"{_PKG}.db")
 # orchestrator package
 _orch_pkg_mod = _types.ModuleType(f"{_PKG}.orchestrator")
-_orch_pkg_mod.__path__ = [str(_ROOT / "src" / "kcsi" / "orchestrator")]  # type: ignore[attr-defined]
+_orch_pkg_mod.__path__ = [str(_ROOT / "src" / "ksi" / "orchestrator")]  # type: ignore[attr-defined]
 _orch_pkg_mod.__package__ = f"{_PKG}.orchestrator"
 sys.modules[f"{_PKG}.orchestrator"] = _orch_pkg_mod
 
 # engine
 _engine_mod = _load_by_path(
     f"{_PKG}.orchestrator.engine",
-    "src/kcsi/orchestrator/engine.py",
+    "src/ksi/orchestrator/engine.py",
     package=f"{_PKG}.orchestrator",
 )
 GenerationalOrchestrator = _engine_mod.GenerationalOrchestrator
@@ -288,10 +288,10 @@ class TestParseRunnerStdoutTokens:
         assert result["runtime_meta"]["tokens_source"] == "per_turn_sum"
 
 
-# ── KcsiContainerExecutor integration: tokens in RuntimeResult ──────────────
+# ── KsiContainerExecutor integration: tokens in RuntimeResult ──────────────
 
 
-class TestKcsiContainerExecutorTokens:
+class TestKsiContainerExecutorTokens:
     def _make_executor(self, tmp_path, **kw):
         defaults = dict(
             command=["echo", "{}"],
@@ -307,7 +307,7 @@ class TestKcsiContainerExecutorTokens:
             },
         )
         defaults.update(kw)
-        return KcsiContainerExecutor(**defaults)
+        return KsiContainerExecutor(**defaults)
 
     def test_tokens_used_populated_in_runtime_result(self, tmp_path):
         out = json.dumps(

@@ -1,5 +1,5 @@
 """Tests for #990a: provenance stamp (code commit, resolved model, scoring
-mode) surfaced in ``_kcsi_code_commit`` and the ``--output-json`` payload.
+mode) surfaced in ``_ksi_code_commit`` and the ``--output-json`` payload.
 
 The full ``main()`` path is exercised the same way
 ``tests/distillation/test_removed_channel_env_guard.py`` exercises the
@@ -7,7 +7,7 @@ The full ``main()`` path is exercised the same way
 ``GenerationalOrchestrator`` substitution: swap in a fake orchestrator class
 (the one heavy/networked seam) so the run completes instantly, while the real
 argument parsing, task loading, provider-profile loading, and
-``--output-json`` writing code paths in ``kcsi.cli.main`` all execute for
+``--output-json`` writing code paths in ``ksi.cli.main`` all execute for
 real.
 """
 
@@ -20,9 +20,9 @@ from dataclasses import fields
 
 import pytest
 
-from kcsi.cli import _kcsi_code_commit
-from kcsi.layout import PROJECT_ROOT
-from kcsi.models import GenerationConfig, TaskTrace
+from ksi.cli import _ksi_code_commit
+from ksi.layout import PROJECT_ROOT
+from ksi.models import GenerationConfig, TaskTrace
 
 DEMO_DIR = PROJECT_ROOT / "examples" / "quickstart" / "arc_demo"
 
@@ -34,7 +34,7 @@ def test_generation_config_config_json_does_not_shift_seed_phase_positional_abi(
     assert names.index("config_json") > names.index("holdout_task_ids")
 
 
-def test_kcsi_code_commit_resolves_head_sha_in_this_repo() -> None:
+def test_ksi_code_commit_resolves_head_sha_in_this_repo() -> None:
     sha = subprocess.run(
         ["git", "rev-parse", "HEAD"],
         cwd=str(PROJECT_ROOT),
@@ -48,14 +48,14 @@ def test_kcsi_code_commit_resolves_head_sha_in_this_repo() -> None:
         subprocess.run(["git", "diff", "--quiet", "HEAD"], cwd=str(PROJECT_ROOT), capture_output=True).returncode == 1
     )
     expected = f"{sha}+dirty" if dirty else sha
-    assert _kcsi_code_commit(PROJECT_ROOT) == expected
+    assert _ksi_code_commit(PROJECT_ROOT) == expected
 
 
-def test_kcsi_code_commit_returns_unknown_outside_a_git_repo(tmp_path) -> None:
-    assert _kcsi_code_commit(tmp_path) == "unknown"
+def test_ksi_code_commit_returns_unknown_outside_a_git_repo(tmp_path) -> None:
+    assert _ksi_code_commit(tmp_path) == "unknown"
 
 
-def test_kcsi_code_commit_marks_dirty_tracked_changes(tmp_path) -> None:
+def test_ksi_code_commit_marks_dirty_tracked_changes(tmp_path) -> None:
     import subprocess as sp
 
     repo = tmp_path / "repo"
@@ -73,19 +73,19 @@ def test_kcsi_code_commit_marks_dirty_tracked_changes(tmp_path) -> None:
     head = sp.run(["git", "rev-parse", "HEAD"], cwd=str(repo), capture_output=True, text=True).stdout.strip()
 
     # Clean tree → bare SHA.
-    assert _kcsi_code_commit(repo) == head
+    assert _ksi_code_commit(repo) == head
     # Untracked file → still clean (ignored, like git describe --dirty).
     (repo / "artifact.txt").write_text("stray\n", encoding="utf-8")
-    assert _kcsi_code_commit(repo) == head
+    assert _ksi_code_commit(repo) == head
     # Modified tracked file → +dirty.
     (repo / "f.py").write_text("x = 2\n", encoding="utf-8")
-    assert _kcsi_code_commit(repo) == f"{head}+dirty"
+    assert _ksi_code_commit(repo) == f"{head}+dirty"
 
 
 class _FakeOrchestrator:
     """Stand-in for GenerationalOrchestrator that skips real task execution.
 
-    Only the surface `kcsi.cli.main` actually calls is implemented.
+    Only the surface `ksi.cli.main` actually calls is implemented.
     """
 
     def __init__(self, **kwargs):
@@ -117,7 +117,7 @@ class _FakeAccumulator:
 
 
 def test_output_json_payload_has_provenance_fields(tmp_path, monkeypatch) -> None:
-    import kcsi.cli as cli_module
+    import ksi.cli as cli_module
 
     monkeypatch.setattr(cli_module, "GenerationalOrchestrator", _FakeOrchestrator)
 
@@ -172,7 +172,7 @@ def test_output_json_payload_has_provenance_fields(tmp_path, monkeypatch) -> Non
 
 
 def test_output_json_resume_uses_write_once_db_provenance(tmp_path, monkeypatch) -> None:
-    import kcsi.cli as cli_module
+    import ksi.cli as cli_module
 
     monkeypatch.setattr(cli_module, "GenerationalOrchestrator", _FakeOrchestrator)
 
@@ -229,7 +229,7 @@ def test_output_json_resume_uses_write_once_db_provenance(tmp_path, monkeypatch)
 
 
 def test_output_json_payload_records_task_map_identity(tmp_path, monkeypatch) -> None:
-    import kcsi.cli as cli_module
+    import ksi.cli as cli_module
 
     monkeypatch.setattr(cli_module, "GenerationalOrchestrator", _FakeOrchestrator)
 
@@ -295,7 +295,7 @@ def test_output_json_payload_records_task_map_identity(tmp_path, monkeypatch) ->
 
 
 def test_task_map_path_alone_selects_run_tasks(tmp_path, monkeypatch) -> None:
-    import kcsi.cli as cli_module
+    import ksi.cli as cli_module
 
     captured: dict[str, list[str]] = {}
 
@@ -359,7 +359,7 @@ def test_main_stamps_full_config_json_into_generation_config(tmp_path, monkeypat
     # The DB-bound GenerationConfig must carry the full effective launch config
     # as JSON, so the knowledge DB is self-describing (recoverable without the
     # gitignored --output-json sidecar).
-    import kcsi.cli as cli_module
+    import ksi.cli as cli_module
 
     captured: dict = {}
 
@@ -439,7 +439,7 @@ def test_output_json_snapshot_written_after_each_generation(tmp_path, monkeypatc
     """Issue #990b: the incremental snapshot must persist generation-1
     traces even when the run itself crashes before reaching the final,
     post-``run()`` write."""
-    import kcsi.cli as cli_module
+    import ksi.cli as cli_module
 
     monkeypatch.setattr(cli_module, "GenerationalOrchestrator", _FakeOrchestratorMidRunCrash)
 
@@ -529,7 +529,7 @@ def test_output_json_snapshot_accumulates_traces_across_generations(tmp_path, mo
     include generation 1's traces too, not just the latest generation's —
     ``CollectingPersistence.traces`` accumulates across the whole run, and
     each ``on_generation_snapshot`` call is passed the full list so far."""
-    import kcsi.cli as cli_module
+    import ksi.cli as cli_module
 
     monkeypatch.setattr(cli_module, "GenerationalOrchestrator", _FakeOrchestratorMultiGenCrash)
 

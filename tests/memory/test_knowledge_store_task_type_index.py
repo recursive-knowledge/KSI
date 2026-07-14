@@ -9,7 +9,7 @@ also orders by ``id`` so the ``ORDER BY k.id DESC`` needs no sort.
 import tempfile
 from pathlib import Path
 
-from kcsi.memory.knowledge_store import KnowledgeStore
+from ksi.memory.knowledge_store import KnowledgeStore
 
 
 def _index_names(ks: KnowledgeStore) -> set[str]:

@@ -21,17 +21,17 @@ const containerMounts = fs.readFileSync(
 
 describe('container_runner env forwarding', () => {
   it('forwards OpenAI runtime knobs into the container', () => {
-    assert.match(containerArgs, /'KCSI_OPENAI_MAX_TURNS'/);
+    assert.match(containerArgs, /'KSI_OPENAI_MAX_TURNS'/);
     assert.match(containerArgs, /'OPENAI_AGENTS_DISABLE_TRACING'/);
   });
 
   it('forwards the unsafe Claude native-tool override explicitly', () => {
-    assert.match(containerArgs, /'KCSI_ALLOW_UNSAFE_CLAUDE_NATIVE_TOOLS_WITH_SECRETS'/);
+    assert.match(containerArgs, /'KSI_ALLOW_UNSAFE_CLAUDE_NATIVE_TOOLS_WITH_SECRETS'/);
   });
 
   it('supports moving the runner away from official SWE repo paths', () => {
-    assert.match(containerMounts, /KCSI_RUNNER_ROOT/);
-    assert.match(containerMounts, /KCSI_TASK_REPO_CONTAINER_PATH/);
+    assert.match(containerMounts, /KSI_RUNNER_ROOT/);
+    assert.match(containerMounts, /KSI_TASK_REPO_CONTAINER_PATH/);
     assert.match(containerMounts, /runnerPath\('src'\)/);
     assert.match(containerMounts, /runnerPath\('node_modules'\)/);
   });

@@ -7,7 +7,7 @@
   "selection_seed": null,
   "task_count": 5,
   "selection_notes": [
-    "Curated local smoke subset for validating KCSI x Terminal-Bench 2 integration.",
+    "Curated local smoke subset for validating KSI x Terminal-Bench 2 integration.",
     "Chosen to avoid very long-tail local tasks while still covering multiple TB2 interaction styles.",
     "Every selected task uses 1 CPU, 2G memory, and 900s agent/verifier timeouts in task.toml.",
     "Use this subset for local 5-task x 2-generation workflow validation before larger sweeps."

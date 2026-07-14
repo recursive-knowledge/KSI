@@ -5,11 +5,11 @@ from __future__ import annotations
 import json
 from unittest.mock import MagicMock
 
-from kcsi.forum import build_per_task_discussion_parts
-from kcsi.models import GenerationConfig, TaskTrace
-from kcsi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
-from kcsi.runtime.types import RuntimeResult
-from kcsi.tokens import LLMResponse, TokenUsage
+from ksi.forum import build_per_task_discussion_parts
+from ksi.models import GenerationConfig, TaskTrace
+from ksi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
+from ksi.runtime.types import RuntimeResult
+from ksi.tokens import LLMResponse, TokenUsage
 from tests.orchestrator_phase_helpers import per_task_forum
 
 # ---------------------------------------------------------------------------
@@ -61,7 +61,7 @@ def test_native_memory_truncated_at_inject_cap():
     forum prompts. This test pins to the module constant so future
     changes to the cap have to update the constant explicitly.
     """
-    from kcsi.forum.prompt import _NATIVE_MEMORY_FORUM_INJECT_CHARS
+    from ksi.forum.prompt import _NATIVE_MEMORY_FORUM_INJECT_CHARS
 
     cap = _NATIVE_MEMORY_FORUM_INJECT_CHARS
     big = "x" * (cap + 5000)

@@ -6,14 +6,14 @@ from unittest.mock import MagicMock
 
 from conftest import _build_mock_llm
 
-from kcsi.models import GenerationConfig, TaskSpec
-from kcsi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
-from kcsi.runtime.types import RuntimeResult
-from kcsi.tokens import TokenAccumulator, TokenUsage
+from ksi.models import GenerationConfig, TaskSpec
+from ksi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
+from ksi.runtime.types import RuntimeResult
+from ksi.tokens import TokenAccumulator, TokenUsage
 
 
 def _make_store(tmp_path, experiment="exp1"):
-    from kcsi.memory.store import MemoryStore
+    from ksi.memory.store import MemoryStore
 
     db_path = str(tmp_path / "test.sqlite")
     return MemoryStore(db_path, default_experiment=experiment)
@@ -229,7 +229,7 @@ def test_resume_carries_forward_preserved_task_without_rerunning(tmp_path):
 
 
 def test_resume_knowledge_store_carries_forward_preserved_task_without_rerunning(tmp_path):
-    from kcsi.memory.knowledge_store import KnowledgeStore
+    from ksi.memory.knowledge_store import KnowledgeStore
 
     knowledge_db_path = str(tmp_path / "resume_knowledge.sqlite")
     knowledge = KnowledgeStore(knowledge_db_path, default_experiment="resume-exp")
@@ -580,7 +580,7 @@ def test_resume_engine_warns_without_runtime_db(tmp_path, caplog):
     """M3: resuming with only a knowledge DB (no runtime DB) must warn that
     token_usage_total will undercount, since token_phases lives only in the
     runtime DB."""
-    from kcsi.memory.knowledge_store import KnowledgeStore
+    from ksi.memory.knowledge_store import KnowledgeStore
 
     knowledge_db_path = str(tmp_path / "resume_knowledge.sqlite")
     knowledge = KnowledgeStore(knowledge_db_path, default_experiment="resume-exp")

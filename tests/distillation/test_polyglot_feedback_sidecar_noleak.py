@@ -17,7 +17,7 @@ confusion documented once in ARM_G_REPORT.md).
 
 from __future__ import annotations
 
-from kcsi.distillation.prompts import _fmt_attempts, _fmt_eval_results
+from ksi.distillation.prompts import _fmt_attempts, _fmt_eval_results
 
 _FB_STDOUT_TAIL = "CANARY_POLYGLOT_FEEDBACK_STDOUT_TAIL"
 _FB_STDERR_TAIL = "CANARY_POLYGLOT_FEEDBACK_STDERR_TAIL"

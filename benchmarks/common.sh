@@ -3,13 +3,13 @@
 # Source this file — do not execute directly.
 #
 # Provides:
-#   run_experiment NAME [cli args...]   — run kcsi CLI with banner/timing/logging
+#   run_experiment NAME [cli args...]   — run ksi CLI with banner/timing/logging
 #   validate_file PATH LABEL            — exit 1 if file missing
 #   validate_dir  PATH LABEL            — exit 1 if dir  missing
 #   validate_arc_task_map MAP DATA LABEL - fail closed on ARC task-map provenance / ID drift
 #   load_task_ids TASK_MAP_JSON         — prints comma-separated IDs from a task map
 #   arc_default_path BENCH FIELD        — prints an absolute ARC default path from configs/benchmarks/arc_defaults.json
-#   KCSI_ROOT                         — auto-detected repo root
+#   KSI_ROOT                         — auto-detected repo root
 #   SONNET_PROFILE / HAIKU_PROFILE      — provider profile paths (env-overridable)
 
 set -euo pipefail
@@ -18,23 +18,23 @@ set -euo pipefail
 # ---------- Repo root ----------
 _COMMON_CALLER_SOURCE="${BASH_SOURCE[1]:-${BASH_SOURCE[0]}}"
 SCRIPT_DIR="$(cd "$(dirname "$_COMMON_CALLER_SOURCE")" && pwd)"  # caller's dir, or this file when sourced directly
-KCSI_ROOT="${KCSI_ROOT:-$(cd "$SCRIPT_DIR/.." && pwd)}"
-cd "$KCSI_ROOT"
+KSI_ROOT="${KSI_ROOT:-$(cd "$SCRIPT_DIR/.." && pwd)}"
+cd "$KSI_ROOT"
 
 # ---------- Provider profiles ----------
-SONNET_PROFILE="${SONNET_PROFILE:-configs/kcsi/.env.sonnet}"
-HAIKU_PROFILE="${HAIKU_PROFILE:-configs/kcsi/.env.haiku}"
-OPENAI_PROFILE="${OPENAI_PROFILE:-configs/kcsi/.env.openai}"
-ARC_DEFAULTS_CONFIG="${ARC_DEFAULTS_CONFIG:-$KCSI_ROOT/configs/benchmarks/arc_defaults.json}"
+SONNET_PROFILE="${SONNET_PROFILE:-configs/ksi/.env.sonnet}"
+HAIKU_PROFILE="${HAIKU_PROFILE:-configs/ksi/.env.haiku}"
+OPENAI_PROFILE="${OPENAI_PROFILE:-configs/ksi/.env.openai}"
+ARC_DEFAULTS_CONFIG="${ARC_DEFAULTS_CONFIG:-$KSI_ROOT/configs/benchmarks/arc_defaults.json}"
 
 # ---------- Container image ----------
 # Default to :bench (lighter) for benchmark experiments.
-# Override with CONTAINER_IMAGE=kcsi-agent:latest for interactive tasks.
-export CONTAINER_IMAGE="${CONTAINER_IMAGE:-kcsi-agent:bench}"
+# Override with CONTAINER_IMAGE=ksi-agent:latest for interactive tasks.
+export CONTAINER_IMAGE="${CONTAINER_IMAGE:-ksi-agent:bench}"
 
 # ---------- Results & logs dirs ----------
-LOG_DIR="${KCSI_ROOT}/results"
-EXPERIMENT_LOG_DIR="/tmp/kcsi-experiments"
+LOG_DIR="${KSI_ROOT}/results"
+EXPERIMENT_LOG_DIR="/tmp/ksi-experiments"
 mkdir -p "$LOG_DIR" "$EXPERIMENT_LOG_DIR"
 
 # ---------- Helpers ----------
@@ -158,7 +158,7 @@ PY
 arc_default_path() {
   local bench="$1" field="$2"
   validate_file "$ARC_DEFAULTS_CONFIG" "ARC defaults config"
-  uv run python - "$KCSI_ROOT" "$ARC_DEFAULTS_CONFIG" "$bench" "$field" <<'PY'
+  uv run python - "$KSI_ROOT" "$ARC_DEFAULTS_CONFIG" "$bench" "$field" <<'PY'
 import json
 import sys
 from pathlib import Path
@@ -245,7 +245,7 @@ run_experiment() {
     done
     echo "[DRY RUN] $NAME"
     # %q preserves per-arg quoting so args with spaces/globs render copy-pastably.
-    printf '  Command: uv run python -m kcsi.cli'
+    printf '  Command: uv run python -m ksi.cli'
     printf ' %q' "$@"
     printf '\n\n'
     if [[ "$no_runtime_db" == "0" ]]; then
@@ -254,7 +254,7 @@ run_experiment() {
       elif [[ -n "$knowledge_db" ]]; then
         uv run python - "$knowledge_db" <<'PY'
 import sys
-from kcsi.layout import derive_runtime_sibling
+from ksi.layout import derive_runtime_sibling
 
 print(f"  Runtime DB: {derive_runtime_sibling(sys.argv[1])}")
 PY
@@ -285,7 +285,7 @@ PY
   echo "=========================================="
 
   # Run with tee to both stdout and log file.
-  run_logged_cmd "$LOG_FILE" uv run python -m kcsi.cli "$@"
+  run_logged_cmd "$LOG_FILE" uv run python -m ksi.cli "$@"
 
   echo "=========================================="
   echo "$NAME finished at $(date)"

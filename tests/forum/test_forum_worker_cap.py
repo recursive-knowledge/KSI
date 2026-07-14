@@ -14,9 +14,9 @@ whenever a user lowered --max-concurrent-tasks — exactly the incident shape.
 
 from pathlib import Path
 
-from kcsi.cli import _build_generation_config, build_parser
-from kcsi.models import GenerationConfig
-from kcsi.orchestrator.forum_phase import _resolve_forum_worker_cap
+from ksi.cli import _build_generation_config, build_parser
+from ksi.models import GenerationConfig
+from ksi.orchestrator.forum_phase import _resolve_forum_worker_cap
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -138,6 +138,6 @@ def test_cap_sites_use_shared_resolver():
     """Both forum phases (per-task and cross-task) must resolve their worker
     count via _resolve_forum_worker_cap, not the old raw ``or`` fallback that
     let the forum default silently exceed the task-execution cap."""
-    source = (REPO_ROOT / "src" / "kcsi" / "orchestrator" / "forum_phase.py").read_text()
+    source = (REPO_ROOT / "src" / "ksi" / "orchestrator" / "forum_phase.py").read_text()
     assert "config.max_concurrent_forum_tasks or len(debate_agents)" not in source
     assert source.count("_resolve_forum_worker_cap(collab.config, len(debate_agents))") == 2

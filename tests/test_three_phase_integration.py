@@ -14,8 +14,8 @@ import json
 import tempfile
 from pathlib import Path
 
-from kcsi.distillation import DistillInput, distill
-from kcsi.memory.knowledge_store import CROSS_TASK_SENTINEL, KnowledgeStore
+from ksi.distillation import DistillInput, distill
+from ksi.memory.knowledge_store import CROSS_TASK_SENTINEL, KnowledgeStore
 
 
 def test_end_to_end_two_generations_with_stub_runtime():
@@ -110,7 +110,7 @@ def test_end_to_end_two_generations_with_stub_runtime():
         assert len(rows) == len(tasks), f"expected {len(tasks)} threaded replies, got {len(rows)}"
 
         # Simulate seed-package construction for Gen 1
-        from kcsi.seeding.seeder import _build_task_seed_package
+        from ksi.seeding.seeder import _build_task_seed_package
 
         per_task_b = ks.load_distillation(
             generation=gen,
@@ -132,7 +132,7 @@ def test_end_to_end_two_generations_with_stub_runtime():
         assert pkg["cross_task_bundle"]["transferable_insights"] == ["Try approach A on task_alpha at generation 0"]
 
         # Verify MEMORY.md rendering
-        from kcsi.runtime.seeding import seed_package_to_memory_md
+        from ksi.runtime.seeding import seed_package_to_memory_md
 
         md = seed_package_to_memory_md(pkg, current_task_id="task_alpha")
         assert "Task-specific guidance" in md

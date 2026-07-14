@@ -28,7 +28,7 @@ import random
 from pathlib import Path
 from typing import Any
 
-from kcsi.benchmarks.swebench_pro_external import DATASET_NAME, DATASET_REVISION
+from ksi.benchmarks.swebench_pro_external import DATASET_NAME, DATASET_REVISION
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 

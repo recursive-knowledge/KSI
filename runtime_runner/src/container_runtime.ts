@@ -1,5 +1,5 @@
 /**
- * Container runtime abstraction for the KCSI shared runtime.
+ * Container runtime abstraction for the KSI shared runtime.
  * All container-runtime-specific logic lives here so swapping runtimes means
  * changing one file.
  */

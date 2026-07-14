@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# setup_all.sh — One-command setup for Knowledge-Centric Self-Improvement
+# setup_all.sh — One-command setup for Knowledge-centric Self-Improvement
 #
 # Downloads datasets, installs dependencies, and runs smoke tests for
 # all supported benchmarks.
@@ -73,7 +73,7 @@ env_file_has_secret() {
 # ── 0a. Git hooks (idempotent; safe to re-run) ──────────────────────────
 #
 # Enables the repo-local .githooks/ directory so post-merge / post-checkout
-# can auto-rebuild the kcsi-agent:bench container when TypeScript source
+# can auto-rebuild the ksi-agent:bench container when TypeScript source
 # drifts from the baked image. Contributors can disable with
 # SKIP_CONTAINER_REBUILD=1 or by unsetting core.hooksPath.
 
@@ -91,7 +91,7 @@ else
     skip ".githooks directory not present"
 fi
 
-# ── 0. Node.js (required by the KCSI runtime-runner) ──────────────────
+# ── 0. Node.js (required by the KSI runtime-runner) ──────────────────
 
 section "Checking Node.js"
 
@@ -189,23 +189,23 @@ else
     skip "frontend/package.json not found"
 fi
 
-# ── 2b. KCSI agent Docker images ───────────────────────────────────────
+# ── 2b. KSI agent Docker images ───────────────────────────────────────
 
-section "Building KCSI agent Docker images"
+section "Building KSI agent Docker images"
 
 if command -v docker &>/dev/null; then
     # Build :bench first (lighter base — used by benchmark experiments)
-    if docker image inspect kcsi-agent:bench &>/dev/null; then
-        ok "kcsi-agent:bench already exists"
+    if docker image inspect ksi-agent:bench &>/dev/null; then
+        ok "ksi-agent:bench already exists"
     else
-        bash container/build.sh --bench && ok "kcsi-agent:bench built"
+        bash container/build.sh --bench && ok "ksi-agent:bench built"
     fi
 
     # Build :latest (full image — used by interactive tasks)
-    if docker image inspect kcsi-agent:latest &>/dev/null; then
-        ok "kcsi-agent:latest already exists"
+    if docker image inspect ksi-agent:latest &>/dev/null; then
+        ok "ksi-agent:latest already exists"
     else
-        bash container/build.sh && ok "kcsi-agent:latest built"
+        bash container/build.sh && ok "ksi-agent:latest built"
     fi
 else
     echo "    WARN: Docker not available — skipping image builds"
@@ -269,11 +269,11 @@ fi
 
 section "Checking provider profiles"
 
-PROVIDERS_DIR="$REPO_ROOT/configs/kcsi"
+PROVIDERS_DIR="$REPO_ROOT/configs/ksi"
 mkdir -p "$PROVIDERS_DIR"
 
 # Adopt profiles left behind at the pre-reorg location. Mirrors _PROFILE_MOVES in
-# src/kcsi/providers.py. Copies rather than moves so an older checkout still resolves
+# src/ksi/providers.py. Copies rather than moves so an older checkout still resolves
 # the old path. Without this, a user whose real-key profile predates the reorg gets
 # a freshly generated key-less profile here and the run fails at provider load.
 LEGACY_PROVIDERS_DIR="$REPO_ROOT/configs/providers"
@@ -282,7 +282,7 @@ for legacy_profile in "$LEGACY_PROVIDERS_DIR"/.env.*; do
     case "$legacy_profile" in *.template | *.example) continue ;; esac
     legacy_name="$(basename "$legacy_profile")"
     if [[ -f "$PROVIDERS_DIR/$legacy_name" ]]; then
-        ok "$legacy_name already present in configs/kcsi"
+        ok "$legacy_name already present in configs/ksi"
     else
         cp "$legacy_profile" "$PROVIDERS_DIR/$legacy_name"
         ok "Adopted $legacy_name from configs/providers (pre-reorg location)"
@@ -307,7 +307,7 @@ if [[ -t 0 && -z "$API_KEY" ]]; then
     if [[ -n "$API_KEY" ]]; then
         ok "ANTHROPIC_API_KEY set"
     else
-        echo "    Skipped — you can add it later to configs/kcsi/.env.haiku"
+        echo "    Skipped — you can add it later to configs/ksi/.env.haiku"
     fi
 fi
 
@@ -466,27 +466,27 @@ fi
 
 # ── 5g. Polyglot Docker image ───────────────────────────────────────────
 #
-# `kcsi-polyglot-eval:latest` is used by the kcsi-side polyglot evaluator
-# (`kcsi.benchmarks.polyglot_docker`). DGM and HyperAgents polyglot use their own
+# `ksi-polyglot-eval:latest` is used by the ksi-side polyglot evaluator
+# (`ksi.benchmarks.polyglot_docker`). DGM and HyperAgents polyglot use their own
 # evaluator images (`pb.{base,env,eval}.*`) and do NOT need this build.
 #
 # The build's apt-get RUN step (openjdk-21-jdk + libboost-all-dev + python3.11
 # from deadsnakes) is heavy enough to deadlock or OOM under concurrent Docker
 # activity (observed: 11+ min stalls, OOM-kill exit 137 during the
 # 2026-05-01 audit-sweep when other polyglot harnesses were running). Set
-# `KCSI_SKIP_POLYGLOT_EVAL_IMAGE=1` to skip when only running DGM/HA polyglot
+# `KSI_SKIP_POLYGLOT_EVAL_IMAGE=1` to skip when only running DGM/HA polyglot
 # baselines (which do not need this image).
 section "Building Polyglot evaluation Docker image"
 
-if [[ "${KCSI_SKIP_POLYGLOT_EVAL_IMAGE:-0}" == "1" ]]; then
-    skip "KCSI_SKIP_POLYGLOT_EVAL_IMAGE=1 — skipping kcsi-polyglot-eval build"
+if [[ "${KSI_SKIP_POLYGLOT_EVAL_IMAGE:-0}" == "1" ]]; then
+    skip "KSI_SKIP_POLYGLOT_EVAL_IMAGE=1 — skipping ksi-polyglot-eval build"
 elif command -v docker &>/dev/null; then
-    echo "    Ensuring kcsi-polyglot-eval:latest matches the maintained recipe..."
-    if uv run python -c "from kcsi.benchmarks.polyglot_docker import build_image; build_image()" 2>&1 | tail -3; then
-        ok "kcsi-polyglot-eval:latest ready"
+    echo "    Ensuring ksi-polyglot-eval:latest matches the maintained recipe..."
+    if uv run python -c "from ksi.benchmarks.polyglot_docker import build_image; build_image()" 2>&1 | tail -3; then
+        ok "ksi-polyglot-eval:latest ready"
     else
         echo "    WARN: Failed to build polyglot eval image — run manually:"
-        echo "    uv run python -c \"from kcsi.benchmarks.polyglot_docker import build_image; build_image()\""
+        echo "    uv run python -c \"from ksi.benchmarks.polyglot_docker import build_image; build_image()\""
     fi
 else
     skip "Docker not available — polyglot evaluation image not built"
@@ -534,7 +534,7 @@ if [[ -n "${HF_TOKEN:-}" ]]; then
 elif [[ -f "$HOME/.cache/huggingface/token" ]]; then
     ok "HuggingFace token found via huggingface-cli login"
 else
-    EMBEDDING_MODEL_FOR_SETUP="${KCSI_EMBEDDING_MODEL:-google/embeddinggemma-300m}"
+    EMBEDDING_MODEL_FOR_SETUP="${KSI_EMBEDDING_MODEL:-google/embeddinggemma-300m}"
     if [[ -t 0 && "${EMBEDDING_MODEL_FOR_SETUP}" == google/* ]]; then
         echo "    HF_TOKEN not set — only needed for semantic vector search (--require-vector); default retrieval is FTS5 and needs no token. Embedding model: ${EMBEDDING_MODEL_FOR_SETUP}."
         read -rp "    Paste your HF_TOKEN (or press Enter to skip): " HF_TOKEN_INPUT
@@ -563,7 +563,7 @@ else
     fi
 fi
 
-# Templates required by the KCSI runtime
+# Templates required by the KSI runtime
 if [[ -f "$REPO_ROOT/templates/INSTRUCTION.md" ]]; then
     ok "templates/INSTRUCTION.md exists"
 else
@@ -594,10 +594,10 @@ else
     section "Running smoke tests (pytest, no containers)"
 
     echo -n "    Import check ... "
-    if uv run python -c "from kcsi.cli import build_parser; build_parser()" 2>/dev/null; then
+    if uv run python -c "from ksi.cli import build_parser; build_parser()" 2>/dev/null; then
         echo "PASS"
     else
-        echo "FAIL — kcsi package not importable"
+        echo "FAIL — ksi package not importable"
         exit 1
     fi
 
@@ -617,14 +617,14 @@ REMAINING=()
 if ! env_file_has_secret "$PROFILE_HAIKU" ANTHROPIC_API_KEY \
     && ! env_file_has_secret "$PROFILE_SONNET" ANTHROPIC_API_KEY; then
     REMAINING+=("  - Add your Anthropic API key to the provider profiles:")
-    REMAINING+=("      vim configs/kcsi/.env.haiku       # ANTHROPIC_API_KEY=sk-ant-...")
-    REMAINING+=("      vim configs/kcsi/.env.sonnet      # ANTHROPIC_API_KEY=sk-ant-...")
+    REMAINING+=("      vim configs/ksi/.env.haiku       # ANTHROPIC_API_KEY=sk-ant-...")
+    REMAINING+=("      vim configs/ksi/.env.sonnet      # ANTHROPIC_API_KEY=sk-ant-...")
 fi
 if ! env_file_has_secret "$PROFILE_OPENAI" OPENAI_API_KEY; then
     REMAINING+=("  - Add your OpenAI API key for gpt-5.4-mini experiments:")
-    REMAINING+=("      vim configs/kcsi/.env.openai      # OPENAI_API_KEY=sk-...")
+    REMAINING+=("      vim configs/ksi/.env.openai      # OPENAI_API_KEY=sk-...")
 fi
-EMBEDDING_MODEL_FOR_SETUP="${KCSI_EMBEDDING_MODEL:-google/embeddinggemma-300m}"
+EMBEDDING_MODEL_FOR_SETUP="${KSI_EMBEDDING_MODEL:-google/embeddinggemma-300m}"
 if [[ "${EMBEDDING_MODEL_FOR_SETUP}" == google/* && -z "${HF_TOKEN:-}" && ! -f "$HOME/.cache/huggingface/token" ]]; then
     REMAINING+=("  - Set HuggingFace token for default memory embedding model (${EMBEDDING_MODEL_FOR_SETUP}):")
     REMAINING+=("      export HF_TOKEN=hf_...   # or: huggingface-cli login")

@@ -11,7 +11,7 @@
 #   only during the next `bash container/build.sh --bench` rebuild, which is
 #   significantly slower feedback.
 #
-# Skippable via SKIP_KCSI_LINT=1 (ruff), SKIP_KCSI_TYPECHECK=1 (tsc), or
+# Skippable via SKIP_KSI_LINT=1 (ruff), SKIP_KSI_TYPECHECK=1 (tsc), or
 # --no-verify on git commit.
 #
 # Enable via: git config core.hooksPath .githooks
@@ -41,17 +41,17 @@ while IFS= read -r path; do
     runtime_runner/package.json)
       NEEDS_RUNTIME_RUNNER=1
       ;;
-    src/kcsi/*.py|src/kcsi/**|tests/*.py|scripts/*.py|examples/*.py|pyproject.toml)
+    src/ksi/*.py|src/ksi/**|tests/*.py|scripts/*.py|examples/*.py|pyproject.toml)
       NEEDS_RUFF=1
       ;;
   esac
 done <<< "$STAGED"
 
-if [[ "${SKIP_KCSI_TYPECHECK:-}" == "1" ]]; then
+if [[ "${SKIP_KSI_TYPECHECK:-}" == "1" ]]; then
   NEEDS_AGENT_RUNNER=0
   NEEDS_RUNTIME_RUNNER=0
 fi
-if [[ "${SKIP_KCSI_LINT:-}" == "1" ]]; then
+if [[ "${SKIP_KSI_LINT:-}" == "1" ]]; then
   NEEDS_RUFF=0
 fi
 
@@ -101,7 +101,7 @@ fi
 if [[ "$exit_code" != "0" ]]; then
   echo ""
   echo "pre-commit checks failed. Fix the errors above, or bypass with:"
-  echo "    SKIP_KCSI_LINT=1 (ruff) / SKIP_KCSI_TYPECHECK=1 (tsc) git commit ..."
+  echo "    SKIP_KSI_LINT=1 (ruff) / SKIP_KSI_TYPECHECK=1 (tsc) git commit ..."
   echo "    (or --no-verify, but prefer to fix the error)"
 fi
 exit "$exit_code"

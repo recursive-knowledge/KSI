@@ -29,11 +29,11 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from kcsi.errors import AuthenticationFailure
-from kcsi.models import AgentState, GenerationConfig, TaskSpec, TaskTrace
-from kcsi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
-from kcsi.runtime import RuntimeResult
-from kcsi.tokens import TokenUsage
+from ksi.errors import AuthenticationFailure
+from ksi.models import AgentState, GenerationConfig, TaskSpec, TaskTrace
+from ksi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
+from ksi.runtime import RuntimeResult
+from ksi.tokens import TokenUsage
 from tests.orchestrator_phase_helpers import execute_generation
 
 

@@ -14,7 +14,7 @@ rendered string.
 
 from __future__ import annotations
 
-from kcsi.runtime.container_host import _seed_package_has_real_memory
+from ksi.runtime.container_host import _seed_package_has_real_memory
 
 
 def test_none_is_not_real_memory() -> None:

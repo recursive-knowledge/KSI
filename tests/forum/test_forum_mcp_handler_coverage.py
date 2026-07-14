@@ -6,7 +6,7 @@ Sibling of ``test_arc_mcp_handler_coverage.py``. The JS drift guard in
 ``runtime_runner/agent-runner/src/anthropic_direct_forum.ts`` against a hardcoded
 literal; it does not reach the boundary that caused #693: a forum tool advertised
 to the agent (in the Set) with no dispatch handler / definition in
-``src/kcsi/memory/mcp_server.py`` would fall through to ``Unknown tool`` at runtime.
+``src/ksi/memory/mcp_server.py`` would fall through to ``Unknown tool`` at runtime.
 The request-body assertion that would otherwise catch this lives in a
 ``tsx``-gated test that *skips* when ``tsx`` is absent (e.g. minimal CI), so this
 module asserts the coverage directly and dependency-free: every allowlisted forum
@@ -20,7 +20,7 @@ import re
 from conftest import REPO_ROOT
 
 FORUM_TS = REPO_ROOT / "runtime_runner" / "agent-runner" / "src" / "anthropic_direct_forum.ts"
-MCP_SERVER = REPO_ROOT / "src" / "kcsi" / "memory" / "mcp_server.py"
+MCP_SERVER = REPO_ROOT / "src" / "ksi" / "memory" / "mcp_server.py"
 
 
 def _strip_line_comments(text: str, marker: str) -> str:

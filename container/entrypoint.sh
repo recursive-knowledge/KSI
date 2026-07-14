@@ -1,12 +1,12 @@
 #!/bin/bash
-# KCSI agent container entrypoint.
+# KSI agent container entrypoint.
 #
 # Responsibilities:
 #   1. Skip-or-rebuild the agent-runner TypeScript dist based on the
 #      source-hash comparison baked during `docker build` (CLAUDE.md
 #      documents this ~500ms vs 5-10s optimization).
 #   2. On tsc failure (exit 2), emit a framed diagnostic block to STDERR
-#      so the kcsi host can surface the underlying compile error
+#      so the ksi host can surface the underlying compile error
 #      instead of the opaque "Container exited with code 2: " message.
 #   3. Read the runtime payload from stdin and execute the compiled runner.
 #
@@ -16,7 +16,7 @@
 #   - The original `npx tsc --outDir /tmp/dist 2>&1 >&2` merge semantics
 #     are preserved; tee'ing to a log file does not change stream routing.
 set -e
-RUNNER_ROOT="${KCSI_RUNNER_ROOT:-/app}"
+RUNNER_ROOT="${KSI_RUNNER_ROOT:-/app}"
 cd "$RUNNER_ROOT"
 mkdir -p /tmp/dist
 chmod -R a+rwX /tmp/dist 2>/dev/null || true

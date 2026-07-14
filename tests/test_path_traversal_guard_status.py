@@ -2,7 +2,7 @@
 
 Context
 -------
-The polyglot harness (``kcsi.benchmarks.polyglot_harness``) has a pretask guard
+The polyglot harness (``ksi.benchmarks.polyglot_harness``) has a pretask guard
 that rejects task metadata whose workspace filenames escape the sandbox root
 (e.g. ``../../etc/passwd``).  The guard is implemented as ``_validate_safe_path``
 / ``_safe_write`` which ``raise ValueError``.
@@ -18,7 +18,7 @@ from "container never ran at all".
 The forensics report surfaced this on ``haiku_polyglot`` attempt #181.
 
 This PR adds a ``build_error_runtime_meta`` helper (in
-``kcsi.runtime.normalize``) and wires it into every exception path in the
+``ksi.runtime.normalize``) and wires it into every exception path in the
 engine's ``_eval_stage``.  The guard still rejects the task (security is
 untouched), but the failure now lands in the DB with an explicit
 ``{status: 'error', error: '<rejection reason>', error_type: 'ValueError'}``
@@ -34,8 +34,8 @@ from typing import Any
 
 import pytest
 
-from kcsi.benchmarks.polyglot_harness import _safe_write, _validate_safe_path
-from kcsi.runtime.normalize import (
+from ksi.benchmarks.polyglot_harness import _safe_write, _validate_safe_path
+from ksi.runtime.normalize import (
     ERROR_STATUS,
     SILENT_FAILURE_STATUS,
     build_error_runtime_meta,
@@ -233,9 +233,9 @@ def test_engine_preserves_runtime_meta_on_evaluator_exception(monkeypatch):
     overlay — so a mechanical simulation captures the same invariants the
     engine relies on.
     """
-    from kcsi.orchestrator.engine import _cap_native_memory_fields
-    from kcsi.runtime.types import RuntimeResult
-    from kcsi.tokens import TokenUsage
+    from ksi.orchestrator.engine import _cap_native_memory_fields
+    from ksi.runtime.types import RuntimeResult
+    from ksi.tokens import TokenUsage
 
     # Arrange: container succeeded, runtime_meta has real fields.
     run_result = RuntimeResult(

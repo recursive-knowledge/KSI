@@ -39,7 +39,7 @@ function git(cwd, args, input) {
 // "fix" commit (the answer) reachable only via refs/remotes/origin/master + a
 // tag, a live origin URL, and a detached HEAD at base (as cache prep leaves it).
 function makeCacheShapedRepo({ packed = true } = {}) {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'kcsi-sanitize-src-'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ksi-sanitize-src-'));
   const g = (...a) => {
     const r = git(dir, a);
     if (r.status !== 0) throw new Error(`git ${a.join(' ')} failed: ${r.stderr}`);
@@ -49,8 +49,8 @@ function makeCacheShapedRepo({ packed = true } = {}) {
   // git version and on the unborn branch (avoids a hard error on old CI images).
   g('init', '-q');
   g('branch', '-M', 'master');
-  g('config', 'user.email', 'kcsi@test');
-  g('config', 'user.name', 'kcsi');
+  g('config', 'user.email', 'ksi@test');
+  g('config', 'user.name', 'ksi');
   // A real SWE-bench Pro base_commit is NOT a root commit — it sits on top of
   // the project's history. Give base a prior commit so verifySanitized is
   // exercised against a base that has ancestors (the condition that makes a
@@ -88,7 +88,7 @@ function makeCacheShapedRepo({ packed = true } = {}) {
 // the repo_source_path, plus the sibling source dir that must outlive sanitize.
 function makeSharedCacheShapedRepo() {
   const { dir: sibling, base, fix } = makeCacheShapedRepo({ packed: true });
-  const parent = fs.mkdtempSync(path.join(os.tmpdir(), 'kcsi-sanitize-shared-'));
+  const parent = fs.mkdtempSync(path.join(os.tmpdir(), 'ksi-sanitize-shared-'));
   const shared = path.join(parent, 'clone');
   const c = spawnSync('git', ['clone', '-q', '--shared', '--no-checkout', sibling, shared], {
     encoding: 'utf8',
@@ -99,8 +99,8 @@ function makeSharedCacheShapedRepo() {
     if (r.status !== 0) throw new Error(`git ${a.join(' ')} failed: ${r.stderr}`);
     return (r.stdout || '').trim();
   };
-  sg('config', 'user.email', 'kcsi@test');
-  sg('config', 'user.name', 'kcsi');
+  sg('config', 'user.email', 'ksi@test');
+  sg('config', 'user.name', 'ksi');
   sg('checkout', '-q', '-f', '--detach', base);
   const altPath = path.join(shared, '.git', 'objects', 'info', 'alternates');
   assert.ok(fs.existsSync(altPath), 'fixture precondition: shared clone must have an alternates link');
@@ -113,7 +113,7 @@ function makeSharedCacheShapedRepo() {
 // openlibrary vendoring infogami) leaves `.git/modules/<path>` populated after
 // `git submodule update --init`. Returns the superproject as repo_source_path.
 function makeSubmoduleCacheShapedRepo() {
-  const parent = fs.mkdtempSync(path.join(os.tmpdir(), 'kcsi-sanitize-sub-'));
+  const parent = fs.mkdtempSync(path.join(os.tmpdir(), 'ksi-sanitize-sub-'));
   const subSrc = path.join(parent, 'dep');
   const superSrc = path.join(parent, 'super');
   const mk = (dir) => {
@@ -125,8 +125,8 @@ function makeSubmoduleCacheShapedRepo() {
     };
     g('init', '-q');
     g('branch', '-M', 'master');
-    g('config', 'user.email', 'kcsi@test');
-    g('config', 'user.name', 'kcsi');
+    g('config', 'user.email', 'ksi@test');
+    g('config', 'user.name', 'ksi');
     return g;
   };
   // Dependency (submodule) repo: pinned commit + a later "future" commit.
@@ -193,7 +193,7 @@ describe('SWE-bench Pro workspace .git sanitization (#924) — behavioral', () =
 
   it('strips origin + future history but keeps base HEAD and a working git diff', () => {
     const { dir: srcDir, base, fix } = makeCacheShapedRepo();
-    const cwd = fs.mkdtempSync(path.join(os.tmpdir(), 'kcsi-sanitize-cwd-'));
+    const cwd = fs.mkdtempSync(path.join(os.tmpdir(), 'ksi-sanitize-cwd-'));
     try {
       const res = spawnSync(tsxBin, ['--eval', seedFixtureScript(srcDir), '--conditions=node'], {
         cwd,
@@ -251,7 +251,7 @@ describe('SWE-bench Pro workspace .git sanitization (#924) — behavioral', () =
     // the link the fix stays recoverable on the host. The sibling source must
     // still exist while seedWorkspace sanitizes (the repack absorbs from it).
     const { sibling, parent, shared, base, fix } = makeSharedCacheShapedRepo();
-    const cwd = fs.mkdtempSync(path.join(os.tmpdir(), 'kcsi-sanitize-shared-cwd-'));
+    const cwd = fs.mkdtempSync(path.join(os.tmpdir(), 'ksi-sanitize-shared-cwd-'));
     try {
       const res = spawnSync(tsxBin, ['--eval', seedFixtureScript(shared), '--conditions=node'], {
         cwd,
@@ -292,7 +292,7 @@ describe('SWE-bench Pro workspace .git sanitization (#924) — behavioral', () =
   });
 
   it('sanitizeRepoHistory is a no-op on a non-git source (polyglot/ARC)', () => {
-    const cwd = fs.mkdtempSync(path.join(os.tmpdir(), 'kcsi-sanitize-nogit-'));
+    const cwd = fs.mkdtempSync(path.join(os.tmpdir(), 'ksi-sanitize-nogit-'));
     try {
       const script = `
 import { sanitizeRepoHistory } from ${JSON.stringify(workspaceTs)};
@@ -316,7 +316,7 @@ process.stdout.write(String(fs.existsSync(path.join(d, 'solution.py'))));
     // A `.git` pointer FILE (worktree / --separate-git-dir) would make
     // `git -C repoDst` operate on an external git dir. The sanitizer must
     // refuse rather than delete refs / gc someone else's repo.
-    const cwd = fs.mkdtempSync(path.join(os.tmpdir(), 'kcsi-sanitize-ptr-'));
+    const cwd = fs.mkdtempSync(path.join(os.tmpdir(), 'ksi-sanitize-ptr-'));
     try {
       // An external "real" repo whose refs must survive untouched.
       const ext = path.join(cwd, 'external');
@@ -324,8 +324,8 @@ process.stdout.write(String(fs.existsSync(path.join(d, 'solution.py'))));
       const eg = (...a) => git(ext, a);
       eg('init', '-q');
       eg('branch', '-M', 'master');
-      eg('config', 'user.email', 'kcsi@test');
-      eg('config', 'user.name', 'kcsi');
+      eg('config', 'user.email', 'ksi@test');
+      eg('config', 'user.name', 'ksi');
       fs.writeFileSync(path.join(ext, 'f.txt'), 'x\n');
       eg('add', '-A');
       eg('commit', '-q', '-m', 'c0');
@@ -363,7 +363,7 @@ try {
 
   it('removes submodule git stores (.git/modules) while keeping working-tree files (#1256)', () => {
     const { parent, superSrc, subPin, subFuture } = makeSubmoduleCacheShapedRepo();
-    const cwd = fs.mkdtempSync(path.join(os.tmpdir(), 'kcsi-sanitize-sub-cwd-'));
+    const cwd = fs.mkdtempSync(path.join(os.tmpdir(), 'ksi-sanitize-sub-cwd-'));
     try {
       const res = spawnSync(tsxBin, ['--eval', seedFixtureScript(superSrc), '--conditions=node'], {
         cwd,

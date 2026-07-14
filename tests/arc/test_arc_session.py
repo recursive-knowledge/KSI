@@ -16,8 +16,8 @@ These tests assert that the inputs those paths used to recover from now score 0:
 
 from __future__ import annotations
 
-from kcsi.benchmarks.arc_session import ArcSessionEvaluator
-from kcsi.models import TaskSpec
+from ksi.benchmarks.arc_session import ArcSessionEvaluator
+from ksi.models import TaskSpec
 
 
 def _task_single(output_grid=None):

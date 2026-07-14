@@ -15,13 +15,13 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from kcsi.memory.forum_bus import ForumBus
-from kcsi.memory.knowledge_store import CROSS_TASK_SENTINEL
-from kcsi.models import GenerationConfig, TaskTrace
-from kcsi.orchestrator.engine import ForumValidationError, GenerationalOrchestrator, NoopPersistence
-from kcsi.orchestrator.forum_phase import EngineForumPhaseService
-from kcsi.runtime.types import RuntimeResult
-from kcsi.tokens import LLMResponse, TokenUsage
+from ksi.memory.forum_bus import ForumBus
+from ksi.memory.knowledge_store import CROSS_TASK_SENTINEL
+from ksi.models import GenerationConfig, TaskTrace
+from ksi.orchestrator.engine import ForumValidationError, GenerationalOrchestrator, NoopPersistence
+from ksi.orchestrator.forum_phase import EngineForumPhaseService
+from ksi.runtime.types import RuntimeResult
+from ksi.tokens import LLMResponse, TokenUsage
 from tests.orchestrator_phase_helpers import cross_task_forum
 
 
@@ -39,7 +39,7 @@ def _make_orch(tmp_path, runtime) -> GenerationalOrchestrator:
         num_agents=2,
         knowledge_db_path=db_path,
         # Pin explicitly: the ForumBus writes below use experiment="default",
-        # and the dataclass default is now "kcsi" (CLI parity, #732).
+        # and the dataclass default is now "ksi" (CLI parity, #732).
         experiment_name="default",
     )
     orch = GenerationalOrchestrator(
@@ -616,7 +616,7 @@ def test_cross_task_post_read_back_has_nonempty_text(tmp_path):
     ``post.get("content")`` collapses every history/peer post to ``""``. This
     pins the writer↔reader contract so a regression on either side fails here.
     """
-    from kcsi.memory.knowledge_store import KnowledgeStore
+    from ksi.memory.knowledge_store import KnowledgeStore
 
     store = KnowledgeStore(str(tmp_path / "knowledge.sqlite"), default_experiment="default")
     try:

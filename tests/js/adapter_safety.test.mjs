@@ -13,7 +13,7 @@
  *   - OpenAI provider samples OPENAI_API_KEY and has no OAuth alternative
  *   - Secret VALUES never appear in the diagnostic (shapes only)
  *   - `isSilentFailureEnvelope` matches the Python-side contract in
- *     `src/kcsi/runtime/normalize.py::is_silent_agent_failure`
+ *     `src/ksi/runtime/normalize.py::is_silent_agent_failure`
  *
  * This test duplicates the helpers inline because the repo's test harness
  * runs Node directly with no tsc step; if adapter_safety.ts changes, this
@@ -195,17 +195,17 @@ describe("buildSilentDiagnostic — provider-aware env sampling", () => {
   it("surfaces mcpServerNames for H2 diagnosis", () => {
     const diag = buildSilentDiagnostic({
       ...baseArgs(ANTHROPIC_PROVIDER),
-      mcpServerNames: ["kcsi-memory", "kcsi-arc"],
+      mcpServerNames: ["ksi-memory", "ksi-arc"],
     });
-    assert.deepEqual(diag.mcpServerNames, ["kcsi-arc", "kcsi-memory"]);
+    assert.deepEqual(diag.mcpServerNames, ["ksi-arc", "ksi-memory"]);
   });
 
   it("accepts mcpServerNames as a dict (legacy index.ts call shape)", () => {
     const diag = buildSilentDiagnostic({
       ...baseArgs(ANTHROPIC_PROVIDER),
-      mcpServerNames: { kcsi: {}, "kcsi-memory": {} },
+      mcpServerNames: { ksi: {}, "ksi-memory": {} },
     });
-    assert.deepEqual(diag.mcpServerNames, ["kcsi", "kcsi-memory"]);
+    assert.deepEqual(diag.mcpServerNames, ["ksi", "ksi-memory"]);
   });
 
   it("captures iteratorError shape for H6 diagnosis", () => {

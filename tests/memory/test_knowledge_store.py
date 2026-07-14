@@ -1,4 +1,4 @@
-"""Tests for src/kcsi/memory/knowledge_store.py — unified KnowledgeStore."""
+"""Tests for src/ksi/memory/knowledge_store.py — unified KnowledgeStore."""
 
 import sqlite3
 import threading
@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 import pytest
 
-from kcsi.memory.knowledge_store import KnowledgeStore
+from ksi.memory.knowledge_store import KnowledgeStore
 
 
 def _make_store(tmp_path, **kwargs):
@@ -59,7 +59,7 @@ class TestSchemaCreation:
             store.close()
 
     def test_locked_is_reentrant_without_repeated_advisory_flock(self, tmp_path, monkeypatch):
-        import kcsi.memory._store_common as store_common_mod
+        import ksi.memory._store_common as store_common_mod
 
         store = _make_store(tmp_path)
         calls: list[int] = []
@@ -143,7 +143,7 @@ class TestListTaskSummariesTruncation:
         store = _make_store(tmp_path)
         try:
             self._seed_tasks(store, 3)
-            with caplog.at_level("WARNING", logger="kcsi.memory.knowledge_store"):
+            with caplog.at_level("WARNING", logger="ksi.memory.knowledge_store"):
                 rows = store.list_task_summaries(experiment="exp", limit=200)
             assert len(rows) == 3
             assert not any("list_task_summaries" in rec.message for rec in caplog.records)
@@ -154,7 +154,7 @@ class TestListTaskSummariesTruncation:
         store = _make_store(tmp_path)
         try:
             self._seed_tasks(store, 5)
-            with caplog.at_level("WARNING", logger="kcsi.memory.knowledge_store"):
+            with caplog.at_level("WARNING", logger="ksi.memory.knowledge_store"):
                 rows = store.list_task_summaries(experiment="exp", limit=3)
             assert len(rows) == 3, "result must still be capped at the requested limit"
             assert any(
@@ -1751,7 +1751,7 @@ class TestFtsSearch:
         rows matched nothing. OR-joining (via ``fts_search(raw_match=True)``)
         returns every row containing any term.
         """
-        from kcsi.memory.mcp_server import _fts_fallback_related
+        from ksi.memory.mcp_server import _fts_fallback_related
 
         store = _make_store(tmp_path)
         try:
@@ -1956,7 +1956,7 @@ class TestBusyRetry:
                     raise sqlite3.OperationalError("database is locked")
                 return "ok"
 
-            with caplog.at_level("WARNING", logger="kcsi.memory.knowledge_store"):
+            with caplog.at_level("WARNING", logger="ksi.memory.knowledge_store"):
                 assert store._call_with_busy_retry(fn) == "ok"
 
             assert calls["n"] == 3, "fn should be called until it stops raising"
@@ -2381,7 +2381,7 @@ class TestRunWriteCancellation:
         """If the closure is still executing after the grace window, the error
         must be the dedicated WriteIndeterminateError so callers know the
         write may still land and must not retry."""
-        from kcsi.errors import WriteIndeterminateError
+        from ksi.errors import WriteIndeterminateError
 
         store = _make_store(tmp_path)
         finished = []

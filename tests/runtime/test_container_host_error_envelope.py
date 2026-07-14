@@ -36,9 +36,9 @@ import types
 
 import pytest
 
-from kcsi.models import TaskSpec
-from kcsi.runtime.container_host import KcsiContainerExecutor, _error_envelope_event_name
-from kcsi.runtime.normalize import SilentAgentRuntimeError
+from ksi.models import TaskSpec
+from ksi.runtime.container_host import KsiContainerExecutor, _error_envelope_event_name
+from ksi.runtime.normalize import SilentAgentRuntimeError
 
 
 def _error_envelope_stdout(
@@ -76,7 +76,7 @@ def _build_executor(tmp_path, *, stdout: str):
         "MODEL": "claude-haiku-4-5-20251001",
         "ANTHROPIC_API_KEY": "sk-ant-test-placeholder",
     }
-    executor = KcsiContainerExecutor(
+    executor = KsiContainerExecutor(
         command=["/bin/true"],
         working_dir=str(tmp_path),
         timeout_sec=60,

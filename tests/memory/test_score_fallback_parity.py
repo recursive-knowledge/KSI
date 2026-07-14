@@ -1,7 +1,7 @@
 """Parity guard for the inline ``score_from_eval_results`` fallback in store.py.
 
-``src/kcsi/memory/store.py`` imports the canonical
-``kcsi.orchestrator.scoring.score_from_eval_results`` but defines an INLINE
+``src/ksi/memory/store.py`` imports the canonical
+``ksi.orchestrator.scoring.score_from_eval_results`` but defines an INLINE
 fallback copy under ``except Exception`` (with the same precedence chain), used
 in container script-mode where the parent ``..orchestrator`` package is not
 importable. Because CI always takes the real-import path, that fallback is
@@ -25,8 +25,8 @@ from typing import Any, Callable
 
 import pytest
 
-import kcsi.memory.store as store_mod
-from kcsi.orchestrator.scoring import score_from_eval_results as canonical
+import ksi.memory.store as store_mod
+from ksi.orchestrator.scoring import score_from_eval_results as canonical
 
 
 def _extract_fallback_scorer() -> Callable[[dict[str, Any]], "float | None"]:

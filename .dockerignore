@@ -18,6 +18,6 @@ reviews/
 *.sqlite
 *.parquet
 .env*
-configs/kcsi/.env*
+configs/ksi/.env*
 configs/baselines/*.env
 !configs/baselines/*.env.example

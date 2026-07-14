@@ -7,7 +7,7 @@
  * Forensics on ``arc2_post_fix_v3_20260420_memory.sqlite`` showed 36/60
  * attempts (60%) had a pino log line injected MID-STRING inside the JSON
  * envelope emitted by ``runtime_runner/src/main.ts``. The host's Python
- * parser (``src/kcsi/runtime/normalize.py::parse_runner_stdout``) could not
+ * parser (``src/ksi/runtime/normalize.py::parse_runner_stdout``) could not
  * read the envelope and fell back to the raw-text path, hiding real work.
  *
  * Root cause: pino's default destination is stdout (fd 1). Node's
@@ -137,7 +137,7 @@ setTimeout(() => {}, 50);
           ...process.env,
           LOG_LEVEL: "info",
           // Disable pretty print for deterministic assertion on raw JSON.
-          KCSI_PRETTY_LOGS: "0",
+          KSI_PRETTY_LOGS: "0",
         },
       },
     );

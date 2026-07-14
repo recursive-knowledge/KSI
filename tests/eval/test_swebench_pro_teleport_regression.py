@@ -4,7 +4,7 @@ Replays two real patches through the upstream SWE-bench Pro evaluator and assert
 the known resolved/unresolved outcomes have not silently flipped:
 
   * ``fixtures/swebench_pro/teleport/swarm_patch.diff`` (expected **unresolved**)
-    KCSI's 2-gen x 3-task smoke produced this patch. It flips the target
+    KSI's 2-gen x 3-task smoke produced this patch. It flips the target
     FAIL_TO_PASS ``TestMux/SSHProxyHelloSignature`` to PASSED but regresses the
     PASS_TO_PASS pair ``TestMux/DisableTLS`` and ``TestMux/TLSSSH``, so the
     instance ends up unresolved.
@@ -52,9 +52,9 @@ from typing import Any
 import pytest
 from conftest import FIXTURES_DIR, REPO_ROOT
 
-from kcsi.benchmarks.swebench_pro import SwebenchProEvaluator, _default_swebench_pro_repo_root
-from kcsi.benchmarks.swebench_pro_external import EVALUATOR_REVISION, SETUP_COMMAND, SWEBENCH_FAILURE_STATUSES
-from kcsi.models import TaskSpec
+from ksi.benchmarks.swebench_pro import SwebenchProEvaluator, _default_swebench_pro_repo_root
+from ksi.benchmarks.swebench_pro_external import EVALUATOR_REVISION, SETUP_COMMAND, SWEBENCH_FAILURE_STATUSES
+from ksi.models import TaskSpec
 
 TELEPORT_INSTANCE_ID = (
     "instance_gravitational__teleport-"
@@ -63,7 +63,7 @@ TELEPORT_INSTANCE_ID = (
 )
 
 FIXTURE_DIR = FIXTURES_DIR / "swebench_pro" / "teleport"
-KCSI_PATCH_PATH = FIXTURE_DIR / "swarm_patch.diff"
+KSI_PATCH_PATH = FIXTURE_DIR / "swarm_patch.diff"
 DGM_PATCH_PATH = FIXTURE_DIR / "dgm_patch.diff"
 META_PATH = FIXTURE_DIR / "meta.json"
 
@@ -115,11 +115,11 @@ def _load_raw_sample_row() -> dict[str, Any] | None:
 
 def test_teleport_regression_fixtures_are_present() -> None:
     """Fixtures must always ship — no Docker required."""
-    assert KCSI_PATCH_PATH.is_file(), KCSI_PATCH_PATH
+    assert KSI_PATCH_PATH.is_file(), KSI_PATCH_PATH
     assert DGM_PATCH_PATH.is_file(), DGM_PATCH_PATH
     assert META_PATH.is_file(), META_PATH
 
-    swarm_patch = KCSI_PATCH_PATH.read_text(encoding="utf-8")
+    swarm_patch = KSI_PATCH_PATH.read_text(encoding="utf-8")
     dgm_patch = DGM_PATCH_PATH.read_text(encoding="utf-8")
     assert swarm_patch.lstrip().startswith("diff --git "), "swarm_patch.diff must begin with 'diff --git '"
     assert dgm_patch.lstrip().startswith("diff --git "), "dgm_patch.diff must begin with 'diff --git '"
@@ -136,10 +136,10 @@ def test_teleport_regression_fixtures_are_present() -> None:
 @pytest.mark.parametrize(
     "patch_path, expected_resolved, label",
     [
-        (KCSI_PATCH_PATH, False, "swarm"),
+        (KSI_PATCH_PATH, False, "swarm"),
         (DGM_PATCH_PATH, True, "dgm"),
     ],
-    ids=["kcsi-unresolved", "dgm-resolved"],
+    ids=["ksi-unresolved", "dgm-resolved"],
 )
 def test_teleport_patch_resolution_matches_fixture(
     patch_path: Path,

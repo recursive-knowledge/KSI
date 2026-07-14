@@ -1,15 +1,15 @@
-"""Tests for the central evaluator registry (src/kcsi/eval/registry.py).
+"""Tests for the central evaluator registry (src/ksi/eval/registry.py).
 
 Pins the PURE-REFACTOR contract: every previously-supported evaluator still
 resolves, an unknown name raises early with a helpful message, and the registry
-is runtime-extensible (mirrors src/kcsi/tasks/registry.py).
+is runtime-extensible (mirrors src/ksi/tasks/registry.py).
 """
 
 from __future__ import annotations
 
 import pytest
 
-from kcsi.eval.registry import (
+from ksi.eval.registry import (
     REGISTRY,
     EvaluatorSpec,
     get_evaluator_spec,
@@ -64,8 +64,8 @@ CANONICAL_EVALUATORS = ("none", "command", "arc_session", "swebench_pro", "polyg
 
 def test_builtins_match_legacy_tuple():
     # Import triggers built-in registration.
-    import kcsi.eval  # noqa: F401
-    from kcsi.eval import SUPPORTED_EVALUATORS
+    import ksi.eval  # noqa: F401
+    from ksi.eval import SUPPORTED_EVALUATORS
 
     assert SUPPORTED_EVALUATORS == CANONICAL_EVALUATORS
     assert supported_evaluators() == CANONICAL_EVALUATORS
@@ -73,16 +73,16 @@ def test_builtins_match_legacy_tuple():
 
 @pytest.mark.parametrize("name", CANONICAL_EVALUATORS)
 def test_every_builtin_resolves(name):
-    import kcsi.eval  # noqa: F401
+    import ksi.eval  # noqa: F401
 
     assert get_evaluator_spec(name).name == name
 
 
 import argparse  # noqa: E402
 
-import kcsi.benchmarks as _bench  # noqa: E402
-import kcsi.eval as _eval  # noqa: E402
-from kcsi.cli import _choose_evaluator  # noqa: E402
+import ksi.benchmarks as _bench  # noqa: E402
+import ksi.eval as _eval  # noqa: E402
+from ksi.cli import _choose_evaluator  # noqa: E402
 
 
 def _eval_args(name):

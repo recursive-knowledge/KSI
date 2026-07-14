@@ -19,7 +19,7 @@ import threading
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from kcsi.memory.store import MemoryStore
+from ksi.memory.store import MemoryStore
 
 
 def test_two_stores_concurrent_writes_do_not_deadlock(tmp_path):

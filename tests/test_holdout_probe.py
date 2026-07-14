@@ -15,10 +15,10 @@ from __future__ import annotations
 import json
 from unittest.mock import MagicMock
 
-from kcsi.models import GenerationConfig, TaskSpec, TaskTrace
-from kcsi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
-from kcsi.orchestrator.execution_phase import ExecutionPhaseResult
-from kcsi.tokens import LLMResponse, TokenUsage
+from ksi.models import GenerationConfig, TaskSpec, TaskTrace
+from ksi.orchestrator.engine import GenerationalOrchestrator, NoopPersistence
+from ksi.orchestrator.execution_phase import ExecutionPhaseResult
+from ksi.tokens import LLMResponse, TokenUsage
 from tests.orchestrator_phase_helpers import cross_task_forum, per_task_forum, run_distill, seed_next_generation
 
 
@@ -133,7 +133,7 @@ class TestHoldoutScoreIsolation:
 
 class TestHoldoutLearningExclusion:
     def test_distill_task_ids_exclude_holdouts(self, tmp_path, monkeypatch):
-        from kcsi.distillation import DistillOutput
+        from ksi.distillation import DistillOutput
 
         orch = _make_orch(tmp_path, holdout_task_ids=["h1"])
         captured: dict = {}
@@ -143,7 +143,7 @@ class TestHoldoutLearningExclusion:
             captured["cross_task_target_ids"] = list(inp.cross_task_target_ids or [])
             return DistillOutput(per_task={}, cross_task=None)
 
-        import kcsi.distillation as dist_pkg
+        import ksi.distillation as dist_pkg
 
         monkeypatch.setattr(dist_pkg, "distill", fake_distill)
         run_distill(orch, generation=1, task_ids=["h1", "t1"])
@@ -158,7 +158,7 @@ class TestHoldoutLearningExclusion:
             called["n"] += 1
             raise AssertionError("distill must not run for holdout-only task ids")
 
-        import kcsi.distillation as dist_pkg
+        import ksi.distillation as dist_pkg
 
         monkeypatch.setattr(dist_pkg, "distill", fake_distill)
         run_distill(orch, generation=1, task_ids=["h1"])
@@ -175,7 +175,7 @@ class TestHoldoutLearningExclusion:
         assert orch._non_holdout(traces) == traces
 
     def test_per_task_forum_skips_holdout_only_traces(self, tmp_path, monkeypatch):
-        import kcsi.memory.forum_bus as forum_bus_mod
+        import ksi.memory.forum_bus as forum_bus_mod
 
         orch = _make_orch(tmp_path, holdout_task_ids=["h1"])
 
@@ -188,7 +188,7 @@ class TestHoldoutLearningExclusion:
         per_task_forum(orch, 1, [_trace("h1")])
 
     def test_cross_task_forum_skips_holdout_only_traces(self, tmp_path, monkeypatch):
-        import kcsi.memory.forum_bus as forum_bus_mod
+        import ksi.memory.forum_bus as forum_bus_mod
 
         orch = _make_orch(tmp_path, holdout_task_ids=["h1"])
 
@@ -246,7 +246,7 @@ class TestHoldoutSeedPackageIsolation:
 
     @staticmethod
     def _enrich_single_agent(orch, task_id: str) -> dict:
-        from kcsi.models import AgentState
+        from ksi.models import AgentState
 
         agent = AgentState(id="agent-0", generation=2, seed_package={})
         orch.agents = [agent]
@@ -389,7 +389,7 @@ class TestHoldoutR0InsightExclusion:
 
     @staticmethod
     def _insight(task_id: str):
-        from kcsi.models import Insight
+        from ksi.models import Insight
 
         return Insight(
             id="ins-1",
@@ -402,7 +402,7 @@ class TestHoldoutR0InsightExclusion:
 
     @staticmethod
     def _agent():
-        from kcsi.models import AgentState
+        from ksi.models import AgentState
 
         return AgentState(id="agent-0", generation=1)
 
@@ -470,7 +470,7 @@ class TestHoldoutSeederBundleExclusion:
         )
 
     def test_seeder_skips_per_task_bundle_for_holdout_labels(self, tmp_path):
-        from kcsi.seeding.seeder import PopulationSeeder
+        from ksi.seeding.seeder import PopulationSeeder
 
         orch = _make_orch(tmp_path)
         self._record_bundle(orch, "h1")

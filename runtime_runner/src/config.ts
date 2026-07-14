@@ -22,21 +22,21 @@ export const RUNTIME_SESSION_STATE_DIR = path.join(
   'session_state',
 );
 export const CONTAINER_IMAGE =
-  process.env.KCSI_CONTAINER_IMAGE ||
+  process.env.KSI_CONTAINER_IMAGE ||
   process.env.CONTAINER_IMAGE ||
-  'kcsi-agent:bench';
+  'ksi-agent:bench';
 export const CONTAINER_TIMEOUT = parseInt(
-  process.env.KCSI_CONTAINER_TIMEOUT || process.env.CONTAINER_TIMEOUT || '1800000',
+  process.env.KSI_CONTAINER_TIMEOUT || process.env.CONTAINER_TIMEOUT || '1800000',
   10,
 ); // <= 0 disables the hard container deadline; positive values are milliseconds.
 export const CONTAINER_MAX_OUTPUT_SIZE = parseInt(
-  process.env.KCSI_CONTAINER_MAX_OUTPUT_SIZE ||
+  process.env.KSI_CONTAINER_MAX_OUTPUT_SIZE ||
     process.env.CONTAINER_MAX_OUTPUT_SIZE ||
     '10485760',
   10,
 ); // 10MB default
 export const IDLE_TIMEOUT = parseInt(
-  process.env.KCSI_IDLE_TIMEOUT || process.env.IDLE_TIMEOUT || '1800000',
+  process.env.KSI_IDLE_TIMEOUT || process.env.IDLE_TIMEOUT || '1800000',
   10,
 ); // 30min default — how long to keep container alive after last result
 

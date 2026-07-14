@@ -13,9 +13,9 @@ from __future__ import annotations
 
 import subprocess
 
-from kcsi.layout import PROJECT_ROOT
-from kcsi.providers import load_provider_profile
-from kcsi.tasks.loaders import load_tasks_for_source
+from ksi.layout import PROJECT_ROOT
+from ksi.providers import load_provider_profile
+from ksi.tasks.loaders import load_tasks_for_source
 
 DEMO_DIR = PROJECT_ROOT / "examples" / "quickstart" / "arc_demo"
 QUICKSTART_SH = PROJECT_ROOT / "scripts" / "quickstart.sh"

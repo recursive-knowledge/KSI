@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import pytest
 
-from kcsi.forum.prompt import build_cross_task_discussion_parts
+from ksi.forum.prompt import build_cross_task_discussion_parts
 
 HISTORY = [{"id": 1, "generation": 1, "round_num": 0, "agent_id": "a0", "text": "primitive X"}]
 PHASE1 = {"task_id": "t-solo", "native_score": 1.0, "reflection": "used cargo test --nocapture"}
