@@ -1,0 +1,11 @@
+{
+  "benchmark": "polyglot",
+  "selection_name": "polyglot_medium_50_seed0_ids",
+  "source_repo": "Aider-AI/polyglot-benchmark",
+  "source_branch": "main",
+  "source_commit": "7e0611e77b54e2dea774cdc0aa00cf9f7ed6144f",
+  "seed": 0,
+  "count": 50,
+  "ids_file": "polyglot_medium_50_seed0_ids.json",
+  "usage_note": "ID-only manifest. Use with --task-ids-file to filter the loader-format dataset at data/polyglot_medium.json (or equivalent, see scripts/dataprep/prepare_polyglot_dataset.py)."
+}

@@ -1,0 +1,16 @@
+{
+  "arc1": {
+    "split": "training",
+    "selection_name": "arc1_train_50_seed0",
+    "task_dir": "benchmarks/arc1/source/data/training",
+    "task_map": "benchmarks/arc1/task_maps/arc1_train_50_seed0.json",
+    "payload_manifest": "benchmarks/arc/workspace_payloads/arc1/arc1_train_50_seed0/manifest.json"
+  },
+  "arc2": {
+    "split": "training",
+    "selection_name": "arc2_train_50_seed0",
+    "task_dir": "benchmarks/arc2/source/data/training",
+    "task_map": "benchmarks/arc2/task_maps/arc2_train_50_seed0.json",
+    "payload_manifest": "benchmarks/arc/workspace_payloads/arc2/arc2_train_50_seed0/manifest.json"
+  }
+}

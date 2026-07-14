@@ -1,0 +1,67 @@
+{
+  "selection_name": "terminal_bench_2_local_smoke_5_curated",
+  "benchmark": "terminal_bench_2",
+  "dataset_name": "harbor-framework/terminal-bench-2",
+  "source_path": "benchmarks/terminal_bench_2/source",
+  "source_git_revision": "53ff2b87d621bdb97b455671f2bd9728b7d86c11",
+  "selection_seed": null,
+  "task_count": 5,
+  "selection_notes": [
+    "Curated local smoke subset for validating KCSI x Terminal-Bench 2 integration.",
+    "Chosen to avoid very long-tail local tasks while still covering multiple TB2 interaction styles.",
+    "Every selected task uses 1 CPU, 2G memory, and 900s agent/verifier timeouts in task.toml.",
+    "Use this subset for local 5-task x 2-generation workflow validation before larger sweeps."
+  ],
+  "tasks": [
+    {
+      "index": 1,
+      "task_id": "build-cython-ext",
+      "difficulty": "medium",
+      "category": "software-engineering",
+      "docker_image": "alexgshaw/build-cython-ext:20251031",
+      "verifier_timeout_sec": 900.0,
+      "agent_timeout_sec": 900.0,
+      "notes": ""
+    },
+    {
+      "index": 2,
+      "task_id": "build-pmars",
+      "difficulty": "medium",
+      "category": "software-engineering",
+      "docker_image": "alexgshaw/build-pmars:20251031",
+      "verifier_timeout_sec": 900.0,
+      "agent_timeout_sec": 900.0,
+      "notes": ""
+    },
+    {
+      "index": 3,
+      "task_id": "cancel-async-tasks",
+      "difficulty": "medium",
+      "category": "software-engineering",
+      "docker_image": "alexgshaw/cancel-async-tasks:20251031",
+      "verifier_timeout_sec": 900.0,
+      "agent_timeout_sec": 900.0,
+      "notes": ""
+    },
+    {
+      "index": 4,
+      "task_id": "git-multibranch",
+      "difficulty": "medium",
+      "category": "system-administration",
+      "docker_image": "alexgshaw/git-multibranch:20251031",
+      "verifier_timeout_sec": 900.0,
+      "agent_timeout_sec": 900.0,
+      "notes": ""
+    },
+    {
+      "index": 5,
+      "task_id": "nginx-request-logging",
+      "difficulty": "medium",
+      "category": "system-administration",
+      "docker_image": "alexgshaw/nginx-request-logging:20251031",
+      "verifier_timeout_sec": 900.0,
+      "agent_timeout_sec": 900.0,
+      "notes": ""
+    }
+  ]
+}

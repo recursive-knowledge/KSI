@@ -1,0 +1,4 @@
+# All changes require approval from the repo owner.
+# Any line that matches a path delegates ownership for that path.
+# This wildcard covers everything; add more specific rules above as needed.
+* @xuefei-wang

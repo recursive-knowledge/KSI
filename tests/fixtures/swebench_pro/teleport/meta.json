@@ -1,0 +1,19 @@
+{
+  "instance_id": "instance_gravitational__teleport-af5e2517de7d18406b614e413aca61c319312171-vee9b09fb20c43af7e520f57e9239bbcf46b7113d",
+  "repo": "gravitational/teleport",
+  "extracted_at": "2026-04-23",
+  "fixtures": {
+    "swarm_patch.diff": {
+      "expected_resolved": false,
+      "source_artifact": "results/smoke_2gen3task_20260422_205320/swarm_swebench_pro.json (traces[0], generation=1, agent-0)",
+      "notes": "Swarm smoke 3-task run (2 generations x 3 tasks). Patch flips FAIL_TO_PASS TestMux/SSHProxyHelloSignature to PASSED but regresses PASS_TO_PASS TestMux/DisableTLS and TestMux/TLSSSH, leaving the instance unresolved."
+    },
+    "dgm_patch.diff": {
+      "expected_resolved": true,
+      "source_artifact": "baselines/dgm/output_dgm/20260422234037_134372/20260422_234037_210673/predictions/20260422_234037_210673_shallow_0/swebench_pro_patches.json",
+      "notes": "DGM gen-1 patch for the same instance. Both gens (234037, 234928) resolved; this is the earlier timestamp."
+    }
+  },
+  "ref_issue": 461,
+  "handoff_goal": 5
+}

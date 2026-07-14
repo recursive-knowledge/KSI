@@ -1,0 +1,193 @@
+# Python
+__pycache__/
+*.py[codz]
+*$py.class
+*.so
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+site/
+MANIFEST
+
+# Claude Code superpowers scratch (SDD progress ledger, brainstorming mockups)
+.superpowers/
+
+# Virtual environments
+.env
+.envrc
+local-llm-host/.env
+configs/kcsi/.env.*
+!configs/kcsi/*.example
+!configs/kcsi/*.template
+configs/baselines/*.env
+!configs/baselines/*.env.example
+configs/providers/.env.*
+!configs/providers/*.example
+!configs/providers/*.template
+configs/models/*.env
+!configs/models/*.env.example
+!configs/models/*.env.template
+.venv/
+.venv_baselines/
+env/
+venv/
+
+# Local datasets / secrets
+dataset/
+login_info.json
+SWE-bench/
+
+# Testing & coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+
+# Type checking & linting
+.mypy_cache/
+.dmypy.json
+.ruff_cache/
+
+# Jupyter
+.ipynb_checkpoints
+
+# IDE
+.idea/
+.vscode/
+
+# Claude Code local settings and scaffolding (machine-specific)
+.claude/
+.codex
+
+# Internal SDD plans/specs (not part of the published project)
+docs/superpowers/
+
+# Archive bundles (experiment artifact exports)
+*.zip
+
+# Runtime artifacts (generated per-experiment)
+runtime_state/
+
+# Stray run artifacts that must never be committed at the repo root.
+# (*.sqlite* and memory_snapshot_*.json are also matched by the broader globs
+# below, but anchored entries keep root strays obvious. See docs/artifacts.md.)
+/*.sqlite
+/*.sqlite-shm
+/*.sqlite-wal
+/*.sqlite.lock
+/memory_snapshot_*.json
+
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node / Frontend (if any)
+node_modules/
+.next/
+.npm-cache/
+
+# Project-specific
+.cache/
+repositories/
+.aws/
+
+# Workspace runtime artifacts (generated at runtime, not source)
+workspaces/
+/config.yaml
+data/
+*.db
+
+# Bare git fragments (worktree artifacts)
+/HEAD
+/config
+/hooks
+/objects
+/refs
+
+# Misc
+*.log
+*.pypirc
+cost_analysis_output.json
+.vercel
+.env*.local
+groups/
+logs/
+memory_data/
+memory_*_output.json
+
+# Experiment artifacts
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.sqlite.lock
+forum_bus/
+analysis/
+bundles/
+reviews/
+!scripts/analysis/
+!scripts/analysis/*.py
+flag_test_*.json
+integration_*.json
+memory_snapshot_*.json
+*.json
+!configs/benchmarks/*.json
+!configs/subsets/*.json
+!runtime_runner/package.json
+!runtime_runner/package-lock.json
+!runtime_runner/agent-runner/package.json
+!runtime_runner/agent-runner/package-lock.json
+!runtime_runner/agent-runner/tsconfig.json
+# Single source of truth for retryable-error markers (issue #648); shared by
+# the Python orchestrator and the TypeScript agent-runner. Must be tracked.
+!runtime_runner/shared/retryable_markers.json
+!runtime_runner/tsconfig.json
+!benchmarks/arc/task_maps/*.json
+!benchmarks/arc1/task_maps/*.json
+!benchmarks/arc2/task_maps/*.json
+!benchmarks/polyglot/task_maps/*.json
+!benchmarks/swebench_pro/task_maps/*.json
+!benchmarks/terminal_bench_2/task_maps/*.json
+!examples/**/*.json
+!tests/fixtures/**/*.json
+results/
+
+# Benchmark source checkouts and generated runtime assets.
+benchmarks/arc/benchmarking/
+benchmarks/arc/native_prompts/
+benchmarks/arc/workspace_payloads/
+benchmarks/arc1/source/
+benchmarks/arc2/source/
+benchmarks/polyglot/source/
+benchmarks/swebench_pro/evaluator/
+benchmarks/swebench_pro/repo_cache/
+benchmarks/swebench_pro/source
+# Third-party SWE-bench Pro test split: not redistributed in-tree (see #874).
+# Regenerate locally via scripts/dataprep/export_swebench_pro_dataset.py.
+benchmarks/swebench_pro/dataset/
+
+# Local benchmark run outputs.
+runs/
+outputs/
+
+# External baseline implementations are source, but their generated artifacts
+# stay local.
+!baselines/**/*.json
+baselines/**/.venv/
+baselines/**/.venv_poly/
+baselines/**/__pycache__/
+baselines/**/.pytest_cache/
+baselines/**/runs/
+baselines/**/outputs/
+baselines/**/output_dgm/
+baselines/**/predictions/
+baselines/**/*.log
+baselines/**/repo_cache/

@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "_comment": "SINGLE SOURCE OF TRUTH for retryable-error classification markers shared between the Python orchestrator (src/kcsi/orchestrator/engine.py via src/kcsi/errors.py::load_retryable_markers) and the TypeScript agent-runner (runtime_runner/agent-runner/src/retryable_markers.ts, which emits the stream_race phrases). All markers are matched case-insensitively as substrings of the lowercased error text. Do NOT reorder or reword without updating both consumers and tests/test_retryable_markers.py — a reworded marker silently flips transient<->non-retryable classification.",
+  "categories": {
+    "non_retryable": [
+      "invalid prompt",
+      "usage policy",
+      "flagged as potentially violating",
+      "no patch",
+      "missing report",
+      "parse_error"
+    ],
+    "non_retryable_exit_codes": [
+      "exit=137",
+      "exit=139",
+      "exit=126",
+      "exit=127"
+    ],
+    "upstream_provider_transient": [
+      "429",
+      "502",
+      "503",
+      "504",
+      "rate limit",
+      "too many requests",
+      "service unavailable",
+      "provider unavailable",
+      "internal server error",
+      "gateway timeout",
+      "bad gateway",
+      "upstream connect",
+      "connection termination",
+      "overloaded",
+      "fetch failed",
+      "headers timeout",
+      "headerstimeouterror"
+    ],
+    "transient_extra": [
+      "timed out",
+      "timeout",
+      "connection reset",
+      "connection aborted",
+      "broken pipe",
+      "temporarily unavailable",
+      "temporary failure",
+      "network is unreachable",
+      "econnreset",
+      "eai_again",
+      "resource temporarily unavailable"
+    ],
+    "stream_race": [
+      "sdk query loop drained",
+      "sdk query iterator threw",
+      "sdk emitted an empty result event",
+      "silent agent-runner failure"
+    ]
+  }
+}

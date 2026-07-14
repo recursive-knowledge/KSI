@@ -1,0 +1,270 @@
+{
+  "benchmark": "arc2",
+  "split": "evaluation",
+  "seed": 1,
+  "count": 50,
+  "selection_name": "arc2_eval_50_seed1_kt",
+  "source_repo": "arcprize/ARC-AGI-2",
+  "source_branch": "main",
+  "source_commit": "f3283f727488ad98fe575ea6a5ac981e4a188e49",
+  "source_path": "benchmarks/arc2/source/data/evaluation",
+  "selection_algorithm": "random.Random(seed).sample(sorted(pool - baseline), count)",
+  "selection_notes": [
+    "Knowledge-transfer recipient subset disjoint from arc2_train_50_seed0.json.",
+    "Pool size=120, baseline=50, remaining=120, selected=50.",
+    "Do not modify membership after publishing KT results."
+  ],
+  "disjoint_from": "arc2_train_50_seed0.json",
+  "tasks": [
+    {
+      "index": 1,
+      "task_id": "28a6681f",
+      "source_file": "benchmarks/arc2/source/data/evaluation/28a6681f.json"
+    },
+    {
+      "index": 2,
+      "task_id": "8e5c0c38",
+      "source_file": "benchmarks/arc2/source/data/evaluation/8e5c0c38.json"
+    },
+    {
+      "index": 3,
+      "task_id": "dfadab01",
+      "source_file": "benchmarks/arc2/source/data/evaluation/dfadab01.json"
+    },
+    {
+      "index": 4,
+      "task_id": "da515329",
+      "source_file": "benchmarks/arc2/source/data/evaluation/da515329.json"
+    },
+    {
+      "index": 5,
+      "task_id": "cb2d8a2c",
+      "source_file": "benchmarks/arc2/source/data/evaluation/cb2d8a2c.json"
+    },
+    {
+      "index": 6,
+      "task_id": "195c6913",
+      "source_file": "benchmarks/arc2/source/data/evaluation/195c6913.json"
+    },
+    {
+      "index": 7,
+      "task_id": "446ef5d2",
+      "source_file": "benchmarks/arc2/source/data/evaluation/446ef5d2.json"
+    },
+    {
+      "index": 8,
+      "task_id": "269e22fb",
+      "source_file": "benchmarks/arc2/source/data/evaluation/269e22fb.json"
+    },
+    {
+      "index": 9,
+      "task_id": "800d221b",
+      "source_file": "benchmarks/arc2/source/data/evaluation/800d221b.json"
+    },
+    {
+      "index": 10,
+      "task_id": "eee78d87",
+      "source_file": "benchmarks/arc2/source/data/evaluation/eee78d87.json"
+    },
+    {
+      "index": 11,
+      "task_id": "7b0280bc",
+      "source_file": "benchmarks/arc2/source/data/evaluation/7b0280bc.json"
+    },
+    {
+      "index": 12,
+      "task_id": "7b80bb43",
+      "source_file": "benchmarks/arc2/source/data/evaluation/7b80bb43.json"
+    },
+    {
+      "index": 13,
+      "task_id": "a395ee82",
+      "source_file": "benchmarks/arc2/source/data/evaluation/a395ee82.json"
+    },
+    {
+      "index": 14,
+      "task_id": "65b59efc",
+      "source_file": "benchmarks/arc2/source/data/evaluation/65b59efc.json"
+    },
+    {
+      "index": 15,
+      "task_id": "d59b0160",
+      "source_file": "benchmarks/arc2/source/data/evaluation/d59b0160.json"
+    },
+    {
+      "index": 16,
+      "task_id": "36a08778",
+      "source_file": "benchmarks/arc2/source/data/evaluation/36a08778.json"
+    },
+    {
+      "index": 17,
+      "task_id": "21897d95",
+      "source_file": "benchmarks/arc2/source/data/evaluation/21897d95.json"
+    },
+    {
+      "index": 18,
+      "task_id": "7ed72f31",
+      "source_file": "benchmarks/arc2/source/data/evaluation/7ed72f31.json"
+    },
+    {
+      "index": 19,
+      "task_id": "13e47133",
+      "source_file": "benchmarks/arc2/source/data/evaluation/13e47133.json"
+    },
+    {
+      "index": 20,
+      "task_id": "67e490f4",
+      "source_file": "benchmarks/arc2/source/data/evaluation/67e490f4.json"
+    },
+    {
+      "index": 21,
+      "task_id": "7666fa5d",
+      "source_file": "benchmarks/arc2/source/data/evaluation/7666fa5d.json"
+    },
+    {
+      "index": 22,
+      "task_id": "981571dc",
+      "source_file": "benchmarks/arc2/source/data/evaluation/981571dc.json"
+    },
+    {
+      "index": 23,
+      "task_id": "e3721c99",
+      "source_file": "benchmarks/arc2/source/data/evaluation/e3721c99.json"
+    },
+    {
+      "index": 24,
+      "task_id": "0934a4d8",
+      "source_file": "benchmarks/arc2/source/data/evaluation/0934a4d8.json"
+    },
+    {
+      "index": 25,
+      "task_id": "b10624e5",
+      "source_file": "benchmarks/arc2/source/data/evaluation/b10624e5.json"
+    },
+    {
+      "index": 26,
+      "task_id": "e12f9a14",
+      "source_file": "benchmarks/arc2/source/data/evaluation/e12f9a14.json"
+    },
+    {
+      "index": 27,
+      "task_id": "4a21e3da",
+      "source_file": "benchmarks/arc2/source/data/evaluation/4a21e3da.json"
+    },
+    {
+      "index": 28,
+      "task_id": "b99e7126",
+      "source_file": "benchmarks/arc2/source/data/evaluation/b99e7126.json"
+    },
+    {
+      "index": 29,
+      "task_id": "3dc255db",
+      "source_file": "benchmarks/arc2/source/data/evaluation/3dc255db.json"
+    },
+    {
+      "index": 30,
+      "task_id": "9385bd28",
+      "source_file": "benchmarks/arc2/source/data/evaluation/9385bd28.json"
+    },
+    {
+      "index": 31,
+      "task_id": "221dfab4",
+      "source_file": "benchmarks/arc2/source/data/evaluation/221dfab4.json"
+    },
+    {
+      "index": 32,
+      "task_id": "5545f144",
+      "source_file": "benchmarks/arc2/source/data/evaluation/5545f144.json"
+    },
+    {
+      "index": 33,
+      "task_id": "d8e07eb2",
+      "source_file": "benchmarks/arc2/source/data/evaluation/d8e07eb2.json"
+    },
+    {
+      "index": 34,
+      "task_id": "136b0064",
+      "source_file": "benchmarks/arc2/source/data/evaluation/136b0064.json"
+    },
+    {
+      "index": 35,
+      "task_id": "abc82100",
+      "source_file": "benchmarks/arc2/source/data/evaluation/abc82100.json"
+    },
+    {
+      "index": 36,
+      "task_id": "de809cff",
+      "source_file": "benchmarks/arc2/source/data/evaluation/de809cff.json"
+    },
+    {
+      "index": 37,
+      "task_id": "898e7135",
+      "source_file": "benchmarks/arc2/source/data/evaluation/898e7135.json"
+    },
+    {
+      "index": 38,
+      "task_id": "135a2760",
+      "source_file": "benchmarks/arc2/source/data/evaluation/135a2760.json"
+    },
+    {
+      "index": 39,
+      "task_id": "dd6b8c4b",
+      "source_file": "benchmarks/arc2/source/data/evaluation/dd6b8c4b.json"
+    },
+    {
+      "index": 40,
+      "task_id": "38007db0",
+      "source_file": "benchmarks/arc2/source/data/evaluation/38007db0.json"
+    },
+    {
+      "index": 41,
+      "task_id": "7491f3cf",
+      "source_file": "benchmarks/arc2/source/data/evaluation/7491f3cf.json"
+    },
+    {
+      "index": 42,
+      "task_id": "a6f40cea",
+      "source_file": "benchmarks/arc2/source/data/evaluation/a6f40cea.json"
+    },
+    {
+      "index": 43,
+      "task_id": "88e364bc",
+      "source_file": "benchmarks/arc2/source/data/evaluation/88e364bc.json"
+    },
+    {
+      "index": 44,
+      "task_id": "3a25b0d8",
+      "source_file": "benchmarks/arc2/source/data/evaluation/3a25b0d8.json"
+    },
+    {
+      "index": 45,
+      "task_id": "78332cb0",
+      "source_file": "benchmarks/arc2/source/data/evaluation/78332cb0.json"
+    },
+    {
+      "index": 46,
+      "task_id": "e376de54",
+      "source_file": "benchmarks/arc2/source/data/evaluation/e376de54.json"
+    },
+    {
+      "index": 47,
+      "task_id": "8b7bacbf",
+      "source_file": "benchmarks/arc2/source/data/evaluation/8b7bacbf.json"
+    },
+    {
+      "index": 48,
+      "task_id": "b6f77b65",
+      "source_file": "benchmarks/arc2/source/data/evaluation/b6f77b65.json"
+    },
+    {
+      "index": 49,
+      "task_id": "5961cc34",
+      "source_file": "benchmarks/arc2/source/data/evaluation/5961cc34.json"
+    },
+    {
+      "index": 50,
+      "task_id": "faa9f03d",
+      "source_file": "benchmarks/arc2/source/data/evaluation/faa9f03d.json"
+    }
+  ]
+}

@@ -1,0 +1,104 @@
+site_name: KCSI
+site_description: Knowledge-centric self-improvement agent — orchestration framework
+site_url: https://recursive-knowledge.github.io/KCSI/
+repo_url: https://github.com/recursive-knowledge/KCSI
+repo_name: recursive-knowledge/KCSI
+docs_dir: docs
+
+theme:
+  name: material
+  logo: assets/logo.svg
+  favicon: assets/favicon.svg
+  font:
+    code: Fira Code
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.indexes
+    - navigation.top
+    - navigation.footer
+    - toc.follow
+    - content.code.copy
+    - content.code.annotate
+    - search.suggest
+    - search.highlight
+  palette:
+    # Dark-first: slate is the default scheme. Colors are fully custom
+    # (Apple-style monochrome + single accent) — defined in extra.css,
+    # not Material's named palette, hence `custom` here.
+    - scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+    - scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+
+extra_css:
+  - stylesheets/extra.css
+
+extra_javascript:
+  - javascripts/mermaid-zoom.js
+
+plugins:
+  - search
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          options:
+            show_root_heading: true
+            show_root_full_path: false
+            show_source: false
+            show_signature_annotations: true
+            separate_signature: true
+            docstring_style: numpy
+            members_order: source
+            show_if_no_docstring: true
+            heading_level: 3
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+      toc_depth: "1-3"
+  - pymdownx.highlight
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+nav:
+  - Home: index.md
+  - Getting started:
+      - getting-started.md
+      - Contributing: CONTRIBUTING.md
+  - Your own tasks: your_own_tasks.md
+  - Programmatic API:
+      - programmatic_api.md
+      - Running larger runs: experiments.md
+      - Python API reference: reference/api.md
+  - Architecture: architecture.md
+  - Extending KCSI:
+      - Extension seams: extending.md
+      - Add a benchmark / task source: adding_a_benchmark.md
+      - Add an evaluator / runtime: adding_an_evaluator.md
+      - Improvement strategies: improvement_strategies.md
+  - Reference:
+      - FAQ: faq.md
+      - Glossary: glossary.md
+      - Artifacts & cleanup: artifacts.md
+      - Runtime startup performance: runtime-startup-performance.md
+  - Benchmarks: benchmarks.md

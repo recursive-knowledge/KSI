@@ -1,0 +1,107 @@
+#!/bin/bash
+# pre-commit hook: lint + typecheck the staged surfaces.
+#
+# - Runs the CI ruff lint + format check (uv run ruff check / ruff format
+#   --check src tests scripts examples) when any Python file under those
+#   directories (or pyproject.toml) is staged.
+# - Typechecks runtime_runner + agent-runner TypeScript when any of their .ts
+#   source files are staged. The agent-runner uses a different tsconfig +
+#   dependencies than the host runtime_runner, so it needs its own typecheck
+#   pass — failing to catch agent-runner errors here forces them to surface
+#   only during the next `bash container/build.sh --bench` rebuild, which is
+#   significantly slower feedback.
+#
+# Skippable via SKIP_KCSI_LINT=1 (ruff), SKIP_KCSI_TYPECHECK=1 (tsc), or
+# --no-verify on git commit.
+#
+# Enable via: git config core.hooksPath .githooks
+
+set -u
+
+# Collect staged paths (added/copied/modified/renamed).
+STAGED=$(git diff --cached --name-only --diff-filter=ACMR 2>/dev/null)
+
+# Short-circuit when nothing staged.
+[[ -z "$STAGED" ]] && exit 0
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+
+NEEDS_AGENT_RUNNER=0
+NEEDS_RUNTIME_RUNNER=0
+NEEDS_RUFF=0
+while IFS= read -r path; do
+  case "$path" in
+    runtime_runner/agent-runner/src/*.ts|\
+    runtime_runner/agent-runner/tsconfig.json|\
+    runtime_runner/agent-runner/package.json)
+      NEEDS_AGENT_RUNNER=1
+      ;;
+    runtime_runner/src/*.ts|\
+    runtime_runner/tsconfig.json|\
+    runtime_runner/package.json)
+      NEEDS_RUNTIME_RUNNER=1
+      ;;
+    src/kcsi/*.py|src/kcsi/**|tests/*.py|scripts/*.py|examples/*.py|pyproject.toml)
+      NEEDS_RUFF=1
+      ;;
+  esac
+done <<< "$STAGED"
+
+if [[ "${SKIP_KCSI_TYPECHECK:-}" == "1" ]]; then
+  NEEDS_AGENT_RUNNER=0
+  NEEDS_RUNTIME_RUNNER=0
+fi
+if [[ "${SKIP_KCSI_LINT:-}" == "1" ]]; then
+  NEEDS_RUFF=0
+fi
+
+if [[ "$NEEDS_AGENT_RUNNER" == "0" && "$NEEDS_RUNTIME_RUNNER" == "0" && "$NEEDS_RUFF" == "0" ]]; then
+  exit 0
+fi
+
+exit_code=0
+
+if [[ "$NEEDS_RUFF" == "1" ]]; then
+  if command -v uv >/dev/null 2>&1; then
+    echo "[pre-commit] linting (uv run ruff check src tests scripts examples)..."
+    if ! (cd "$REPO_ROOT" && uv run ruff check src tests scripts examples); then
+      echo "[pre-commit] ruff lint failed." >&2
+      exit_code=1
+    fi
+    echo "[pre-commit] format check (uv run ruff format --check src tests scripts examples)..."
+    if ! (cd "$REPO_ROOT" && uv run ruff format --check src tests scripts examples); then
+      echo "[pre-commit] ruff format check failed — run 'uv run ruff format src tests scripts examples'." >&2
+      exit_code=1
+    fi
+  else
+    echo "[pre-commit] uv not found — skipping ruff lint/format (install uv to enable)." >&2
+  fi
+fi
+
+if [[ "$NEEDS_AGENT_RUNNER" == "1" ]]; then
+  echo "[pre-commit] typechecking runtime_runner/agent-runner/src/..."
+  if ! bash "$REPO_ROOT/scripts/typecheck_agent_runner.sh"; then
+    echo "[pre-commit] agent-runner typecheck failed." >&2
+    exit_code=1
+  fi
+fi
+
+if [[ "$NEEDS_RUNTIME_RUNNER" == "1" ]]; then
+  if [[ -x "$REPO_ROOT/runtime_runner/node_modules/.bin/tsc" ]]; then
+    echo "[pre-commit] typechecking runtime_runner/src/..."
+    if ! "$REPO_ROOT/runtime_runner/node_modules/.bin/tsc" --noEmit -p "$REPO_ROOT/runtime_runner"; then
+      echo "[pre-commit] runtime_runner typecheck failed." >&2
+      exit_code=1
+    fi
+  else
+    echo "[pre-commit] runtime_runner deps not installed — skipping (run 'npm install' in runtime_runner/ to enable)." >&2
+  fi
+fi
+
+if [[ "$exit_code" != "0" ]]; then
+  echo ""
+  echo "pre-commit checks failed. Fix the errors above, or bypass with:"
+  echo "    SKIP_KCSI_LINT=1 (ruff) / SKIP_KCSI_TYPECHECK=1 (tsc) git commit ..."
+  echo "    (or --no-verify, but prefer to fix the error)"
+fi
+exit "$exit_code"

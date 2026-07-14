@@ -1,0 +1,93 @@
+diff --git a/swe_bench_pro_eval.py b/swe_bench_pro_eval.py
+index cac63a6..f9fa218 100644
+--- a/swe_bench_pro_eval.py
++++ b/swe_bench_pro_eval.py
+@@ -407,14 +407,86 @@ def eval_with_docker(patch, sample, output_dir, dockerhub_username, scripts_dir,
+         # Optional platform override (useful on Apple Silicon)
+         if docker_platform:
+             run_kwargs["platform"] = docker_platform
++        # KCSI PATCH: per-instance memory limit. Upstream's container.run()
++        # has no memory cap; under concurrent eval, an unbounded container can
++        # be OOM-killed by the host mid-test-run, which the retry loop in
++        # kcsi's swebench_pro.py (PR #965) papers over rather than prevents
++        # (see kcsi issue #1010). Default 8g; override with
++        # KCSI_EVAL_PER_INSTANCE_MEM_LIMIT (a Docker mem_limit string, e.g.
++        # "4g", "12g").
++        run_kwargs["mem_limit"] = os.environ.get("KCSI_EVAL_PER_INSTANCE_MEM_LIMIT", "8g")
+
+         container = client.containers.run(
+             dockerhub_image_uri,
+             **run_kwargs,
+         )
+
+-        result = container.wait()
+-        status_code = result.get("StatusCode", 1) if isinstance(result, dict) else 1
++        # KCSI PATCH: per-instance eval timeout. Upstream's container.wait()
++        # has no timeout; on hung tests (observed: NodeBB hung 11h+), the
++        # entire DGM_outer.py outer loop stalls. Default 3600s matches the
++        # batch-level DEFAULT_OFFICIAL_EVAL_TIMEOUT_SEC; override with
++        # KCSI_EVAL_PER_INSTANCE_TIMEOUT_SEC (legacy: SWARMS_EVAL_PER_INSTANCE_TIMEOUT_SEC).
++        # Catch ONLY the timeout exception so genuine Docker SDK errors
++        # (APIError, ConnectionError, NotFound) propagate as real failures
++        # instead of being silently relabeled as status=124 timeouts.
++        from requests.exceptions import ReadTimeout as _KcsiReadTimeout
++        _per_instance_timeout = int(
++            os.environ.get(
++                "KCSI_EVAL_PER_INSTANCE_TIMEOUT_SEC",
++                os.environ.get("SWARMS_EVAL_PER_INSTANCE_TIMEOUT_SEC", "3600"),
++            )
++        )
++        try:
++            result = container.wait(timeout=_per_instance_timeout)
++            status_code = result.get("StatusCode", 1) if isinstance(result, dict) else 1
++        except _KcsiReadTimeout:
++            print(
++                f"[kcsi] eval container for {uid} exceeded "
++                f"{_per_instance_timeout}s; killing"
++            )
++            try:
++                container.kill()
++            except Exception:
++                pass
++            try:
++                container.remove(force=True)
++            except Exception:
++                pass
++            status_code = 124  # timeout convention
++
++        # KCSI PATCH: OOM-kill diagnostic. The mem_limit set above can get the
++        # container OOM-killed by the host mid-test-run; without this check,
++        # status_code 137 (SIGKILL) is indistinguishable from a genuine test
++        # failure and every retry attempt fails with zero signal pointing at
++        # the memory cap (kcsi issue #1010 follow-up). container.attrs isn't
++        # refreshed by wait(), so reload() first; best-effort only, since the
++        # container may already be gone by the time we inspect it (remove=True
++        # above, or already force-removed by the timeout branch). Diagnostic
++        # only: never changes resolved/unresolved.
++        oom_killed = False
++        try:
++            container.reload()
++            oom_killed = bool((container.attrs or {}).get("State", {}).get("OOMKilled"))
++        except Exception:
++            pass
++        if oom_killed:
++            print(
++                f"[kcsi] eval container for {uid} was OOM-killed "
++                f"(mem_limit={run_kwargs['mem_limit']}); status_code={status_code}"
++            )
++            try:
++                with open(os.path.join(output_dir, uid, f"{prefix}_oom.json"), "w") as f:
++                    json.dump(
++                        {
++                            "oom_killed": True,
++                            "status_code": status_code,
++                            "mem_limit": run_kwargs["mem_limit"],
++                        },
++                        f,
++                    )
++            except Exception:
++                pass
++
+         if status_code != 0:
+             print(f"Entryscript failed for {uid} with return code: {status_code}")
+         # Collect outputs and logs, and save entryscript for reference

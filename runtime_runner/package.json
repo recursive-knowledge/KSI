@@ -1,0 +1,19 @@
+{
+  "name": "kcsi-runtime-runner",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Host-side launcher for kcsi benchmark container runs",
+  "engines": {
+    "node": ">=22.16.0 <23"
+  },
+  "dependencies": {
+    "pino": "^9.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "pino-pretty": "^11.3.0",
+    "tsx": "4.19.3",
+    "typescript": "^5.5.0"
+  }
+}

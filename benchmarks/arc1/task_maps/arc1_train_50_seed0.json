@@ -1,0 +1,268 @@
+{
+  "benchmark": "arc1",
+  "split": "training",
+  "seed": 0,
+  "count": 50,
+  "selection_name": "arc1_train_50_seed0",
+  "source_repo": "fchollet/ARC-AGI",
+  "source_branch": "master",
+  "source_commit": "399030444e0ab0cc8b4e199870fb20b863846f34",
+  "source_path": "data/training",
+  "selection_algorithm": "random.Random(seed).sample(sorted(task_ids), count)",
+  "selection_notes": [
+    "Deterministic subset generated from sorted task IDs with seed=0.",
+    "Do not modify task membership after publishing results."
+  ],
+  "tasks": [
+    {
+      "index": 1,
+      "task_id": "83302e8f",
+      "source_file": "benchmarks/arc1/source/data/training/83302e8f.json"
+    },
+    {
+      "index": 2,
+      "task_id": "f76d97a5",
+      "source_file": "benchmarks/arc1/source/data/training/f76d97a5.json"
+    },
+    {
+      "index": 3,
+      "task_id": "8efcae92",
+      "source_file": "benchmarks/arc1/source/data/training/8efcae92.json"
+    },
+    {
+      "index": 4,
+      "task_id": "1190e5a7",
+      "source_file": "benchmarks/arc1/source/data/training/1190e5a7.json"
+    },
+    {
+      "index": 5,
+      "task_id": "57aa92db",
+      "source_file": "benchmarks/arc1/source/data/training/57aa92db.json"
+    },
+    {
+      "index": 6,
+      "task_id": "a85d4709",
+      "source_file": "benchmarks/arc1/source/data/training/a85d4709.json"
+    },
+    {
+      "index": 7,
+      "task_id": "a416b8f3",
+      "source_file": "benchmarks/arc1/source/data/training/a416b8f3.json"
+    },
+    {
+      "index": 8,
+      "task_id": "890034e9",
+      "source_file": "benchmarks/arc1/source/data/training/890034e9.json"
+    },
+    {
+      "index": 9,
+      "task_id": "694f12f3",
+      "source_file": "benchmarks/arc1/source/data/training/694f12f3.json"
+    },
+    {
+      "index": 10,
+      "task_id": "a1570a43",
+      "source_file": "benchmarks/arc1/source/data/training/a1570a43.json"
+    },
+    {
+      "index": 11,
+      "task_id": "780d0b14",
+      "source_file": "benchmarks/arc1/source/data/training/780d0b14.json"
+    },
+    {
+      "index": 12,
+      "task_id": "bdad9b1f",
+      "source_file": "benchmarks/arc1/source/data/training/bdad9b1f.json"
+    },
+    {
+      "index": 13,
+      "task_id": "4938f0c2",
+      "source_file": "benchmarks/arc1/source/data/training/4938f0c2.json"
+    },
+    {
+      "index": 14,
+      "task_id": "a740d043",
+      "source_file": "benchmarks/arc1/source/data/training/a740d043.json"
+    },
+    {
+      "index": 15,
+      "task_id": "3428a4f5",
+      "source_file": "benchmarks/arc1/source/data/training/3428a4f5.json"
+    },
+    {
+      "index": 16,
+      "task_id": "6455b5f5",
+      "source_file": "benchmarks/arc1/source/data/training/6455b5f5.json"
+    },
+    {
+      "index": 17,
+      "task_id": "f35d900a",
+      "source_file": "benchmarks/arc1/source/data/training/f35d900a.json"
+    },
+    {
+      "index": 18,
+      "task_id": "23b5c85d",
+      "source_file": "benchmarks/arc1/source/data/training/23b5c85d.json"
+    },
+    {
+      "index": 19,
+      "task_id": "ce22a75a",
+      "source_file": "benchmarks/arc1/source/data/training/ce22a75a.json"
+    },
+    {
+      "index": 20,
+      "task_id": "5582e5ca",
+      "source_file": "benchmarks/arc1/source/data/training/5582e5ca.json"
+    },
+    {
+      "index": 21,
+      "task_id": "af902bf9",
+      "source_file": "benchmarks/arc1/source/data/training/af902bf9.json"
+    },
+    {
+      "index": 22,
+      "task_id": "e48d4e1a",
+      "source_file": "benchmarks/arc1/source/data/training/e48d4e1a.json"
+    },
+    {
+      "index": 23,
+      "task_id": "c8f0f002",
+      "source_file": "benchmarks/arc1/source/data/training/c8f0f002.json"
+    },
+    {
+      "index": 24,
+      "task_id": "36d67576",
+      "source_file": "benchmarks/arc1/source/data/training/36d67576.json"
+    },
+    {
+      "index": 25,
+      "task_id": "6b9890af",
+      "source_file": "benchmarks/arc1/source/data/training/6b9890af.json"
+    },
+    {
+      "index": 26,
+      "task_id": "25d487eb",
+      "source_file": "benchmarks/arc1/source/data/training/25d487eb.json"
+    },
+    {
+      "index": 27,
+      "task_id": "ea32f347",
+      "source_file": "benchmarks/arc1/source/data/training/ea32f347.json"
+    },
+    {
+      "index": 28,
+      "task_id": "1fad071e",
+      "source_file": "benchmarks/arc1/source/data/training/1fad071e.json"
+    },
+    {
+      "index": 29,
+      "task_id": "dc0a314f",
+      "source_file": "benchmarks/arc1/source/data/training/dc0a314f.json"
+    },
+    {
+      "index": 30,
+      "task_id": "6ecd11f4",
+      "source_file": "benchmarks/arc1/source/data/training/6ecd11f4.json"
+    },
+    {
+      "index": 31,
+      "task_id": "9ecd008a",
+      "source_file": "benchmarks/arc1/source/data/training/9ecd008a.json"
+    },
+    {
+      "index": 32,
+      "task_id": "b8825c91",
+      "source_file": "benchmarks/arc1/source/data/training/b8825c91.json"
+    },
+    {
+      "index": 33,
+      "task_id": "25d8a9c8",
+      "source_file": "benchmarks/arc1/source/data/training/25d8a9c8.json"
+    },
+    {
+      "index": 34,
+      "task_id": "776ffc46",
+      "source_file": "benchmarks/arc1/source/data/training/776ffc46.json"
+    },
+    {
+      "index": 35,
+      "task_id": "9172f3a0",
+      "source_file": "benchmarks/arc1/source/data/training/9172f3a0.json"
+    },
+    {
+      "index": 36,
+      "task_id": "6cf79266",
+      "source_file": "benchmarks/arc1/source/data/training/6cf79266.json"
+    },
+    {
+      "index": 37,
+      "task_id": "caa06a1f",
+      "source_file": "benchmarks/arc1/source/data/training/caa06a1f.json"
+    },
+    {
+      "index": 38,
+      "task_id": "d22278a0",
+      "source_file": "benchmarks/arc1/source/data/training/d22278a0.json"
+    },
+    {
+      "index": 39,
+      "task_id": "4612dd53",
+      "source_file": "benchmarks/arc1/source/data/training/4612dd53.json"
+    },
+    {
+      "index": 40,
+      "task_id": "b6afb2da",
+      "source_file": "benchmarks/arc1/source/data/training/b6afb2da.json"
+    },
+    {
+      "index": 41,
+      "task_id": "94f9d214",
+      "source_file": "benchmarks/arc1/source/data/training/94f9d214.json"
+    },
+    {
+      "index": 42,
+      "task_id": "aabf363d",
+      "source_file": "benchmarks/arc1/source/data/training/aabf363d.json"
+    },
+    {
+      "index": 43,
+      "task_id": "5ad4f10b",
+      "source_file": "benchmarks/arc1/source/data/training/5ad4f10b.json"
+    },
+    {
+      "index": 44,
+      "task_id": "1e0a9b12",
+      "source_file": "benchmarks/arc1/source/data/training/1e0a9b12.json"
+    },
+    {
+      "index": 45,
+      "task_id": "b548a754",
+      "source_file": "benchmarks/arc1/source/data/training/b548a754.json"
+    },
+    {
+      "index": 46,
+      "task_id": "05f2a901",
+      "source_file": "benchmarks/arc1/source/data/training/05f2a901.json"
+    },
+    {
+      "index": 47,
+      "task_id": "239be575",
+      "source_file": "benchmarks/arc1/source/data/training/239be575.json"
+    },
+    {
+      "index": 48,
+      "task_id": "e8593010",
+      "source_file": "benchmarks/arc1/source/data/training/e8593010.json"
+    },
+    {
+      "index": 49,
+      "task_id": "8731374e",
+      "source_file": "benchmarks/arc1/source/data/training/8731374e.json"
+    },
+    {
+      "index": 50,
+      "task_id": "e509e548",
+      "source_file": "benchmarks/arc1/source/data/training/e509e548.json"
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+[submodule "benchmarks/terminal_bench_2/source"]
+	path = benchmarks/terminal_bench_2/source
+	url = https://github.com/harbor-framework/terminal-bench-2.git
+	branch = main

@@ -1,0 +1,10 @@
+You are solving one ARC puzzle test pair inside a workspace UI.
+
+Your goal is to infer the transformation shown by the training examples and use the workspace to construct the correct output grid for the test input.
+
+Rules:
+- The hidden answer is not available in the workspace.
+- Use the training examples and test input shown in the UI only.
+- Leave the output grid in its final predicted state.
+- When finished, export the prediction JSON.
+- Do not assume the initial output grid size is correct; resize it if needed.

@@ -1,0 +1,10 @@
+{
+  "benchmark": "arc1",
+  "task_id": "abc123",
+  "pair_index": 0,
+  "attempt_index": 2,
+  "prediction": [
+    [5, 6],
+    [7, 8]
+  ]
+}

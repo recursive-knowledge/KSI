@@ -1,0 +1,228 @@
+# KCSI agent container — benchmark variant
+# Lighter image for ARC / SWE-bench / Polyglot benchmark runs
+
+# Base image pinned by digest for reproducible builds (tag kept for readability).
+# The digest is the multi-arch manifest list, so it resolves on amd64/arm64 alike.
+# To bump: `docker pull node:<tag> && docker inspect --format='{{index .RepoDigests 0}}' node:<tag>`
+# then update BOTH container/Dockerfile and container/Dockerfile.bench to match.
+FROM node:22.16-slim@sha256:048ed02c5fd52e86fda6fbd2f6a76cf0d4492fd6c6fee9e2c463ed5108da0e34
+ARG TARGETARCH
+# Polyglot-track toolchains, pinned by version + checksum for reproducible
+# builds. To bump any tool: update its version ARG(s) below AND the matching
+# SHA256(s) together. Checksums that vary by CPU arch live in the per-ARCH
+# `case` blocks of the RUN steps below (RUSTUP_SHA256, TEMURIN_SHA256) — bump
+# BOTH the amd64/x86_64 and arm64/aarch64 values in lockstep, or the other arch
+# fails `sha256sum -c`. Where to source each new checksum (same release pages
+# the RUN steps download from):
+#   - GO_VERSION / GOSHA256 (inline, per-arch): https://go.dev/dl/ (each tarball
+#     lists its SHA256).
+#   - RUSTUP_VERSION / RUSTUP_SHA256 (per-arch): the rustup-init.sha256 next to
+#     the binary at
+#     https://static.rust-lang.org/rustup/archive/<ver>/<arch>/rustup-init.sha256
+#   - RUST_TOOLCHAIN: the rustc/cargo toolchain rustup installs; rustup verifies
+#     its own signed manifests, so no manual SHA is pinned for this one.
+#   - TEMURIN_VERSION / TEMURIN_RELEASE / TEMURIN_SHA256 (per-arch): the Adoptium
+#     Temurin JDK 21 release assets at
+#     https://github.com/adoptium/temurin21-binaries/releases
+#     (each tarball ships a .sha256.txt; TEMURIN_RELEASE URL-encodes '+' as %2B).
+#   - GRADLE_VERSION / GRADLE_SHA256: the checksum file next to the distribution
+#     at https://services.gradle.org/distributions/gradle-<ver>-bin.zip.sha256
+ARG GO_VERSION=1.21.5
+ARG RUSTUP_VERSION=1.28.2
+ARG RUST_TOOLCHAIN=1.85.1
+ARG TEMURIN_VERSION=21.0.11_10
+ARG TEMURIN_RELEASE=jdk-21.0.11%2B10
+ARG GRADLE_VERSION=8.5
+ARG GRADLE_SHA256=9d926787066a081739e8200858338b4a69e837c3a821a33aca9db09dd4a41026
+
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    python3 \
+    python3-pip \
+    ripgrep \
+    unzip \
+    ca-certificates \
+    g++ \
+    cmake \
+    && rm -rf /var/lib/apt/lists/* \
+    && ARCH="${TARGETARCH:-$(dpkg --print-architecture)}" \
+    && case "$ARCH" in \
+      amd64) GOARCH="amd64"; GOSHA256="e2bc0b3e4b64111ec117295c088bde5f00eeed1567999ff77bc859d7df70078e" ;; \
+      arm64) GOARCH="arm64"; GOSHA256="841cced7ecda9b2014f139f5bab5ae31785f35399f236b8b3e75dff2a2978d96" ;; \
+      *) echo "Unsupported TARGETARCH=$ARCH" >&2; exit 1 ;; \
+    esac \
+    && curl -fsSL "https://go.dev/dl/go${GO_VERSION}.linux-${GOARCH}.tar.gz" -o /tmp/go.tar.gz \
+    && echo "${GOSHA256}  /tmp/go.tar.gz" | sha256sum -c - \
+    && rm -rf /usr/local/go \
+    && tar -C /usr/local -xzf /tmp/go.tar.gz \
+    && rm /tmp/go.tar.gz \
+    && /usr/local/go/bin/go version \
+    && /usr/local/go/bin/gofmt -h >/dev/null 2>&1 \
+    && rg --version >/dev/null \
+    && pip3 install --break-system-packages --no-cache-dir \
+      'filelock==3.29.0' \
+      'fsspec==2026.2.0' \
+      'jinja2==3.1.6' \
+      'networkx==3.6.1' \
+      'pytest==9.0.3' \
+      'sympy==1.14.0' \
+      'typing-extensions==4.15.0' \
+    && if [ "${TARGETARCH:-}" = "amd64" ]; then \
+      pip3 install --break-system-packages --no-cache-dir --no-deps \
+        --index-url https://download.pytorch.org/whl/cpu \
+        'torch==2.7.1+cpu'; \
+    else \
+      pip3 install --break-system-packages --no-cache-dir \
+        'torch==2.6.0'; \
+    fi \
+    && pip3 install --break-system-packages --no-cache-dir \
+      'sqlite-vec==0.1.9' \
+      'sentence-transformers==3.2.1' \
+      'transformers>=4.41,<5.0'
+
+RUN ln -sf /usr/bin/python3 /usr/local/bin/python
+
+# Rust toolchain (rustc/cargo) for the Polyglot Rust track. The rustup binary
+# and toolchain are version-pinned and checksum-verified; the installed proxy
+# directory is read-only and sits on PATH, while runtime Cargo cache/config
+# lives under /home/node/.cargo (writable, but not trusted executable PATH).
+ENV RUSTUP_HOME=/usr/local/rustup
+ENV CARGO_HOME=/usr/local/cargo
+RUN ARCH="${TARGETARCH:-$(dpkg --print-architecture)}" \
+    && case "$ARCH" in \
+      amd64) RUSTUP_ARCH="x86_64-unknown-linux-gnu"; RUSTUP_SHA256="20a06e644b0d9bd2fbdbfd52d42540bdde820ea7df86e92e533c073da0cdd43c" ;; \
+      arm64) RUSTUP_ARCH="aarch64-unknown-linux-gnu"; RUSTUP_SHA256="e3853c5a252fca15252d07cb23a1bdd9377a8c6f3efa01531109281ae47f841c" ;; \
+      *) echo "Unsupported TARGETARCH=$ARCH" >&2; exit 1 ;; \
+    esac \
+    && curl -fsSL "https://static.rust-lang.org/rustup/archive/${RUSTUP_VERSION}/${RUSTUP_ARCH}/rustup-init" -o /tmp/rustup-init \
+    && echo "${RUSTUP_SHA256}  /tmp/rustup-init" | sha256sum -c - \
+    && chmod +x /tmp/rustup-init \
+    && /tmp/rustup-init -y --default-toolchain "${RUST_TOOLCHAIN}" --profile minimal --no-modify-path \
+    && rm /tmp/rustup-init \
+    && chmod -R a+rX "${RUSTUP_HOME}" "${CARGO_HOME}" \
+    && "${CARGO_HOME}/bin/cargo" --version && "${CARGO_HOME}/bin/rustc" --version
+
+# OpenJDK 21 for the Polyglot Java track. Download the pinned Temurin JDK
+# release tarball directly instead of installing the moving apt package.
+ENV JAVA_HOME=/opt/temurin-21
+RUN ARCH="${TARGETARCH:-$(dpkg --print-architecture)}" \
+    && case "$ARCH" in \
+      amd64) TEMURIN_ARCH="x64"; TEMURIN_SHA256="4b2220e232a97997b436ca6ab15cbf70171ecff52958a46159dfa5a8c44ca4de" ;; \
+      arm64) TEMURIN_ARCH="aarch64"; TEMURIN_SHA256="8d498ec88e1c1989fab95c6784240ab92d011e29c54d20a3f9c324b13476f9ad" ;; \
+      *) echo "Unsupported TARGETARCH=$ARCH" >&2; exit 1 ;; \
+    esac \
+    && TEMURIN_TARBALL="OpenJDK21U-jdk_${TEMURIN_ARCH}_linux_hotspot_${TEMURIN_VERSION}.tar.gz" \
+    && curl -fsSL "https://github.com/adoptium/temurin21-binaries/releases/download/${TEMURIN_RELEASE}/${TEMURIN_TARBALL}" -o /tmp/temurin.tar.gz \
+    && echo "${TEMURIN_SHA256}  /tmp/temurin.tar.gz" | sha256sum -c - \
+    && mkdir -p "${JAVA_HOME}" \
+    && tar -C "${JAVA_HOME}" --strip-components=1 -xzf /tmp/temurin.tar.gz \
+    && rm /tmp/temurin.tar.gz \
+    && chmod -R a+rX "${JAVA_HOME}" \
+    && "${JAVA_HOME}/bin/java" -version
+
+# Gradle 8.x for the Polyglot Java track (Debian's packaged gradle 4.x is too
+# old for Exercism's build.gradle files), version-pinned and checksum-verified.
+RUN curl -fsSL "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" -o /tmp/gradle.zip \
+    && echo "${GRADLE_SHA256}  /tmp/gradle.zip" | sha256sum -c - \
+    && unzip -q /tmp/gradle.zip -d /opt \
+    && ln -s "/opt/gradle-${GRADLE_VERSION}/bin/gradle" /usr/local/bin/gradle \
+    && rm /tmp/gradle.zip \
+    && chmod -R a+rX "/opt/gradle-${GRADLE_VERSION}" \
+    && gradle --version
+
+# jest/babel for the Polyglot JavaScript track, installed globally so `jest`/
+# `npx jest` resolve without a registry fetch (issue #1090: under egress
+# isolation, #923, a per-task `npm install jest` would be blocked the same
+# way the pre-#1061 `pip install pytest` self-heal was). Version-pinned to
+# match the kcsi-polyglot-eval grading image's recipe (src/kcsi/eval/
+# polyglot_docker.py's HyperAgents pb.base template) so the agent's own
+# compile/type-check smoke pass and the grader agree. Lint-only packages
+# (eslint, @exercism/eslint-config-javascript, @types/*) are omitted — they
+# aren't needed to execute jest.
+RUN npm install -g --no-audit --no-fund \
+      jest@29.7.0 \
+      @babel/core@7.25.2 \
+      @exercism/babel-preset-javascript@0.2.1 \
+      babel-jest@29.6.4 \
+      core-js@3.37.1 \
+    && jest --version \
+    && npm cache clean --force
+# npm's global install location isn't on Node's default require() resolution
+# path (only npm's bin symlinks are, via PATH) — babel-jest's `require()` of
+# @exercism/babel-preset-javascript from a workspace with no local
+# node_modules would otherwise fail with MODULE_NOT_FOUND. NODE_PATH makes
+# Node fall back to the global node_modules dir. Verified empirically: without
+# this, `jest` in a bare workspace throws "Cannot find module
+# '@exercism/babel-preset-javascript'"; with it, a real exercism-style test
+# (import/export syntax) transforms and passes.
+ENV NODE_PATH=/usr/local/lib/node_modules
+
+ENV CARGO_HOME=/home/node/.cargo
+ENV PATH=/usr/local/go/bin:/usr/local/cargo/bin:${JAVA_HOME}/bin:${PATH}
+# The runtime launches this image with an arbitrary host `--user <uid>:<gid>`
+# that has no /etc/passwd entry (container_args.ts). The JDK/Gradle resolve
+# `user.home` via getpwuid(3) and silently get "?" for such a UID, ignoring
+# the HOME env var entirely — Gradle then fails with "Could not initialize
+# native services" or tries to write to a literal `?` directory. Forcing
+# `-Duser.home` for every JVM invocation fixes this for the Polyglot Java
+# track regardless of which UID the container ends up running as.
+ENV JAVA_TOOL_OPTIONS=-Duser.home=/home/node
+ENV USE_TF=0
+ENV TOKENIZERS_PARALLELISM=false
+ENV HF_HOME=/home/node/.cache/huggingface
+ENV SENTENCE_TRANSFORMERS_HOME=/home/node/.cache/sentence-transformers
+
+WORKDIR /app
+
+COPY runtime_runner/agent-runner/package.json ./package.json
+COPY runtime_runner/agent-runner/package-lock.json ./package-lock.json
+COPY runtime_runner/agent-runner/tsconfig.json ./tsconfig.json
+RUN npm ci --legacy-peer-deps
+
+COPY runtime_runner/agent-runner/src ./src
+
+RUN npx tsc --outDir /tmp/dist \
+ && SRC_HASH=$(find src -type f -name "*.ts" -exec md5sum {} + 2>/dev/null | sort | md5sum | cut -d" " -f1) \
+ && echo "$SRC_HASH" > /tmp/dist/.src_hash \
+ && ln -sfn /app/node_modules /tmp/dist/node_modules
+
+# Single source of truth for retryable-error markers, shared with the Python
+# orchestrator (src/kcsi/errors.py). retryable_markers.ts reads this at runtime
+# via fs from `path.dirname(import.meta.url)` of the COMPILED module, which is
+# /tmp/dist (tsc --outDir /tmp/dist; the runner executes `node /tmp/dist/
+# index.js`). tsc does NOT copy .json into outDir, so the file must be placed
+# in /tmp/dist explicitly for the runtime read to hit candidate[0]; otherwise
+# retryable_markers.ts silently uses its vendored fallback. The entrypoint's
+# incremental recompile rewrites only *.js and never wipes /tmp/dist, so this
+# build-time copy survives. See issue #648.
+COPY runtime_runner/shared/retryable_markers.json /tmp/dist/retryable_markers.json
+
+RUN mkdir -p /workspace/task /workspace/global /workspace/extra /workspace/ipc/input /app/memory-db
+
+# Entrypoint lives in container/entrypoint.sh so it can be version-controlled
+# and unit-tested. See tests/test_tsc_error_surfacing.py for the framing
+# contract (====TSC_COMPILE_FAILED==== block on tsc failure).
+COPY container/entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
+RUN chown -R node:node /workspace \
+ && chmod -R 777 /tmp/dist \
+ && chmod 777 /home/node \
+ # Pre-create /home/node/.cache so Docker doesn't auto-create it as root:root
+ # when mounting the huggingface/sentence-transformers sub-volumes. Otherwise
+ # the claude CLI's MCP-logs writer fails with EACCES on
+ # /home/node/.cache/claude-cli-nodejs/-workspace-task/mcp-logs-memory and
+ # the CLI exits code 1 — the silent_exit pattern that hit haiku polyglot/
+ # swebench in the 2026-04-28 audit sweep.
+ && mkdir -p /home/node/.cache/claude-cli-nodejs \
+ && mkdir -p /home/node/.cargo \
+ # The image's `node` user is uid 1000, but kcsi launches the container with
+ # `--user 1011:1011` — chown alone wouldn't grant that uid write access.
+ # 0777 is fine here: every container is per-task ephemeral and gets `--rm`'d,
+ # and the parent /home/node is already 0777 above for the same reason.
+ && chmod -R 777 /home/node/.cache /home/node/.cargo
+
+USER node
+WORKDIR /workspace/task
+ENTRYPOINT ["/app/entrypoint.sh"]

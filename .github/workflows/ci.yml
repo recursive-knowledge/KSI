@@ -1,0 +1,166 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+          cache-dependency-path: runtime_runner/package-lock.json
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.10.0"
+
+      - name: Install Python dependencies
+        run: uv sync --group dev --locked
+
+      - name: Ruff lint
+        run: uv run ruff check src tests scripts examples
+
+      - name: Ruff format check
+        run: uv run ruff format --check src tests scripts examples
+
+      - name: Mypy (whole package)
+        # Runs over ALL of src/kcsi so every NEW module is type-checked by
+        # default — honoring the shipped py.typed marker (#1227). The modules
+        # that still carry pre-existing errors are EXPLICITLY opted out via
+        # per-module `[[tool.mypy.overrides]] ignore_errors = true` entries in
+        # pyproject.toml (each annotated with #1227), so the coverage gap is
+        # visible in config rather than hidden behind a hand-picked path list.
+        # Ratchet: delete a module from that override list as it reaches zero
+        # errors. --follow-imports=silent keeps cross-module noise out.
+        run: uv run mypy src/kcsi --follow-imports=silent
+
+      - name: Cache polyglot eval Docker image
+        # kcsi-polyglot-eval:latest is a multi-language toolchain image
+        # (Go/Rust/JDK/Miniconda/npm) — rebuilding it from scratch on every
+        # CI run would badly slow the hot PR-gating job. Cache the saved
+        # image keyed on the recipe file so a full rebuild only happens when
+        # the recipe itself changes (#1027).
+        uses: actions/cache@v4
+        with:
+          path: ~/docker-cache/kcsi-polyglot-eval.tar
+          key: polyglot-eval-image-${{ hashFiles('src/kcsi/benchmarks/polyglot_docker.py') }}
+
+      - name: Build or restore polyglot eval Docker image
+        run: |
+          mkdir -p ~/docker-cache
+          if [ -f ~/docker-cache/kcsi-polyglot-eval.tar ]; then
+            docker load -i ~/docker-cache/kcsi-polyglot-eval.tar
+          else
+            uv run python -c "from kcsi.benchmarks.polyglot_docker import build_image; build_image()"
+            docker save kcsi-polyglot-eval:latest -o ~/docker-cache/kcsi-polyglot-eval.tar
+          fi
+
+      - name: Install runtime runner dependencies
+        run: npm ci
+        working-directory: runtime_runner
+
+      - name: Typecheck runtime runner
+        run: npx tsc --noEmit
+        working-directory: runtime_runner
+
+      - name: Typecheck agent runner
+        run: ./scripts/typecheck_agent_runner.sh
+        env:
+          # Fail hard if tooling (npm/node/tsc) is unavailable or `npm ci`
+          # fails, instead of silently skipping and going green (issue #1226).
+          # GitHub Actions already sets CI=true; this is belt-and-suspenders.
+          KCSI_TYPECHECK_STRICT: "1"
+
+      - name: JavaScript regression tests
+        # Single built-in runner aggregates failures across all files. A bash
+        # for-loop's exit status is only its LAST iteration's, so an earlier
+        # failing test would leave the job green (issue #873).
+        run: node --test tests/js/*.test.mjs
+
+      - name: Python tests
+        run: uv run pytest
+
+  swebench-pro-grader-contract:
+    # Non-docker invocation-contract smoke for the external SWE-bench Pro grader
+    # (#1138 part 1). Clones + patches the pinned evaluator (no docker run, no
+    # gitignored dataset) and asserts our evaluate() call-site argparse contract
+    # holds against the real upstream entrypoint. The real-docker grading run is
+    # the deferred scheduled job (#1138 part 2). Kept in its own job so it stays
+    # out of the `test` job that PR #1166 also edits.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.10.0"
+
+      - name: Install Python dependencies
+        run: uv sync --group dev --locked
+
+      - name: Cache SWE-bench Pro evaluator checkout
+        # Keyed on the pinned revision plus the local setup/patch inputs so a
+        # revision bump or evaluator-patch change auto-invalidates the cache.
+        # On a stale hit for other reasons the setup script self-heals (fetch +
+        # checkout the pinned revision).
+        uses: actions/cache@v4
+        with:
+          path: benchmarks/swebench_pro/evaluator
+          key: swebench-pro-evaluator-${{ hashFiles('src/kcsi/benchmarks/swebench_pro_external.py', 'benchmarks/scripts/dataprep/setup_swebench_pro_evaluator.py', 'benchmarks/swebench_pro/evaluator_patches/*.patch') }}
+
+      - name: Setup SWE-bench Pro evaluator (no dataset)
+        run: >-
+          uv run python benchmarks/scripts/dataprep/setup_swebench_pro_evaluator.py
+          --skip-dataset-verification --no-compat-links
+
+      - name: SWE-bench Pro grader contract smoke
+        run: uv run pytest tests/eval/test_swebench_pro_grader_contract.py -q
+
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.10.0"
+
+      - name: Install docs dependencies
+        run: uv sync --group docs --locked
+
+      # Strict build keeps deployed-site links honest; links to repo-root files
+      # should be absolute GitHub URLs rather than docs_dir-relative paths.
+      - name: Build docs site
+        run: uv run mkdocs build --strict

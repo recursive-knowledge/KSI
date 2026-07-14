@@ -1,0 +1,29 @@
+{
+  "selection_name": "arc50_eval_template",
+  "benchmark": "arc2",
+  "source_repo": "arcprize/ARC-AGI-2",
+  "source_branch": "main",
+  "source_commit": "replace_with_repo_commit_sha",
+  "source_path": "benchmarks/arc2/source/data/evaluation",
+  "split": "evaluation",
+  "seed": 0,
+  "count": 50,
+  "selection_algorithm": "random.Random(seed).sample(sorted(task_ids), count)",
+  "selection_notes": [
+    "Use evaluation split for the published subset.",
+    "Record the exact selection seed used to derive this map.",
+    "Do not change task membership after publishing experiment results."
+  ],
+  "tasks": [
+    {
+      "index": 1,
+      "task_id": "replace_with_task_id_001",
+      "source_file": "benchmarks/arc2/source/data/evaluation/replace_with_task_id_001.json"
+    },
+    {
+      "index": 2,
+      "task_id": "replace_with_task_id_002",
+      "source_file": "benchmarks/arc2/source/data/evaluation/replace_with_task_id_002.json"
+    }
+  ]
+}

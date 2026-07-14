@@ -1,0 +1,67 @@
+{
+  "selection_name": "terminal_bench_2_5_seed0",
+  "benchmark": "terminal_bench_2",
+  "dataset_name": "harbor-framework/terminal-bench-2",
+  "source_path": "benchmarks/terminal_bench_2/source",
+  "source_git_revision": "53ff2b87d621bdb97b455671f2bd9728b7d86c11",
+  "selection_seed": 0,
+  "task_count": 5,
+  "selection_notes": [
+    "Terminal-Bench 2 source is an upstream Harbor-native task corpus tracked as a git submodule.",
+    "Each selected task was validated to contain instruction.md, task.toml, environment/Dockerfile, solution/solve.sh, and tests/test.sh.",
+    "Do not modify task membership after publishing results.",
+    "Selection algorithm: random.Random(selection_seed).sample(sorted(task_ids), task_count)."
+  ],
+  "tasks": [
+    {
+      "index": 1,
+      "task_id": "build-pov-ray",
+      "difficulty": "medium",
+      "category": "software-engineering",
+      "docker_image": "alexgshaw/build-pov-ray:20251031",
+      "verifier_timeout_sec": 12000.0,
+      "agent_timeout_sec": 12000.0,
+      "notes": ""
+    },
+    {
+      "index": 2,
+      "task_id": "git-multibranch",
+      "difficulty": "medium",
+      "category": "system-administration",
+      "docker_image": "alexgshaw/git-multibranch:20251031",
+      "verifier_timeout_sec": 900.0,
+      "agent_timeout_sec": 900.0,
+      "notes": ""
+    },
+    {
+      "index": 3,
+      "task_id": "modernize-scientific-stack",
+      "difficulty": "medium",
+      "category": "scientific-computing",
+      "docker_image": "alexgshaw/modernize-scientific-stack:20251031",
+      "verifier_timeout_sec": 600.0,
+      "agent_timeout_sec": 600.0,
+      "notes": ""
+    },
+    {
+      "index": 4,
+      "task_id": "nginx-request-logging",
+      "difficulty": "medium",
+      "category": "system-administration",
+      "docker_image": "alexgshaw/nginx-request-logging:20251031",
+      "verifier_timeout_sec": 900.0,
+      "agent_timeout_sec": 900.0,
+      "notes": ""
+    },
+    {
+      "index": 5,
+      "task_id": "pytorch-model-cli",
+      "difficulty": "medium",
+      "category": "model-training",
+      "docker_image": "alexgshaw/pytorch-model-cli:20251031",
+      "verifier_timeout_sec": 900.0,
+      "agent_timeout_sec": 900.0,
+      "notes": ""
+    }
+  ]
+}

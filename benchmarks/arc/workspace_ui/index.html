@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ARC Workspace</title>
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/workspace.css">
+</head>
+<body>
+  <div class="page">
+    <header class="topbar">
+      <div>
+        <h1>ARC Workspace</h1>
+        <p class="subtitle">Benchmark-safe shared workspace for ARC1 and ARC2.</p>
+      </div>
+      <div class="controls-card">
+        <div class="control-row">
+          <label for="payload_file">Load payload JSON</label>
+          <input id="payload_file" type="file" accept=".json,application/json">
+        </div>
+        <div class="control-row">
+          <label for="payload_path">Or fetch relative payload path</label>
+          <input id="payload_path" type="text" placeholder="../workspace_payloads/arc1/arc1_train_50_seed0/845d6e51_pair0.json">
+          <button id="load_path_btn" type="button">Load Path</button>
+        </div>
+        <div class="status-row">
+          <span id="task_label">No payload loaded</span>
+        </div>
+        <div class="status-row">
+          <span id="message" class="message"></span>
+        </div>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel train-panel">
+        <div class="panel-header">Training Examples</div>
+        <div id="train_examples" class="train-examples"></div>
+      </section>
+
+      <section class="panel solve-panel">
+        <div class="solve-columns">
+          <div class="subpanel">
+            <div class="panel-header">Test Input</div>
+            <div id="test_input_meta" class="meta-text"></div>
+            <div id="test_input_grid" class="grid-host read-only-grid"></div>
+          </div>
+
+          <div class="subpanel">
+            <div class="panel-header">Output Editor</div>
+            <div class="editor-controls">
+              <label for="output_rows">Rows</label>
+              <input id="output_rows" type="number" min="1" max="30" value="3">
+              <label for="output_cols">Cols</label>
+              <input id="output_cols" type="number" min="1" max="30" value="3">
+              <button id="resize_btn" type="button">Resize</button>
+              <button id="copy_btn" type="button">Copy Input</button>
+              <button id="reset_btn" type="button">Reset</button>
+            </div>
+
+            <div class="toolbar">
+              <div class="tool-group">
+                <span>Tool</span>
+                <label><input type="radio" name="tool_mode" value="edit" checked> Edit</label>
+                <label><input type="radio" name="tool_mode" value="floodfill"> Flood Fill</label>
+              </div>
+              <div class="tool-group">
+                <span>Show Numbers</span>
+                <label><input id="show_numbers" type="checkbox"> On</label>
+              </div>
+            </div>
+
+            <div id="symbol_picker" class="symbol-picker"></div>
+            <div id="output_grid" class="grid-host editable-grid"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel export-panel">
+        <div class="panel-header">Prediction Export</div>
+        <div class="export-controls">
+          <div id="attempt_picker" class="tool-group" role="radiogroup" aria-label="Attempt index"></div>
+          <button id="preview_btn" type="button">Preview JSON</button>
+          <button id="download_btn" type="button">Download JSON</button>
+        </div>
+        <textarea id="prediction_json" spellcheck="false" readonly></textarea>
+      </section>
+    </main>
+  </div>
+
+  <script type="module" src="js/workspace.js"></script>
+</body>
+</html>

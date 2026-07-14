@@ -1,0 +1,67 @@
+{
+  "selection_name": "terminal_bench_2_5_seed1",
+  "benchmark": "terminal_bench_2",
+  "dataset_name": "harbor-framework/terminal-bench-2",
+  "source_path": "benchmarks/terminal_bench_2/source",
+  "source_git_revision": "53ff2b87d621bdb97b455671f2bd9728b7d86c11",
+  "selection_seed": 1,
+  "task_count": 5,
+  "selection_notes": [
+    "Terminal-Bench 2 source is an upstream Harbor-native task corpus tracked as a git submodule.",
+    "Each selected task was validated to contain instruction.md, task.toml, environment/Dockerfile, solution/solve.sh, and tests/test.sh.",
+    "Do not modify task membership after publishing results.",
+    "Selection algorithm: random.Random(selection_seed).sample(sorted(task_ids), task_count)."
+  ],
+  "tasks": [
+    {
+      "index": 1,
+      "task_id": "chess-best-move",
+      "difficulty": "medium",
+      "category": "games",
+      "docker_image": "alexgshaw/chess-best-move:20251031",
+      "verifier_timeout_sec": 900.0,
+      "agent_timeout_sec": 900.0,
+      "notes": ""
+    },
+    {
+      "index": 2,
+      "task_id": "count-dataset-tokens",
+      "difficulty": "medium",
+      "category": "model-training",
+      "docker_image": "alexgshaw/count-dataset-tokens:20251031",
+      "verifier_timeout_sec": 900.0,
+      "agent_timeout_sec": 900.0,
+      "notes": ""
+    },
+    {
+      "index": 3,
+      "task_id": "custom-memory-heap-crash",
+      "difficulty": "medium",
+      "category": "debugging",
+      "docker_image": "alexgshaw/custom-memory-heap-crash:20251031",
+      "verifier_timeout_sec": 1800.0,
+      "agent_timeout_sec": 1800.0,
+      "notes": ""
+    },
+    {
+      "index": 4,
+      "task_id": "git-leak-recovery",
+      "difficulty": "medium",
+      "category": "software-engineering",
+      "docker_image": "alexgshaw/git-leak-recovery:20251031",
+      "verifier_timeout_sec": 900.0,
+      "agent_timeout_sec": 900.0,
+      "notes": ""
+    },
+    {
+      "index": 5,
+      "task_id": "regex-log",
+      "difficulty": "medium",
+      "category": "data-processing",
+      "docker_image": "alexgshaw/regex-log:20251031",
+      "verifier_timeout_sec": 900.0,
+      "agent_timeout_sec": 900.0,
+      "notes": ""
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+[
+  {
+    "sample_id": "conv-mini-1",
+    "qa": [
+      {
+        "question": "What pet did Mia adopt?",
+        "answer": "a beagle",
+        "evidence": ["D1:2"],
+        "category": 4
+      },
+      {
+        "question": "When did Mia adopt her pet?",
+        "answer": "12 May 2023",
+        "evidence": ["D1:1"],
+        "category": 2
+      },
+      {
+        "question": "What pet did Mia adopt and what did she paint?",
+        "answer": "a beagle, a sunset",
+        "evidence": ["D1:2", "D2:1"],
+        "category": 1
+      },
+      {
+        "question": "What car does Mia drive?",
+        "evidence": [],
+        "category": 5,
+        "adversarial_answer": "Mia loves animals"
+      }
+    ],
+    "conversation": {
+      "speaker_a": "Mia",
+      "speaker_b": "Noah",
+      "session_1_date_time": "12 May 2023",
+      "session_1": [
+        {"speaker": "Mia", "dia_id": "D1:1", "text": "I finally adopted a dog today!"},
+        {"speaker": "Mia", "dia_id": "D1:2", "text": "She's a beagle named Daisy.",
+         "img_url": "['http://example.com/daisy.jpg']", "blip_caption": "a small beagle puppy on a couch", "query": "beagle puppy"},
+        {"speaker": "Noah", "dia_id": "D1:3", "text": "Congrats, she looks adorable."},
+        {"speaker": "Mia", "dia_id": "D1:4", "text": "Mia loves animals."}
+      ],
+      "session_2_date_time": "20 June 2023",
+      "session_2": [
+        {"speaker": "Mia", "dia_id": "D2:1", "text": "I painted a sunset this weekend."},
+        {"speaker": "Noah", "dia_id": "D2:2", "text": "You're so creative."}
+      ]
+    }
+  }
+]

@@ -1,0 +1,21 @@
+Solve the currently loaded ARC task pair using the workspace.
+
+The evaluator expects exactly two prediction attempts per test pair. Fill in
+Attempt 1, export it, then switch the Attempt radio to 2, revise the grid for
+a second guess, and export again. Submitting only one attempt leaves the pair
+incomplete.
+
+What to do:
+1. Inspect all training examples shown in the workspace.
+2. Infer the transformation from each input grid to output grid.
+3. Inspect the test input.
+4. Edit the output grid until it matches your predicted answer.
+5. Export the prediction JSON for the selected attempt.
+6. Switch the Attempt radio and repeat steps 4-5 for the second attempt.
+
+Available workspace actions:
+- paint cells with the selected symbol
+- flood fill
+- resize output grid
+- copy input to output
+- reset output grid

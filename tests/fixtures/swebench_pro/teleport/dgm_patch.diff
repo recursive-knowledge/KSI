@@ -1,0 +1,156 @@
+diff --git a/lib/multiplexer/multiplexer.go b/lib/multiplexer/multiplexer.go
+index 6202460919..9b268761d3 100644
+--- a/lib/multiplexer/multiplexer.go
++++ b/lib/multiplexer/multiplexer.go
+@@ -20,19 +20,20 @@ limitations under the License.
+ // mux, _ := multiplexer.New(Config{Listener: listener})
+ // mux.SSH() // returns listener getting SSH connections
+ // mux.TLS() // returns listener getting TLS connections
+-//
+ package multiplexer
+ 
+ import (
+ 	"bufio"
+ 	"bytes"
+ 	"context"
++	"encoding/json"
+ 	"io"
+ 	"net"
+ 	"sync"
+ 	"time"
+ 
+ 	"github.com/gravitational/teleport"
++	"github.com/gravitational/teleport/api/utils/sshutils"
+ 	"github.com/gravitational/teleport/lib/defaults"
+ 	"github.com/gravitational/teleport/lib/utils"
+ 
+@@ -207,7 +208,7 @@ func (m *Mux) protocolListener(proto Protocol) *Listener {
+ 	return nil
+ }
+ 
+-// detectAndForward detects the protocol for conn and forwards to a
++// detectAndForward detects the protocol for conn and forwards it to a
+ // registered protocol listener (SSH, TLS, DB). Connections for a
+ // protocol without a registered protocol listener are closed. This
+ // method is called as a goroutine by Serve for each connection.
+@@ -218,6 +219,7 @@ func (m *Mux) detectAndForward(conn net.Conn) {
+ 		conn.Close()
+ 		return
+ 	}
++
+ 	connWrapper, err := detect(conn, m.EnableProxyProtocol)
+ 	if err != nil {
+ 		if trace.Unwrap(err) != io.EOF {
+@@ -249,6 +251,15 @@ func (m *Mux) detectAndForward(conn net.Conn) {
+ func detect(conn net.Conn, enableProxyProtocol bool) (*Conn, error) {
+ 	reader := bufio.NewReader(conn)
+ 
++	// Teleport proxy connections can prefix the SSH handshake with a
++	// JSON payload carrying client metadata. Strip and parse that payload
++	// before running protocol detection so the SSH listener sees the real
++	// client address.
++	clientAddr, err := readTeleportProxyHello(reader)
++	if err != nil {
++		return nil, trace.Wrap(err)
++	}
++
+ 	// the first attempt is to parse optional proxy
+ 	// protocol line that is injected by load balancers
+ 	// before actual protocol traffic flows.
+@@ -287,10 +298,11 @@ func detect(conn net.Conn, enableProxyProtocol bool) (*Conn, error) {
+ 			// repeat the cycle to detect the protocol
+ 		case ProtoTLS, ProtoSSH, ProtoHTTP:
+ 			return &Conn{
+-				protocol:  proto,
+-				Conn:      conn,
+-				reader:    reader,
+-				proxyLine: proxyLine,
++				protocol:   proto,
++				Conn:       conn,
++				reader:     reader,
++				proxyLine:  proxyLine,
++				clientAddr: clientAddr,
+ 			}, nil
+ 		case ProtoPostgres:
+ 			return &Conn{
+@@ -304,6 +316,52 @@ func detect(conn net.Conn, enableProxyProtocol bool) (*Conn, error) {
+ 	return nil, trace.BadParameter("unknown protocol")
+ }
+ 
++func readTeleportProxyHello(reader *bufio.Reader) (net.Addr, error) {
++	prefix := []byte(sshutils.ProxyHelloSignature)
++	// Quickly rule out non-Teleport connections by checking only the first
++	// few bytes. The Teleport-Proxy prefix is longer than 8 bytes, but the
++	// first 8 are unique enough for our protocol set.
++	probe, err := reader.Peek(8)
++	if err != nil {
++		return nil, trace.Wrap(err, "failed to peek connection")
++	}
++	if !bytes.HasPrefix(prefix, probe) {
++		return nil, nil
++	}
++
++	hello, err := reader.Peek(len(prefix))
++	if err != nil {
++		return nil, trace.Wrap(err, "failed to peek connection")
++	}
++	if !bytes.Equal(hello, prefix) {
++		return nil, nil
++	}
++
++	if _, err := reader.Discard(len(prefix)); err != nil {
++		return nil, trace.Wrap(err, "failed to discard Teleport-Proxy prefix")
++	}
++
++	payload, err := reader.ReadBytes(0x00)
++	if err != nil {
++		return nil, trace.Wrap(err, "failed to read Teleport-Proxy payload")
++	}
++	payload = payload[:len(payload)-1]
++
++	var hp sshutils.HandshakePayload
++	if err := json.Unmarshal(payload, &hp); err != nil {
++		return nil, nil
++	}
++	if hp.ClientAddr == "" {
++		return nil, nil
++	}
++
++	clientAddr, err := utils.ParseAddr(hp.ClientAddr)
++	if err != nil {
++		return nil, nil
++	}
++	return clientAddr, nil
++}
++
+ // Protocol defines detected protocol type.
+ type Protocol int
+ 
+diff --git a/lib/multiplexer/wrappers.go b/lib/multiplexer/wrappers.go
+index 1b7ea51900..d4b0f844f7 100644
+--- a/lib/multiplexer/wrappers.go
++++ b/lib/multiplexer/wrappers.go
+@@ -30,9 +30,10 @@ import (
+ // protocol detection
+ type Conn struct {
+ 	net.Conn
+-	protocol  Protocol
+-	proxyLine *ProxyLine
+-	reader    *bufio.Reader
++	protocol   Protocol
++	proxyLine  *ProxyLine
++	clientAddr net.Addr
++	reader     *bufio.Reader
+ }
+ 
+ // NewConn returns a net.Conn wrapper that supports peeking into the connection.
+@@ -58,6 +59,9 @@ func (c *Conn) LocalAddr() net.Addr {
+ 
+ // RemoteAddr returns remote address of the connection
+ func (c *Conn) RemoteAddr() net.Addr {
++	if c.clientAddr != nil {
++		return c.clientAddr
++	}
+ 	if c.proxyLine != nil {
+ 		return &c.proxyLine.Source
+ 	}

@@ -1,0 +1,71 @@
+{
+  "benchmark": "arc2",
+  "split": "training",
+  "seed": 0,
+  "count": 10,
+  "selection_name": "arc2_holdout_10_seed0",
+  "source_repo": "arcprize/ARC-AGI-2",
+  "source_branch": "main",
+  "source_commit": "f3283f727488ad98fe575ea6a5ac981e4a188e49",
+  "source_path": "benchmarks/arc2/source/data/training",
+  "selection_algorithm": "random.Random(seed).sample(sorted(task_ids), count)",
+  "selection_notes": [
+    "Deterministic subset generated from sorted task IDs with seed=0.",
+    "Do not modify task membership after publishing results."
+  ],
+  "excluded_maps": [
+    "benchmarks/arc2/task_maps/arc2_train_50_seed0.json"
+  ],
+  "tasks": [
+    {
+      "index": 1,
+      "task_id": "e734a0e8",
+      "source_file": "benchmarks/arc2/source/data/training/e734a0e8.json"
+    },
+    {
+      "index": 2,
+      "task_id": "6d1d5c90",
+      "source_file": "benchmarks/arc2/source/data/training/6d1d5c90.json"
+    },
+    {
+      "index": 3,
+      "task_id": "d2abd087",
+      "source_file": "benchmarks/arc2/source/data/training/d2abd087.json"
+    },
+    {
+      "index": 4,
+      "task_id": "f3b10344",
+      "source_file": "benchmarks/arc2/source/data/training/f3b10344.json"
+    },
+    {
+      "index": 5,
+      "task_id": "7837ac64",
+      "source_file": "benchmarks/arc2/source/data/training/7837ac64.json"
+    },
+    {
+      "index": 6,
+      "task_id": "11e1fe23",
+      "source_file": "benchmarks/arc2/source/data/training/11e1fe23.json"
+    },
+    {
+      "index": 7,
+      "task_id": "4b6b68e5",
+      "source_file": "benchmarks/arc2/source/data/training/4b6b68e5.json"
+    },
+    {
+      "index": 8,
+      "task_id": "928ad970",
+      "source_file": "benchmarks/arc2/source/data/training/928ad970.json"
+    },
+    {
+      "index": 9,
+      "task_id": "8b28cd80",
+      "source_file": "benchmarks/arc2/source/data/training/8b28cd80.json"
+    },
+    {
+      "index": 10,
+      "task_id": "73ccf9c2",
+      "source_file": "benchmarks/arc2/source/data/training/73ccf9c2.json"
+    }
+  ]
+}

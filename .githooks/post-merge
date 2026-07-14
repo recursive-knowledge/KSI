@@ -1,0 +1,29 @@
+#!/bin/bash
+# post-merge hook: rebuild kcsi-agent:bench when a pull/merge brought in TS
+# source changes under runtime_runner/agent-runner/src or runtime_runner/src.
+#
+# Enable via: git config core.hooksPath .githooks
+#
+# Skippable via SKIP_CONTAINER_REBUILD=1 or --no-verify on the triggering op.
+
+set -u
+
+# ORIG_HEAD is the commit we were at before the merge/pull; HEAD is where we
+# landed. If a path we care about changed between the two, trigger a rebuild.
+if ! git rev-parse --verify -q ORIG_HEAD >/dev/null 2>&1; then
+  exit 0
+fi
+
+if ! git diff --name-only ORIG_HEAD HEAD 2>/dev/null \
+  | grep -qE '^(runtime_runner/agent-runner/src/|runtime_runner/src/)' ; then
+  exit 0
+fi
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+SCRIPT="$REPO_ROOT/scripts/rebuild_container_if_needed.sh"
+if [[ -x "$SCRIPT" ]]; then
+  echo "[post-merge] TypeScript source changed — checking if container needs rebuild..."
+  bash "$SCRIPT" --bench || true
+else
+  echo "[post-merge] warn: $SCRIPT not found or not executable." >&2
+fi

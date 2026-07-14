@@ -1,0 +1,32 @@
+#!/bin/bash
+# post-checkout hook: same TS rebuild trigger as post-merge, but fires when
+# switching branches so a fresh `git checkout main` after local feature work
+# also catches any baked-image drift.
+#
+# Git invokes this with: $1=prev-HEAD $2=new-HEAD $3=flag  (flag=1 if branch change)
+
+set -u
+
+prev_head="${1:-}"
+new_head="${2:-}"
+branch_flag="${3:-0}"
+
+# Only act on branch switches (flag=1), not file-level checkouts (flag=0).
+if [[ "$branch_flag" != "1" ]]; then
+  exit 0
+fi
+if [[ -z "$prev_head" || -z "$new_head" || "$prev_head" == "$new_head" ]]; then
+  exit 0
+fi
+
+if ! git diff --name-only "$prev_head" "$new_head" 2>/dev/null \
+  | grep -qE '^(runtime_runner/agent-runner/src/|runtime_runner/src/)' ; then
+  exit 0
+fi
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+SCRIPT="$REPO_ROOT/scripts/rebuild_container_if_needed.sh"
+if [[ -x "$SCRIPT" ]]; then
+  echo "[post-checkout] TypeScript source differs between $prev_head and $new_head — checking container..."
+  bash "$SCRIPT" --bench || true
+fi

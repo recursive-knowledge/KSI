@@ -1,0 +1,22 @@
+[
+ "cpp__crypto-square",
+ "cpp__grade-school",
+ "go__dominoes",
+ "go__ledger",
+ "go__simple-linked-list",
+ "go__tree-building",
+ "java__bank-account",
+ "java__connect",
+ "java__poker",
+ "java__queen-attack",
+ "javascript__food-chain",
+ "javascript__rest-api",
+ "javascript__scale-generator",
+ "javascript__word-search",
+ "python__bowling",
+ "python__go-counting",
+ "python__pig-latin",
+ "rust__dot-dsl",
+ "rust__forth",
+ "rust__ocr-numbers"
+]

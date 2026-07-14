@@ -1,0 +1,47 @@
+.grid {
+  display: inline-grid;
+  gap: 1px;
+  background: #555;
+  padding: 1px;
+  --cell-size: 28px;
+}
+
+.cell {
+  width: var(--cell-size, 28px);
+  height: var(--cell-size, 28px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: min(12px, calc(var(--cell-size, 28px) * 0.45));
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: #111;
+  cursor: default;
+  user-select: none;
+}
+
+.cell.editable {
+  cursor: pointer;
+}
+
+.symbol_0 { background: #000000; color: #f4f4f4; }
+.symbol_1 { background: #0074D9; }
+.symbol_2 { background: #FF4136; }
+.symbol_3 { background: #2ECC40; }
+.symbol_4 { background: #FFDC00; }
+.symbol_5 { background: #AAAAAA; }
+.symbol_6 { background: #F012BE; }
+.symbol_7 { background: #FF851B; }
+.symbol_8 { background: #7FDBFF; }
+.symbol_9 { background: #870C25; color: #f4f4f4; }
+
+.symbol-button {
+  width: 28px;
+  height: 28px;
+  border: 2px solid transparent;
+  cursor: pointer;
+}
+
+.symbol-button.selected {
+  border-color: #ffffff;
+  box-shadow: 0 0 0 2px #111827;
+}

@@ -1,0 +1,232 @@
+[project]
+name = "knowledge-centric-self-improvement"
+version = "0.1.0"
+description = "Knowledge-centric multi-agent benchmark system for coding and reasoning tasks"
+readme = "README.md"
+authors = [{ name = "The KCSI Authors" }]
+license = {text = "Apache-2.0"}
+license-files = ["LICENSE"]
+requires-python = ">=3.12"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    # Upper caps block silent SDK protocol drift (#863). anthropic ships
+    # breaking changes within its pre-1.0 minor series; cap below the next
+    # minor (installed: 0.97.0). claude-agent-sdk is pre-1.0 too; cap below
+    # the next minor (locked: 0.1.77). The TS runtime pins
+    # @anthropic-ai/claude-agent-sdk at the SAME version
+    # (runtime_runner/agent-runner/package.json) — keep the Python lock and the
+    # TS pin in lockstep when bumping either side (enforced by
+    # tests/runtime/test_sdk_version_lockstep.py, #947).
+    "anthropic>=0.40,<0.98",
+    "claude-agent-sdk>=0.1.0,<0.2",  # replaces direct anthropic SDK; uses CC subscription or API key
+    # orchestrator-side OpenAILLMCaller uses the Responses API (1.66+) AND prompt_cache_key (added in openai-python 1.98.0) — src/kcsi/runtime/llm.py:298,271.
+    # Cap <3: the 1.x->2.x bump was breaking (Responses namespace, client init);
+    # it was silently crossed once already. Hold to the resolved 2.x line so a
+    # re-lock can't pull a breaking 3.x without a deliberate bump (matches the
+    # anthropic/claude-agent-sdk cap discipline above).
+    "openai>=1.98,<3",
+    "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+memory = [
+    # sqlite-vec is a pre-1.0 C extension; pin to an exact version to avoid
+    # silent host/container drift (the container Dockerfiles pin the same
+    # version). Floating it risks an ABI/behavior change landing in one place
+    # but not the other.
+    "sqlite-vec==0.1.9",
+    # sentence-transformers 4.x introduced a breaking change to Pooling
+    # (`Pooling.__init__() missing word_embedding_dimension`) that silently
+    # failed model load at runtime. The try/except in
+    # src/kcsi/memory/embeddings.py only logs a warning on failure, so a
+    # silent misload degrades vector search to FTS-only for an entire
+    # campaign before anyone notices. Pin to the last 3.x release.
+    "sentence-transformers==3.2.1",
+    # Transitive-but-pinned: block the `transformers` 5.x series, which
+    # pairs with the broken `sentence-transformers` 5.x. The 4.x line is
+    # compatible with `sentence-transformers==3.2.1`.
+    "transformers>=4.41,<5.0",
+    # Transitive-but-pinned: keep torch within the 2.x series for
+    # platform/CUDA stability. Resolved alongside the above as 2.11.x at
+    # lock time.
+    #
+    # Unlike sqlite-vec/sentence-transformers above, host/container torch
+    # version drift is accepted here rather than pinned: the container
+    # Dockerfiles (container/Dockerfile{,.bench}) install torch==2.7.1+cpu
+    # (amd64) / torch==2.6.0 (other arches) via a separate --no-deps CPU
+    # wheel install for the embedded runner Python, independent of this
+    # host-side uv.lock resolution. Pinning the host to an exact matching
+    # version was evaluated and dropped: `uv lock` with torch==2.7.1 pulled
+    # in a large unrelated transitive diff (CUDA 13->12 toolkit swap,
+    # triton downgrade, ~15 nvidia-* package churns) just to satisfy a
+    # host-only dependency graph the container doesn't share (the container
+    # install is --no-deps and CPU-only). torch here backs
+    # sentence-transformers' embedding model for memory-store cosine-
+    # similarity ranking; unlike sqlite-vec's ABI or sentence-transformers'
+    # breaking Pooling API, minor torch version differences don't change
+    # embedding/ranking behavior, so this drift is low-risk.
+    "torch>=2.0,<3.0",
+]
+swebench-pro = [
+    "docker>=6.0.0",
+    # Cap <2: modal 0.x->1.x was a breaking API change (synchronicity, stubs,
+    # secrets) that was silently crossed; hold to the resolved 1.x line so a
+    # broken import can't silently skip remote swebench-pro eval after a re-lock.
+    "modal>=0.50.0,<2",
+    # Cap <3: pandas 3.0 made Copy-on-Write mandatory, returning read-only
+    # numpy buffers that crash numpy/Cython-consuming code (`ValueError:
+    # buffer source array is read-only`). Hold to the 2.x line.
+    "pandas>=1.5.0,<3",
+    "tqdm>=4.64.0",
+]
+dataprep = [
+    # Only needed to (re)generate the SWE-bench Pro task dataset via
+    # benchmarks/scripts/dataprep/export_swebench_pro_dataset.py; not required at runtime.
+    "datasets>=2.18",
+]
+
+[project.scripts]
+kcsi = "kcsi.cli:cli"
+kcsi-classify = "kcsi.cli:classify_cli"
+kcsi-doctor = "kcsi.doctor:doctor_cli"
+
+[project.urls]
+Homepage = "https://github.com/recursive-knowledge/KCSI"
+Documentation = "https://recursive-knowledge.github.io/KCSI/"
+Repository = "https://github.com/recursive-knowledge/KCSI"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "pytest-timeout>=2.3",
+    "mypy>=1.8",
+    "ruff==0.15.15",
+]
+docs = [
+    "mkdocs-material>=9.5",
+    "mkdocstrings[python]>=0.26",
+    "ruff==0.15.15",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/kcsi"]
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]  # pyflakes, pycodestyle errors/warnings, isort
+# Pre-existing violations parked so CI can enforce the rest today; ratchet these
+# off one rule at a time. Counts at enablement (2026-06): E501x164, F841x20,
+# E402x19, F821x11, E741x11, E731x1. See PR enabling lint in CI.
+ignore = [
+    "E501",  # line length — largely intentional long strings/comments
+    "E402",  # module import not at top — deliberate lazy/conditional imports
+    "E741",  # ambiguous var name (l) — cosmetic
+    "F841",  # unused local — pre-existing in tests/scripts
+    "F821",  # undefined name — forward-ref annotations not yet under TYPE_CHECKING
+    "E731",  # lambda assignment
+]
+
+
+[tool.ruff.lint.isort]
+known-first-party = ["kcsi"]
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+# NOTE: ``ignore_missing_imports = true`` used to live here as a GLOBAL, silently
+# suppressing missing-stub errors for every third-party import. It is replaced by
+# the targeted per-module override below (only the libraries that genuinely ship
+# no stubs) so a newly-added untyped dependency surfaces instead of hiding. (#1227)
+
+# Third-party libraries that ship no type stubs. Scoped so the blanket silence is
+# gone: any other untyped import now errors loudly. (#1227)
+[[tool.mypy.overrides]]
+module = ["sqlite_vec", "sentence_transformers"]
+ignore_missing_imports = true
+
+# ── #1227: honest py.typed / mypy gate ──────────────────────────────────────
+# ``src/kcsi`` ships a ``py.typed`` marker, promising downstream type-checkers a
+# fully-typed package. CI (.github/workflows/ci.yml) now runs mypy over the WHOLE
+# package (``uv run mypy src/kcsi --follow-imports=silent``), so every NEW module
+# is type-checked by default. The modules listed below still carry pre-existing
+# errors (~136 across 25 files at the time of #1227) and are EXPLICITLY opted out
+# with ``ignore_errors`` — visibly acknowledged rather than silently unchecked.
+# Ratchet: delete a module from this list as it is brought to zero mypy errors;
+# when the list is empty, this override block (and the coverage gap it documents)
+# can be removed and py.typed is fully honest. See #1227.
+[[tool.mypy.overrides]]
+module = [
+    "kcsi.cli",
+    "kcsi.cli_reporting",
+    "kcsi.discussion.prompts",
+    "kcsi.benchmarks.arc_session",
+    "kcsi.benchmarks.polyglot_harness",
+    "kcsi.benchmarks.swebench_pro",
+    "kcsi.benchmarks.terminal_bench_2",
+    "kcsi.memory.embeddings",
+    "kcsi.memory.knowledge_store",
+    # knowledge_store_migrations: pre-existing errors from the knowledge_store
+    # file split; tasks.repo_cache (below): older pre-existing errors missed at
+    # gate enablement. Same ratchet rule for both.
+    "kcsi.memory.knowledge_store_migrations",
+    "kcsi.memory.mcp_server",
+    "kcsi.memory.store",
+    "kcsi.orchestrator.engine",
+    "kcsi.orchestrator.enrichment_phase",
+    "kcsi.orchestrator.forum_runtime",
+    "kcsi.orchestrator.resume_phase",
+    "kcsi.prompts",
+    "kcsi.runtime.container_host",
+    "kcsi.runtime.normalize",
+    "kcsi.runtime.seeding",
+    "kcsi.runtime.terminal_bench_2",
+    "kcsi.seeding.seeder",
+    "kcsi.tasks.loaders",
+    "kcsi.tasks.repo_cache",
+]
+ignore_errors = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# Repo root (".") is on the path so tests can import top-level helper
+# packages (e.g. `benchmarks.scripts.*`). Under the src-layout the editable
+# install only exposes `src/`, so the root is added here explicitly.
+pythonpath = ["tests", "."]
+# Generous per-test wall-clock cap so a hung test (e.g. a blocked socket or an
+# unbounded docker-marked test) fails loudly instead of stalling CI. 300s is far
+# above any healthy test; normal runs are unaffected.
+addopts = "--import-mode=importlib --timeout=300"
+markers = [
+    "integration: tests requiring real DB or network sockets",
+    "docker: tests requiring Docker daemon",
+    "slow: tests that take more than 5 seconds",
+]
+filterwarnings = [
+    # Suppress DeprecationWarning from synthetic module loading in tests
+    # The synthetic package prefixes used by each test file are: kcsi_new,
+    # kcsi_orch (orchestrator), kcsi_tt (token_tracking),
+    # kcsi_upvote_test (upvote persistence), kcsi_ncbc (container_host_auth).
+    "ignore::DeprecationWarning:kcsi.tasks.loaders",
+    "ignore::DeprecationWarning:kcsi_new.*",
+    "ignore::DeprecationWarning:kcsi_orch.*",
+    "ignore::DeprecationWarning:kcsi_tt.*",
+    "ignore::DeprecationWarning:kcsi_upvote_test.*",
+    "ignore::DeprecationWarning:kcsi_ncbc.*",
+]

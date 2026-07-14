@@ -1,0 +1,218 @@
+{
+  "selection_name": "swebench_pro_test_50_seed1_kt",
+  "benchmark": "swebench_pro",
+  "dataset_name": "swebench_pro",
+  "source_path": "benchmarks/swebench_pro/dataset/test.jsonl",
+  "split": "test",
+  "selection_seed": 1,
+  "task_count": 50,
+  "selection_notes": [
+    "KT recipient subset disjoint from swebench_pro_test_50_seed0_v1.json.",
+    "Pool size=731, baseline=50, remaining=681, selected=50.",
+    "Selection algorithm: random.Random(seed).sample(sorted(pool - baseline), count).",
+    "Do not modify membership after publishing KT results."
+  ],
+  "disjoint_from": "swebench_pro_test_50_seed0_v1.json",
+  "tasks": [
+    {
+      "index": 1,
+      "task_id": "instance_element-hq__element-web-41dfec20bfe9b62cddbbbf621bef2e9aa9685157-vnan"
+    },
+    {
+      "index": 2,
+      "task_id": "instance_protonmail__webclients-df60460f163fd5c34e844ab9015e3176f1ab1ac0"
+    },
+    {
+      "index": 3,
+      "task_id": "instance_ansible__ansible-489156378c8e97374a75a544c7c9c2c0dd8146d1-v390e508d27db7a51eece36bb6d9698b63a5b638a"
+    },
+    {
+      "index": 4,
+      "task_id": "instance_flipt-io__flipt-f36bd61fb1cee4669de1f00e59da462bfeae8765"
+    },
+    {
+      "index": 5,
+      "task_id": "instance_ansible__ansible-e64c6c1ca50d7d26a8e7747d8eb87642e767cd74-v0f01c69f1e2528b935359cfe578530722bca2c59"
+    },
+    {
+      "index": 6,
+      "task_id": "instance_navidrome__navidrome-874b17b8f614056df0ef021b5d4f977341084185"
+    },
+    {
+      "index": 7,
+      "task_id": "instance_internetarchive__openlibrary-c4eebe6677acc4629cb541a98d5e91311444f5d4-v13642507b4fc1f8d234172bf8129942da2c2ca26"
+    },
+    {
+      "index": 8,
+      "task_id": "instance_navidrome__navidrome-27875ba2dd1673ddf8affca526b0664c12c3b98b"
+    },
+    {
+      "index": 9,
+      "task_id": "instance_tutao__tutanota-219bc8f05d7b980e038bc1524cb021bf56397a1b-vee878bb72091875e912c52fc32bc60ec3760227b"
+    },
+    {
+      "index": 10,
+      "task_id": "instance_gravitational__teleport-eefac60a350930e5f295f94a2d55b94c1988c04e-vee9b09fb20c43af7e520f57e9239bbcf46b7113d"
+    },
+    {
+      "index": 11,
+      "task_id": "instance_flipt-io__flipt-6fe76d024ee0c50ddb09c86f4ae0bd4c208fd65f"
+    },
+    {
+      "index": 12,
+      "task_id": "instance_ansible__ansible-b8025ac160146319d2b875be3366b60c852dd35d-v0f01c69f1e2528b935359cfe578530722bca2c59"
+    },
+    {
+      "index": 13,
+      "task_id": "instance_navidrome__navidrome-677d9947f302c9f7bba8c08c788c3dc99f235f39"
+    },
+    {
+      "index": 14,
+      "task_id": "instance_NodeBB__NodeBB-b1f9ad5534bb3a44dab5364f659876a4b7fe34c1-vnan"
+    },
+    {
+      "index": 15,
+      "task_id": "instance_internetarchive__openlibrary-111347e9583372e8ef91c82e0612ea437ae3a9c9-v2d9a6c849c60ed19fd0858ce9e40b7cc8e097e59"
+    },
+    {
+      "index": 16,
+      "task_id": "instance_internetarchive__openlibrary-8a5a63af6e0be406aa6c8c9b6d5f28b2f1b6af5a-v0f5aece3601a5b4419f7ccec1dbda2071be28ee4"
+    },
+    {
+      "index": 17,
+      "task_id": "instance_qutebrowser__qutebrowser-70248f256f93ed9b1984494d0a1a919ddd774892-v2ef375ac784985212b1805e1d0431dc8f1b3c171"
+    },
+    {
+      "index": 18,
+      "task_id": "instance_NodeBB__NodeBB-087e6020e490b4a1759f38c1ad03869511928263-vf2cf3cbd463b7ad942381f1c6d077626485a1e9e"
+    },
+    {
+      "index": 19,
+      "task_id": "instance_internetarchive__openlibrary-ba3abfb6af6e722185d3715929ab0f3e5a134eed-v76304ecdb3a5954fcf13feb710e8c40fcf24b73c"
+    },
+    {
+      "index": 20,
+      "task_id": "instance_future-architect__vuls-3c1489e588dacea455ccf4c352a3b1006902e2d4"
+    },
+    {
+      "index": 21,
+      "task_id": "instance_flipt-io__flipt-b3cd920bbb25e01fdb2dab66a5a913363bc62f6c"
+    },
+    {
+      "index": 22,
+      "task_id": "instance_qutebrowser__qutebrowser-36ade4bba504eb96f05d32ceab9972df7eb17bcc-v2ef375ac784985212b1805e1d0431dc8f1b3c171"
+    },
+    {
+      "index": 23,
+      "task_id": "instance_ansible__ansible-cd473dfb2fdbc97acf3293c134b21cbbcfa89ec3-vba6da65a0f3baefda7a058ebbd0a8dcafb8512f5"
+    },
+    {
+      "index": 24,
+      "task_id": "instance_gravitational__teleport-0ac7334939981cf85b9591ac295c3816954e287e"
+    },
+    {
+      "index": 25,
+      "task_id": "instance_NodeBB__NodeBB-bad15643013ca15affe408b75eba9e47cc604bb2-vd59a5728dfc977f44533186ace531248c2917516"
+    },
+    {
+      "index": 26,
+      "task_id": "instance_NodeBB__NodeBB-84dfda59e6a0e8a77240f939a7cb8757e6eaf945-v2c59007b1005cd5cd14cbb523ca5229db1fd2dd8"
+    },
+    {
+      "index": 27,
+      "task_id": "instance_NodeBB__NodeBB-9c576a0758690f45a6ca03b5884c601e473bf2c1-vd59a5728dfc977f44533186ace531248c2917516"
+    },
+    {
+      "index": 28,
+      "task_id": "instance_tutao__tutanota-1e516e989b3c0221f4af6b297d9c0e4c43e4adc3-vbc0d9ba8f0071fbe982809910959a6ff8884dbbf"
+    },
+    {
+      "index": 29,
+      "task_id": "instance_protonmail__webclients-6e1873b06df6529a469599aa1d69d3b18f7d9d37"
+    },
+    {
+      "index": 30,
+      "task_id": "instance_NodeBB__NodeBB-2657804c1fb6b84dc76ad3b18ecf061aaab5f29f-vf2cf3cbd463b7ad942381f1c6d077626485a1e9e"
+    },
+    {
+      "index": 31,
+      "task_id": "instance_gravitational__teleport-fb0ab2b9b771377a689fd0d0374777c251e58bbf"
+    },
+    {
+      "index": 32,
+      "task_id": "instance_flipt-io__flipt-967855b429f749c28c112b8cb1b15bc79157f973"
+    },
+    {
+      "index": 33,
+      "task_id": "instance_internetarchive__openlibrary-757fcf46c70530739c150c57b37d6375f155dc97-ve8c8d62a2b60610a3c4631f5f23ed866bada9818"
+    },
+    {
+      "index": 34,
+      "task_id": "instance_protonmail__webclients-2f66db85455f4b22a47ffd853738f679b439593c"
+    },
+    {
+      "index": 35,
+      "task_id": "instance_flipt-io__flipt-abaa5953795afb9c621605bb18cb32ac48b4508c"
+    },
+    {
+      "index": 36,
+      "task_id": "instance_internetarchive__openlibrary-9bdfd29fac883e77dcbc4208cab28c06fd963ab2-v76304ecdb3a5954fcf13feb710e8c40fcf24b73c"
+    },
+    {
+      "index": 37,
+      "task_id": "instance_protonmail__webclients-ac23d1efa1a6ab7e62724779317ba44c28d78cfd"
+    },
+    {
+      "index": 38,
+      "task_id": "instance_flipt-io__flipt-b6cef5cdc0daff3ee99e5974ed60a1dc6b4b0d67"
+    },
+    {
+      "index": 39,
+      "task_id": "instance_gravitational__teleport-629dc432eb191ca479588a8c49205debb83e80e2"
+    },
+    {
+      "index": 40,
+      "task_id": "instance_flipt-io__flipt-b4bb5e13006a729bc0eed8fe6ea18cff54acdacb"
+    },
+    {
+      "index": 41,
+      "task_id": "instance_flipt-io__flipt-9f8127f225a86245fa35dca4885c2daef824ee55"
+    },
+    {
+      "index": 42,
+      "task_id": "instance_internetarchive__openlibrary-e8084193a895d8ee81200f49093389a3887479ce-ve8c8d62a2b60610a3c4631f5f23ed866bada9818"
+    },
+    {
+      "index": 43,
+      "task_id": "instance_future-architect__vuls-9aa0d87a21bede91c2b45c32187456bb69455e92"
+    },
+    {
+      "index": 44,
+      "task_id": "instance_internetarchive__openlibrary-630221ab686c64e75a2ce253c893c033e4814b2e-v93c53c13d5f9b383ebb411ee7750b49dcd1a34c6"
+    },
+    {
+      "index": 45,
+      "task_id": "instance_protonmail__webclients-b530a3db50cb33e5064464addbcbef1465856ce6"
+    },
+    {
+      "index": 46,
+      "task_id": "instance_qutebrowser__qutebrowser-f91ace96223cac8161c16dd061907e138fe85111-v059c6fdc75567943479b23ebca7c07b5e9a7f34c"
+    },
+    {
+      "index": 47,
+      "task_id": "instance_ansible__ansible-c616e54a6e23fa5616a1d56d243f69576164ef9b-v1055803c3a812189a1133297f7f5468579283f86"
+    },
+    {
+      "index": 48,
+      "task_id": "instance_flipt-io__flipt-1dceb5edf3fa8f39495b939ef9cc0c3dd38fa17d"
+    },
+    {
+      "index": 49,
+      "task_id": "instance_qutebrowser__qutebrowser-deeb15d6f009b3ca0c3bd503a7cef07462bd16b4-v363c8a7e5ccdf6968fc7ab84a2053ac78036691d"
+    },
+    {
+      "index": 50,
+      "task_id": "instance_future-architect__vuls-ca3f6b1dbf2cd24d1537bfda43e788443ce03a0c"
+    }
+  ]
+}

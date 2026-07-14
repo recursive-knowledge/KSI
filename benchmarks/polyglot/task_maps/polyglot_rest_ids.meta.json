@@ -1,0 +1,12 @@
+{
+  "benchmark": "polyglot",
+  "selection_name": "polyglot_rest_ids",
+  "source_repo": "Aider-AI/polyglot-benchmark",
+  "source_branch": "main",
+  "source_commit": "7e0611e77b54e2dea774cdc0aa00cf9f7ed6144f",
+  "count": 175,
+  "ids_file": "polyglot_rest_ids.json",
+  "disjoint_from": "polyglot_medium_50_seed0_ids.json",
+  "selection_algorithm": "sorted(all_polyglot_ids - baseline_medium_ids)",
+  "usage_note": "Pass this file to scripts/dataprep/prepare_polyglot_dataset.py --subset-url to materialise the full disjoint KT rest pool."
+}

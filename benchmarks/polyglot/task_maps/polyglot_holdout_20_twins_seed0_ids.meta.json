@@ -1,0 +1,9 @@
+{
+ "benchmark": "polyglot",
+ "selection_name": "polyglot_holdout_20_twins_seed0",
+ "purpose": "hold-out transfer probe; every task shares its exercise with a polyglot_medium_50_seed0 train task in a different language (designed positive control for cross-task knowledge transfer)",
+ "seed": 0,
+ "count": 20,
+ "train_map": "polyglot_medium_50_seed0_ids.json",
+ "merged_dataset": "data/polyglot_ktrob_70.json"
+}

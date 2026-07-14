@@ -1,0 +1,43 @@
+name: Deploy docs
+
+# Publishes the rendered site to the `gh-pages` branch on every push to main.
+# To serve it, enable GitHub Pages once (Settings → Pages → Source: "Deploy from
+# a branch" → branch `gh-pages` / `/ (root)`). Until Pages is enabled this job
+# still succeeds — it only updates the `gh-pages` branch, it does not fail when
+# Pages is off.
+on:
+  push:
+    branches:
+      - main
+
+permissions: {}
+
+concurrency:
+  group: docs-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    if: ${{ github.repository == 'recursive-knowledge/KCSI' && github.ref == 'refs/heads/main' }}
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.10.0"
+
+      - name: Install docs dependencies
+        run: uv sync --group docs
+
+      - name: Deploy to gh-pages
+        run: uv run mkdocs gh-deploy --strict --force
