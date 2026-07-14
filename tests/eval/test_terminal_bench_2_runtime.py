@@ -2213,9 +2213,7 @@ def test_run_ksi_agent_in_tb2_container_surfaces_cap_hit_when_no_final(
     assert len(result.tool_trace) == 3
 
 
-def test_run_ksi_agent_in_tb2_container_surfaces_deadline_exit(
-    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
-) -> None:
+def test_run_ksi_agent_in_tb2_container_surfaces_deadline_exit(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     """When the wall-clock deadline runs out before the agent emits 'final',
     error_text records the deadline exit (distinct from cap-hit and from
     voluntary termination)."""
