@@ -1,0 +1,354 @@
+/* ==========================================================================
+   KCSI docs — Apple-style theme layer over Material.
+   Monochrome light/dark palette with a single accent (Apple's marketing
+   blue). mkdocs.yml's theme.font.code loads Fira Code; Material's
+   font-loading template also fetches Roboto as an unused side effect
+   (see the --md-text-font-family override below), so body/heading text
+   stays on the system stack while code uses Fira Code.
+   ========================================================================== */
+
+:root {
+  --kcsi-accent-light: #0071e3;
+  --kcsi-accent-dark: #2997ff;
+}
+
+:root,
+body {
+  /* mkdocs.yml's theme.font only specifies `code` (JetBrains Mono), but
+     Material's font-loading template always resolves `text` too (defaults
+     to "Roboto") whenever theme.font is truthy — that webfont gets fetched
+     but is never wanted. This override bypasses --md-text-font (which
+     Material set to "Roboto") entirely, keeping body/heading text on the
+     system font stack regardless.
+
+     IMPORTANT: this must be scoped to `body`, not just `:root` — Material's
+     own compiled CSS declares this same custom property directly on the
+     `body` element, and a direct declaration always wins over one merely
+     inherited from an ancestor (:root/<html>), regardless of the
+     ancestor's selector specificity. A :root-only override is silently
+     inert; verified via getComputedStyle(document.body) during this fix. */
+  --md-text-font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* ---- Light scheme ("default") -------------------------------------------- */
+[data-md-color-scheme="default"] {
+  --md-primary-fg-color: #ffffff;
+  --md-primary-bg-color: #1d1d1f;
+  --md-accent-fg-color: var(--kcsi-accent-light);
+  --md-typeset-a-color: var(--kcsi-accent-light);
+  --md-default-fg-color: #1d1d1f;
+  --md-default-bg-color: #ffffff;
+  --md-code-bg-color: #f5f5f7;
+}
+
+[data-md-color-scheme="default"] .md-header {
+  background: #ffffff;
+  border-bottom: 1px solid #d2d2d7;
+}
+
+[data-md-color-scheme="default"] .md-tabs {
+  background: transparent;
+  border-bottom: 1px solid #e8e8ed;
+}
+
+[data-md-color-scheme="default"] .md-tabs__link--active {
+  color: var(--kcsi-accent-light);
+  opacity: 1;
+}
+
+/* ---- Dark scheme ("slate", stays the default on load) -------------------- */
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: #000000;
+  --md-primary-bg-color: #f5f5f7;
+  --md-accent-fg-color: var(--kcsi-accent-dark);
+  --md-typeset-a-color: var(--kcsi-accent-dark);
+  --md-default-fg-color: #f5f5f7;
+  --md-default-bg-color: #000000;
+  --md-code-bg-color: #1d1d1f;
+}
+
+[data-md-color-scheme="slate"] .md-header {
+  background: #000000;
+  border-bottom: 1px solid #424245;
+}
+
+[data-md-color-scheme="slate"] .md-tabs {
+  background: transparent;
+  border-bottom: 1px solid #2c2c2e;
+}
+
+[data-md-color-scheme="slate"] .md-tabs__link--active {
+  color: var(--kcsi-accent-dark);
+  opacity: 1;
+}
+
+/* ---- Typographic rhythm --------------------------------------------------- */
+.md-typeset h1 {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.md-typeset h2 {
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  margin-top: 2.2rem;
+}
+.md-typeset h3,
+.md-typeset h4 {
+  font-weight: 600;
+}
+
+/* ---- Code-block polish ----------------------------------------------------- */
+.md-typeset pre > code {
+  border-radius: 8px;
+}
+[data-md-color-scheme="slate"] .md-typeset pre > code {
+  border: 1px solid #2c2c2e;
+}
+[data-md-color-scheme="default"] .md-typeset pre > code {
+  border: 1px solid #e8e8ed;
+}
+
+/* ---- Data tables ----------------------------------------------------------- */
+/* Bring Material's default data tables into the same rounded-hairline system as
+   the code blocks and cards: a scheme-matched hairline border, rounded corners,
+   and a subtly tinted header row. Scoped to `:not([class])` so mkdocstrings and
+   other generated tables keep their own styling. */
+.md-typeset table:not([class]) {
+  border-radius: 10px;
+  border-spacing: 0;
+  overflow: hidden;
+}
+[data-md-color-scheme="slate"] .md-typeset table:not([class]) {
+  border: 1px solid #2c2c2e;
+}
+[data-md-color-scheme="default"] .md-typeset table:not([class]) {
+  border: 1px solid #e8e8ed;
+}
+
+.md-typeset table:not([class]) th {
+  font-weight: 600;
+}
+[data-md-color-scheme="slate"] .md-typeset table:not([class]) th {
+  background: #1d1d1f;
+}
+[data-md-color-scheme="default"] .md-typeset table:not([class]) th {
+  background: #f5f5f7;
+}
+
+/* Hairline row separators in the scheme border color; drop the trailing rule
+   so it doesn't double up against the rounded outer border. */
+[data-md-color-scheme="slate"] .md-typeset table:not([class]) td {
+  border-top: 1px solid #2c2c2e;
+}
+[data-md-color-scheme="default"] .md-typeset table:not([class]) td {
+  border-top: 1px solid #e8e8ed;
+}
+.md-typeset table:not([class]) tr:last-child td {
+  border-bottom: 0;
+}
+
+/* ==========================================================================
+   Homepage hero
+   ========================================================================== */
+.kcsi-hero {
+  margin: 0 0 2.5rem;
+  padding: 3.2rem 1.4rem 3rem;
+  text-align: center;
+}
+
+.kcsi-hero h1 {
+  margin: 0 0 0.6rem;
+  font-size: 2.5rem;
+  line-height: 1.1;
+  color: var(--md-default-fg-color);
+}
+
+.kcsi-hero .kcsi-tagline {
+  margin: 0 auto 1.6rem;
+  max-width: 42rem;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  opacity: 0.72;
+}
+
+.kcsi-cta {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  justify-content: center;
+}
+
+.kcsi-cta .md-button {
+  border-radius: 980px;
+  font-weight: 500;
+  padding: 0.6rem 1.4rem;
+}
+
+/* Primary CTA: solid accent fill, Apple's pill-button convention */
+[data-md-color-scheme="default"] .kcsi-cta .md-button--primary {
+  background: var(--kcsi-accent-light);
+  border-color: transparent;
+  color: #ffffff;
+}
+[data-md-color-scheme="default"] .kcsi-cta .md-button--primary:hover {
+  background: #0077ed;
+}
+[data-md-color-scheme="slate"] .kcsi-cta .md-button--primary {
+  background: var(--kcsi-accent-dark);
+  border-color: transparent;
+  color: #000000;
+}
+[data-md-color-scheme="slate"] .kcsi-cta .md-button--primary:hover {
+  background: #45a8ff;
+}
+
+/* Secondary CTA: hairline outline, no fill */
+[data-md-color-scheme="default"] .kcsi-cta .md-button:not(.md-button--primary) {
+  border-color: #d2d2d7;
+  color: #1d1d1f;
+}
+[data-md-color-scheme="slate"] .kcsi-cta .md-button:not(.md-button--primary) {
+  border-color: #424245;
+  color: #f5f5f7;
+}
+
+/* ==========================================================================
+   Homepage card grid (Material .grid.cards)
+   ========================================================================== */
+.md-typeset .grid.cards > ul > li,
+.md-typeset .grid > .card {
+  border-radius: 14px;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+[data-md-color-scheme="default"] .md-typeset .grid.cards > ul > li {
+  background: #f5f5f7;
+  border: 1px solid #d2d2d7;
+}
+[data-md-color-scheme="slate"] .md-typeset .grid.cards > ul > li {
+  background: #1d1d1f;
+  border: 1px solid #424245;
+}
+
+.md-typeset .grid.cards > ul > li:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+}
+[data-md-color-scheme="slate"] .md-typeset .grid.cards > ul > li:hover {
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+}
+
+/* Card icon glyph in accent */
+[data-md-color-scheme="default"] .md-typeset .grid.cards > ul > li > hr + p:first-of-type .twemoji,
+[data-md-color-scheme="default"] .md-typeset .grid.cards .twemoji svg {
+  fill: var(--kcsi-accent-light);
+}
+[data-md-color-scheme="slate"] .md-typeset .grid.cards > ul > li > hr + p:first-of-type .twemoji,
+[data-md-color-scheme="slate"] .md-typeset .grid.cards .twemoji svg {
+  fill: var(--kcsi-accent-dark);
+}
+.md-typeset .grid.cards .twemoji {
+  height: 1.6rem;
+  width: 1.6rem;
+}
+
+/* ==========================================================================
+   Mermaid diagram zoom (see javascripts/mermaid-zoom.js)
+   ========================================================================== */
+/* Host the expand button in the top-right of each rendered diagram. */
+.md-typeset .mermaid.mermaid-zoomable {
+  position: relative;
+}
+.md-typeset .mermaid.mermaid-zoomable > svg {
+  cursor: zoom-in;
+}
+
+.mermaid-expand-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  padding: 0;
+  border-radius: 8px;
+  border: 1px solid var(--md-default-fg-color--lightest, #d2d2d7);
+  background: var(--md-default-bg-color);
+  color: var(--md-default-fg-color--light, currentColor);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease, background 0.15s ease, color 0.15s ease;
+  z-index: 2;
+}
+.md-typeset .mermaid.mermaid-zoomable:hover .mermaid-expand-btn,
+.mermaid-expand-btn:focus-visible {
+  opacity: 1;
+}
+.mermaid-expand-btn:hover {
+  color: var(--md-accent-fg-color);
+  border-color: var(--md-accent-fg-color);
+}
+
+/* ---- Fullscreen overlay --------------------------------------------------- */
+body.mermaid-zoom-lock {
+  overflow: hidden;
+}
+.mermaid-zoom-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: none;
+  flex-direction: column;
+  background: color-mix(in srgb, var(--md-default-bg-color) 82%, transparent);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+.mermaid-zoom-overlay.is-open {
+  display: flex;
+}
+.mermaid-zoom-toolbar {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 0.4rem;
+  justify-content: flex-end;
+  padding: 0.7rem 0.9rem;
+}
+.mermaid-zoom-toolbar button {
+  min-width: 2.2rem;
+  height: 2.2rem;
+  padding: 0 0.7rem;
+  border-radius: 8px;
+  border: 1px solid var(--md-default-fg-color--lightest, #d2d2d7);
+  background: var(--md-default-bg-color);
+  color: var(--md-default-fg-color);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.mermaid-zoom-toolbar button:hover {
+  color: var(--md-accent-fg-color);
+  border-color: var(--md-accent-fg-color);
+}
+.mermaid-zoom-close {
+  margin-left: 0.4rem;
+}
+.mermaid-zoom-stage {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: none;
+}
+.mermaid-zoom-stage.is-grabbing {
+  cursor: grabbing;
+}
+.mermaid-zoom-stage > svg {
+  max-width: 92vw;
+  max-height: 82vh;
+  user-select: none;
+}

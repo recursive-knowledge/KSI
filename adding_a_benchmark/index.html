@@ -1,0 +1,1681 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Knowledge-centric self-improvement agent — orchestration framework">
+      
+      
+      
+        <link rel="canonical" href="https://recursive-knowledge.github.io/KCSI/adding_a_benchmark/">
+      
+      
+        <link rel="prev" href="../extending/">
+      
+      
+        <link rel="next" href="../adding_an_evaluator/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/favicon.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Add a benchmark / task source - KCSI</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CFira+Code:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Fira Code"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#adding-a-benchmark-task-source" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="KCSI" class="md-header__button md-logo" aria-label="KCSI" data-md-component="logo">
+      
+  <img src="../assets/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            KCSI
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Add a benchmark / task source
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/recursive-knowledge/KCSI" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    recursive-knowledge/KCSI
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Getting started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../your_own_tasks/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Your own tasks
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../programmatic_api/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Programmatic API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../architecture/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../extending/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Extending KCSI
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../faq/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../benchmarks/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Benchmarks
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="KCSI" class="md-nav__button md-logo" aria-label="KCSI" data-md-component="logo">
+      
+  <img src="../assets/logo.svg" alt="logo">
+
+    </a>
+    KCSI
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/recursive-knowledge/KCSI" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    recursive-knowledge/KCSI
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CONTRIBUTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../your_own_tasks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Your own tasks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Programmatic API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Programmatic API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../programmatic_api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Programmatic API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../experiments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Running larger runs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python API reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Extending KCSI
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Extending KCSI
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../extending/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Extension seams
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Add a benchmark / task source
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Add a benchmark / task source
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The spec
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The spec">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-real-example-how-arc-is-registered" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A real example: how arc is registered
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Steps
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adding_an_evaluator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Add an evaluator / runtime
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../improvement_strategies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Improvement strategies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../artifacts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Artifacts & cleanup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../runtime-startup-performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Runtime startup performance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../benchmarks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Benchmarks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The spec
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The spec">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-real-example-how-arc-is-registered" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A real example: how arc is registered
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Steps
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="adding-a-benchmark-task-source">Adding a Benchmark (Task Source)<a class="headerlink" href="#adding-a-benchmark-task-source" title="Permanent link">&para;</a></h1>
+<p>Task sources (benchmarks) are described by a single <code>TaskSourceSpec</code> in the
+central registry: <a href="https://github.com/recursive-knowledge/KCSI/blob/main/src/kcsi/tasks/registry.py"><code>src/kcsi/tasks/registry.py</code></a>.</p>
+<p>Before this registry, adding a benchmark meant shotgun-editing ~15 files because
+<code>task_source == "&lt;name&gt;"</code> string-equality dispatch was scattered across loaders,
+prompts, distillation, runtime, layout and CLI eval-selection. Now there is
+<strong>one</strong> authoritative place that lists valid sources and their per-source
+capabilities and values; every dispatch site consults the spec
+(<code>spec.supports_mcp_arc</code>, <code>spec.default_evaluator</code>, <code>spec.prompt_kind</code>, ...)
+rather than comparing name strings.</p>
+<h2 id="the-spec">The spec<a class="headerlink" href="#the-spec" title="Permanent link">&para;</a></h2>
+<p><code>TaskSourceSpec</code> fields map 1:1 to the variation points that used to be
+<code>if task_source == ...</code> branches:</p>
+<table>
+<thead>
+<tr>
+<th>field</th>
+<th>drives</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code> / <code>aliases</code></td>
+<td>canonical id + accepted synonyms (e.g. <code>arc1</code>, <code>arc2</code>, <code>arc_agi_*</code>, <code>swebench</code>)</td>
+</tr>
+<tr>
+<td><code>default_evaluator</code></td>
+<td><code>cli._normalize_evaluator_for_task_source</code> + M14 evaluator/source warn-map</td>
+</tr>
+<tr>
+<td><code>prompt_kind</code></td>
+<td>string key into the hardcoded <code>build_execution_prompt</code> / <code>build_task_markdown</code> <strong>fallback</strong> chain (<code>src/kcsi/prompts/__init__.py</code>), used when no <code>execution_prompt_builder</code> / <code>task_markdown_builder</code> is attached</td>
+</tr>
+<tr>
+<td><code>execution_prompt_builder</code></td>
+<td>optional per-source builder; called as <code>execution_prompt_builder(task, *, has_memory=..., generation=...)</code> → prompt string. Consulted before the <code>prompt_kind</code> fallback chain</td>
+</tr>
+<tr>
+<td><code>task_markdown_builder</code></td>
+<td>optional per-source builder; called as <code>task_markdown_builder(task)</code> → <code>TASK.md</code> string. Consulted before the <code>prompt_kind</code> fallback chain (the <code>task_md_override</code> metadata hook still wins over both)</td>
+</tr>
+<tr>
+<td><code>distill_domain_hint</code></td>
+<td>optional per-source distillation domain hint (<code>src/kcsi/distillation/prompts.py::_domain_hint</code>): the hint <strong>string</strong>, or a zero-arg <strong>callable</strong> returning it. Opt-in — when unset, <strong>no</strong> domain-hint paragraph is injected (the generic hint is reserved for the unresolvable/cross-task case)</td>
+</tr>
+<tr>
+<td><code>loader</code></td>
+<td>task-loader callable; <code>load_tasks_for_source</code> calls <code>spec.loader(tasks_path, *, task_source=..., evals_path=..., arc_max_trials=...)</code> (built-in loaders are attached by <code>src/kcsi/tasks/loaders.py</code> at import time)</td>
+</tr>
+<tr>
+<td><code>supports_mcp_arc</code></td>
+<td>marks the source as ARC-native: the container materializes <code>payload.json</code> + attempt files and the agent uses native file tools (name retained for back-compat)</td>
+</tr>
+<tr>
+<td><code>is_offline</code></td>
+<td>sealed/offline benchmark; provider-native tools disabled</td>
+</tr>
+<tr>
+<td><code>uses_repo_snapshots</code></td>
+<td>needs SWE-bench-style repo cloning/snapshots</td>
+</tr>
+<tr>
+<td><code>supports_classification</code></td>
+<td><code>--classify</code> / categories-json path</td>
+</tr>
+<tr>
+<td><code>needs_eval_records</code></td>
+<td>eval-records sidecar loading</td>
+</tr>
+<tr>
+<td><code>delegates_runtime</code></td>
+<td>uses a dedicated runtime executor (e.g. TB2)</td>
+</tr>
+<tr>
+<td><code>arc_task_reference</code></td>
+<td>engine/snapshots build a hidden ARC reference payload</td>
+</tr>
+<tr>
+<td><code>upstream_strict</code></td>
+<td>maintained upstream-strict published benchmark; enables the disclosure warning when <code>--no-drop-solved</code> can carry solved-task answers forward</td>
+</tr>
+<tr>
+<td><code>validate_tasks_path</code></td>
+<td>optional callable validating <code>--tasks-path</code>; called as <code>validate_tasks_path(tasks_path, *, evals_path=...)</code> and returns the <code>parser.error</code> message string or <code>None</code> when acceptable. A source whose hook is <code>None</code> is rejected as unsupported. Built-in validators are attached by <code>src/kcsi/tasks/path_validation.py</code> at import time</td>
+</tr>
+</tbody>
+</table>
+<h3 id="a-real-example-how-arc-is-registered">A real example: how <code>arc</code> is registered<a class="headerlink" href="#a-real-example-how-arc-is-registered" title="Permanent link">&para;</a></h3>
+<p>The shortest of the four built-in registrations is <code>arc</code>
+(<code>src/kcsi/tasks/registry.py</code>):</p>
+<div class="highlight"><pre><span></span><code><span class="n">register_task_source</span><span class="p">(</span>
+    <span class="n">TaskSourceSpec</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;arc&quot;</span><span class="p">,</span>
+        <span class="n">aliases</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;arc1&quot;</span><span class="p">,</span> <span class="s2">&quot;arc2&quot;</span><span class="p">,</span> <span class="s2">&quot;arc_agi&quot;</span><span class="p">,</span> <span class="s2">&quot;arc_agi_1&quot;</span><span class="p">,</span> <span class="s2">&quot;arc_agi_2&quot;</span><span class="p">),</span>
+        <span class="n">default_evaluator</span><span class="o">=</span><span class="s2">&quot;arc_session&quot;</span><span class="p">,</span>
+        <span class="n">prompt_kind</span><span class="o">=</span><span class="s2">&quot;arc&quot;</span><span class="p">,</span>
+        <span class="n">distill_domain_hint</span><span class="o">=</span><span class="n">_DISTILL_HINT_ARC</span><span class="p">,</span>
+        <span class="n">supports_mcp_arc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">is_offline</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">arc_task_reference</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">upstream_strict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>Reading it against the field table above: <code>arc</code> accepts five aliases so
+<code>--task-source arc1</code> and <code>--task-source arc_agi_2</code> both resolve to the same
+spec; it defaults to the <code>arc_session</code> evaluator so <code>--evaluator</code> can be
+omitted for ARC runs; <code>prompt_kind="arc"</code> selects ARC's hardcoded prompt
+branch (rather than attaching an <code>execution_prompt_builder</code> callable — ARC
+predates that hook, which is why it still uses the fallback-chain path), while
+<code>distill_domain_hint=_DISTILL_HINT_ARC</code> attaches ARC's distillation hint
+directly on the spec;
+<code>supports_mcp_arc=True</code> marks the source as ARC-native (the container
+materializes <code>payload.json</code> + attempt files; name retained for back-compat);
+<code>is_offline=True</code> disables provider-native web tools regardless of
+<code>KCSI_ALLOW_WEB_TOOLS</code> (see <a href="https://github.com/recursive-knowledge/KCSI/blob/main/benchmarks/docs/web_tools_policy.md">web_tools_policy.md</a>);
+<code>arc_task_reference=True</code> tells the engine to build ARC's hidden reference
+payload during enrichment; <code>upstream_strict=True</code> marks ARC as a maintained
+published benchmark where retaining solved tasks needs disclosure. Every field
+it <em>doesn't</em> set (<code>loader</code>,
+<code>validate_tasks_path</code>, <code>uses_repo_snapshots</code>, <code>supports_classification</code>,
+<code>needs_eval_records</code>, <code>delegates_runtime</code>, ...) keeps its conservative
+default — <code>loader</code> and <code>validate_tasks_path</code> are populated separately by
+<code>src/kcsi/tasks/loaders.py</code> and <code>src/kcsi/tasks/path_validation.py</code> at import
+time rather than inline in the registration call, which is why a real source
+can look shorter than the full field table suggests.</p>
+<p>Compare this against <code>swebench_pro</code>'s registration in the same file — it sets
+<code>uses_repo_snapshots=True</code>, <code>supports_classification=True</code>, and
+<code>needs_eval_records=True</code> instead, showing a source with a completely
+different capability profile than ARC's.</p>
+<h2 id="steps">Steps<a class="headerlink" href="#steps" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Register the spec.</strong> Add a <code>register_task_source(TaskSourceSpec(...))</code> call
+   in <code>src/kcsi/tasks/registry.py</code> (or at runtime via <code>register_task_source</code> for a
+   plugin). Set only the flags your benchmark needs; defaults are the
+   conservative generic behavior.</li>
+</ol>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">kcsi.tasks.registry</span><span class="w"> </span><span class="kn">import</span> <span class="n">TaskSourceSpec</span><span class="p">,</span> <span class="n">register_task_source</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_load_my_bench</span><span class="p">(</span><span class="n">tasks_path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># accept **kwargs for forward compat</span>
+    <span class="o">...</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_my_bench</span><span class="p">(</span><span class="n">tasks_path</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">evals_path</span><span class="p">):</span>
+    <span class="c1"># Return the exact ``parser.error`` message, or None when the path is OK.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">tasks_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;--tasks-path for --task-source my_bench must exist: </span><span class="si">{</span><span class="n">tasks_path</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+<span class="n">register_task_source</span><span class="p">(</span>
+    <span class="n">TaskSourceSpec</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;my_bench&quot;</span><span class="p">,</span>
+        <span class="n">aliases</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;mybench&quot;</span><span class="p">,),</span>
+        <span class="n">default_evaluator</span><span class="o">=</span><span class="s2">&quot;my_bench&quot;</span><span class="p">,</span>
+        <span class="n">prompt_kind</span><span class="o">=</span><span class="s2">&quot;my_bench&quot;</span><span class="p">,</span>
+        <span class="n">distill_domain_hint</span><span class="o">=</span><span class="s2">&quot;DOMAIN HINT (my_bench): primitives to anchor on ...&quot;</span><span class="p">,</span>
+        <span class="n">loader</span><span class="o">=</span><span class="n">_load_my_bench</span><span class="p">,</span>
+        <span class="n">validate_tasks_path</span><span class="o">=</span><span class="n">_validate_my_bench</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>Registering automatically adds <code>my_bench</code> to <code>SUPPORTED_TASK_SOURCES</code> (the
+   CLI <code>--task-source</code> choices) and makes <code>get_spec("my_bench")</code> resolve. An
+   unknown source now fails early at CLI validation with a message listing the
+   valid sources.</p>
+<ol>
+<li><strong>Supply prompts and the domain hint via the spec (preferred) — or fall
+   back to the hardcoded chains:</strong></li>
+<li>Task loading needs no dispatch edit: <code>load_tasks_for_source</code> calls
+     <code>spec.loader</code> directly. It is invoked as
+     <code>loader(tasks_path, *, task_source=..., evals_path=..., arc_max_trials=...)</code>
+     and must return a list of <code>TaskSpec</code>; a registered source without a
+     loader fails with a clear error.</li>
+<li>
+<p>Prompts (no dispatch edit, preferred): attach <code>execution_prompt_builder</code>
+     and <code>task_markdown_builder</code> to the spec. <code>build_execution_prompt</code> /
+     <code>build_task_markdown</code> consult these first and only fall back to the
+     hardcoded <code>prompt_kind == ...</code> chain when they are <code>None</code>. Example:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_my_exec_prompt</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">has_memory</span><span class="p">,</span> <span class="n">generation</span><span class="p">):</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;You are solving a my_bench task. This is generation </span><span class="si">{</span><span class="n">generation</span><span class="si">}</span><span class="s2">.</span><span class="se">\n</span><span class="s2">...&quot;</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_my_task_md</span><span class="p">(</span><span class="n">task</span><span class="p">):</span>
+    <span class="k">return</span> <span class="s2">&quot;# TASK</span><span class="se">\n\n</span><span class="s2">- task_source: my_bench</span><span class="se">\n</span><span class="s2">...&quot;</span>
+
+<span class="n">register_task_source</span><span class="p">(</span>
+    <span class="n">TaskSourceSpec</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;my_bench&quot;</span><span class="p">,</span>
+        <span class="n">loader</span><span class="o">=</span><span class="n">_load_my_bench</span><span class="p">,</span>
+        <span class="n">validate_tasks_path</span><span class="o">=</span><span class="n">_validate_my_bench</span><span class="p">,</span>
+        <span class="n">execution_prompt_builder</span><span class="o">=</span><span class="n">_my_exec_prompt</span><span class="p">,</span>
+        <span class="n">task_markdown_builder</span><span class="o">=</span><span class="n">_my_task_md</span><span class="p">,</span>
+        <span class="n">distill_domain_hint</span><span class="o">=</span><span class="s2">&quot;DOMAIN HINT (my_bench): primitives to anchor on ...&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>(Built-in sources still use the hardcoded <code>prompt_kind</code> chains in
+ <code>src/kcsi/prompts/__init__.py</code>; you may add a <code>prompt_kind == "my_bench"</code>
+ branch there instead of the callables if you prefer, but the spec-attached
+ callables keep the addition to the single registry entry.)
+   - Distillation domain hint (optional, no dispatch edit): set
+ <code>distill_domain_hint</code> (a string or a zero-arg callable) on the spec.
+ It is opt-in — leave it unset and no domain-hint paragraph is injected
+ for the source (the generic <code>_GENERIC_DOMAIN_HINT</code> is reserved for the
+ unresolvable/cross-task case, where there is no single benchmark to key
+ on). The four built-in sources set it on their own specs in
+ <code>src/kcsi/tasks/registry.py</code>.
+   - Evaluator: register the evaluator with <code>register_evaluator</code> (see <a href="../adding_an_evaluator/">adding_an_evaluator.md</a>) if new.
+   - CLI <code>--tasks-path</code> validation needs no dispatch edit: set
+ <code>validate_tasks_path</code> on the spec (as above). A source without it is
+ rejected as unsupported.</p>
+</li>
+<li>
+<p><strong>Add an evaluator</strong> under <code>src/kcsi/eval/</code> if the benchmark needs one, and
+   register its name via <code>register_evaluator</code> (see <a href="../adding_an_evaluator/">adding_an_evaluator.md</a>).</p>
+</li>
+<li>
+<p><strong>Tests:</strong> extend <code>tests/test_task_registry.py</code> to pin your new source's
+   capability flags, and add loader/prompt tests as appropriate.</p>
+</li>
+</ol>
+<p>The single registry entry keeps the valid-source list and the capability table
+in one place; the per-benchmark code lives behind capability checks rather than
+duplicated name-string comparisons.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../extending/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Extension seams">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Extension seams
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../adding_an_evaluator/" class="md-footer__link md-footer__link--next" aria-label="Next: Add an evaluator / runtime">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Add an evaluator / runtime
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.indexes", "navigation.top", "navigation.footer", "toc.follow", "content.code.copy", "content.code.annotate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="../javascripts/mermaid-zoom.js"></script>
+      
+    
+  </body>
+</html>
