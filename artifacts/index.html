@@ -1180,10 +1180,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#repo-root-strays-legacy" class="md-nav__link">
+  <a href="#benchmark-wrapper-sidecars" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Repo-root strays (legacy)
+        Benchmark wrapper sidecars
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cleaning-up-root-level-artifacts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cleaning up root-level artifacts
       
     </span>
   </a>
@@ -1321,10 +1332,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#repo-root-strays-legacy" class="md-nav__link">
+  <a href="#benchmark-wrapper-sidecars" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Repo-root strays (legacy)
+        Benchmark wrapper sidecars
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cleaning-up-root-level-artifacts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cleaning up root-level artifacts
       
     </span>
   </a>
@@ -1363,14 +1385,14 @@
 
 
 <h1 id="artifact-conventions">Artifact Conventions<a class="headerlink" href="#artifact-conventions" title="Permanent link">&para;</a></h1>
-<p>This document records where run artifacts belong, so that experiment output
-never lands at the repo root and stray files don't get committed by accident.</p>
+<p>This document records where run artifacts belong, which paths are default CLI
+behavior, and which repo-root sidecars are maintained wrapper output.</p>
 <h2 id="canonical-locations">Canonical locations<a class="headerlink" href="#canonical-locations" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
 <th>Artifact</th>
-<th>Canonical location</th>
+<th>Default / preferred location</th>
 </tr>
 </thead>
 <tbody>
@@ -1392,8 +1414,10 @@ never lands at the repo root and stray files don't get committed by accident.</p
 </tr>
 </tbody>
 </table>
-<p><code>runtime_state/</code>, <code>results/</code>, and <code>analysis/</code> are gitignored. Keep generated
-artifacts under these roots; do not write them to the repo root.</p>
+<p><code>runtime_state/</code>, <code>results/</code>, and <code>analysis/</code> are gitignored. Direct CLI runs
+use these roots by default. Some benchmark wrappers intentionally pass
+repo-root SQLite paths for per-run sidecars; see
+<a href="#benchmark-wrapper-sidecars">Benchmark wrapper sidecars</a>.</p>
 <h2 id="result-reports">Result reports<a class="headerlink" href="#result-reports" title="Permanent link">&para;</a></h2>
 <p>Pass <code>--output-json results/&lt;name&gt;.json</code> to write a machine-readable run
 report. Along with traces, assignments, per-generation summaries, and token
@@ -1403,17 +1427,25 @@ provenance under <code>task_map</code>.</p>
 <p>KCSI refreshes this report after each completed generation. Check
 <code>run_complete</code> before treating it as final: <code>false</code> is a best-effort progress
 snapshot preserved after a mid-run failure; <code>true</code> is the final report.</p>
-<p>Results land in <code>results/&lt;experiment&gt;.json</code> with solve rates, token usage, and reproducibility metadata (code commit, provider, ARC split).</p>
-<h2 id="repo-root-strays-legacy">Repo-root strays (legacy)<a class="headerlink" href="#repo-root-strays-legacy" title="Permanent link">&para;</a></h2>
-<p>Older runs wrote some artifacts to the repo root. These are <strong>legacy strays</strong>
-and are safe to move into <code>runtime_state/</code> or delete after archiving:</p>
+<p>Results land in <code>results/&lt;experiment&gt;.json</code> with solve rates, token usage, and
+reproducibility metadata (code commit, provider, ARC split).</p>
+<h2 id="benchmark-wrapper-sidecars">Benchmark wrapper sidecars<a class="headerlink" href="#benchmark-wrapper-sidecars" title="Permanent link">&para;</a></h2>
+<p>The benchmark run presets currently pass explicit <code>--knowledge-db-path</code>
+arguments such as <code>./&lt;artifact-name&gt;_knowledge.sqlite</code>; Terminal-Bench also
+passes <code>--runtime-db-path ./&lt;artifact-name&gt;_runtime.sqlite</code>. These root-level
+DBs are current wrapper sidecars, not direct CLI defaults.</p>
+<h2 id="cleaning-up-root-level-artifacts">Cleaning up root-level artifacts<a class="headerlink" href="#cleaning-up-root-level-artifacts" title="Permanent link">&para;</a></h2>
+<p>Older runs may also leave retired DB stems or memory snapshots in the repo
+root. After archiving anything you need, these generated artifacts are safe to
+move under <code>runtime_state/</code> or delete:</p>
 <ul>
-<li><code>*.sqlite</code> / <code>*.sqlite-shm</code> / <code>*.sqlite-wal</code> / <code>*.sqlite.lock</code> at the repo root</li>
+<li><code>*_knowledge.sqlite*</code> / <code>*_runtime.sqlite*</code> at the repo root</li>
+<li>retired <code>*_docs.sqlite*</code> / <code>*_memory.sqlite*</code> / <code>*_forum.sqlite*</code> at the repo root</li>
 <li><code>memory_snapshot_*.json</code> at the repo root</li>
 </ul>
 <p>These are gitignored (both by anchored <code>/.../...</code> rules and the broader
 <code>*.sqlite*</code> / <code>*.json</code> globs) so they cannot be committed accidentally.</p>
-<p>List legacy strays without deleting them:</p>
+<p>List root-level generated artifacts without deleting them:</p>
 <div class="highlight"><pre><span></span><code>bash<span class="w"> </span>scripts/dev/clean_run_artifacts.sh
 </code></pre></div>
 <p>After archiving anything you need, delete the listed root-level DBs and memory
