@@ -1,5 +1,10 @@
 # Benchmarks
 
+Headline results, comparisons against baselines, and the interactive
+knowledge dashboards live on the
+[paper page](https://recursive-knowledge.github.io/knowledge-centric-self-improvement/) —
+this page is about *running* the reference benchmarks yourself.
+
 Reference-benchmark data roots, data-prep scripts, task maps, and run
 presets live under [`benchmarks/`](https://github.com/recursive-knowledge/KSI/tree/main/benchmarks)
 at the repo root — outside this docs site's build (`docs/`), so it's linked

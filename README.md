@@ -1,5 +1,7 @@
 # KSI — Knowledge-centric Self-Improvement
 
+[![Documentation](https://img.shields.io/badge/docs-recursive--knowledge.github.io%2FKSI-3f51b5?logo=materialformkdocs&logoColor=white)](https://recursive-knowledge.github.io/KSI/)
+
 KSI runs a population of disposable agents on **your own tasks**, each
 attempting independently inside a sandboxed container. They share what worked
 in a structured forum, and the system distills that discussion into reusable
