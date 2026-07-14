@@ -10,6 +10,7 @@ theme:
   logo: assets/logo.svg
   favicon: assets/favicon.svg
   font:
+    text: Inter
     code: Fira Code
   features:
     - navigation.tabs

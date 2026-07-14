@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" role="img" aria-label="KSI logo">
   <!-- stacked "generations" diamonds: each generation seeds the next -->
-  <path d="M24 4 41 14 24 24 7 14 24 4Z" fill="#0071e3"/>
-  <path d="M24 22 41 32 24 42 7 32 24 22Z" fill="#0071e3" opacity="0.5"/>
+  <path d="M24 4 41 14 24 24 7 14 24 4Z" fill="#c45e3b"/>
+  <path d="M24 22 41 32 24 42 7 32 24 22Z" fill="#c45e3b" opacity="0.5"/>
 </svg>
