@@ -9,6 +9,7 @@ hard requirement is missing so it can gate `scripts/quickstart.sh` and CI.
 from __future__ import annotations
 
 import argparse
+import re
 import shutil
 import sqlite3
 import subprocess
@@ -23,10 +24,36 @@ OK = "\033[32m✓\033[0m"
 FAIL = "\033[31m✗\033[0m"
 WARN = "\033[33m⚠\033[0m"
 
+_NODE_VERSION_RE = re.compile(r"^v?(\d+)\.(\d+)\.(\d+)")
+
+
+def _parse_node_version(raw: str) -> tuple[int, int, int] | None:
+    match = _NODE_VERSION_RE.match(raw.strip())
+    if match is None:
+        return None
+    return (int(match.group(1)), int(match.group(2)), int(match.group(3)))
+
+
 PROVIDERS_DIR = PROJECT_ROOT / "configs" / "kcsi"
 RUNTIME_RUNNER_DIR = PROJECT_ROOT / "runtime_runner"
 AGENT_IMAGE = "kcsi-agent:bench"
 CUSTOM_TASKS_DEMO = PROJECT_ROOT / "examples" / "custom_tasks" / "tasks.jsonl"
+DEFAULT_NODE_VERSION_PIN = "22.16.0"
+NODE_VERSION_PIN = (
+    (PROJECT_ROOT / ".nvmrc").read_text(encoding="utf-8").strip()
+    if (PROJECT_ROOT / ".nvmrc").is_file()
+    else DEFAULT_NODE_VERSION_PIN
+)
+_NODE_MIN_VERSION = _parse_node_version(NODE_VERSION_PIN)
+if _NODE_MIN_VERSION is None:
+    raise RuntimeError(f"Could not parse Node.js pin from .nvmrc: {NODE_VERSION_PIN!r}")
+NODE_MIN_VERSION = _NODE_MIN_VERSION
+NODE_MAX_MAJOR_EXCLUSIVE = 23
+NODE_ENGINE_RANGE = f">={NODE_VERSION_PIN} <{NODE_MAX_MAJOR_EXCLUSIVE}"
+
+
+def _node_version_is_supported(version: tuple[int, int, int]) -> bool:
+    return version >= NODE_MIN_VERSION and version[0] < NODE_MAX_MAJOR_EXCLUSIVE
 
 
 def _run(cmd: list[str], timeout: float = 15.0) -> tuple[int, str]:
@@ -107,10 +134,37 @@ def _check_docker(r: Report) -> None:
 
 def _check_node(r: Report) -> None:
     if not shutil.which("node"):
-        r.fail("Node.js", "not installed", "install Node.js 20+ (the host runtime needs it)")
+        r.fail(
+            "Node.js",
+            "not installed",
+            f"install Node.js {NODE_VERSION_PIN} (required: {NODE_ENGINE_RANGE})",
+        )
         return
     code, out = _run(["node", "--version"])
-    r.ok("Node.js", out.strip() if code == 0 else "")
+    raw_version = out.strip()
+    if code != 0:
+        r.fail(
+            "Node.js",
+            "version check failed",
+            f"install Node.js {NODE_VERSION_PIN} (required: {NODE_ENGINE_RANGE})",
+        )
+        return
+    version = _parse_node_version(raw_version)
+    if version is None:
+        r.fail(
+            "Node.js",
+            f"could not parse version {raw_version!r}",
+            f"install Node.js {NODE_VERSION_PIN} (required: {NODE_ENGINE_RANGE})",
+        )
+        return
+    if not _node_version_is_supported(version):
+        r.fail(
+            "Node.js",
+            f"{raw_version} unsupported (need {NODE_ENGINE_RANGE})",
+            f"install Node.js {NODE_VERSION_PIN} (repo pin in .nvmrc)",
+        )
+        return
+    r.ok("Node.js", f"{raw_version} (requires {NODE_ENGINE_RANGE})")
 
     if (RUNTIME_RUNNER_DIR / "node_modules").is_dir():
         r.ok("runtime_runner deps installed")

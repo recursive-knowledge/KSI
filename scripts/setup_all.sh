@@ -97,11 +97,27 @@ section "Checking Node.js"
 
 NODE_VERSION_FILE="$REPO_ROOT/.nvmrc"
 NODE_VERSION_PIN="$(tr -d '[:space:]' < "$NODE_VERSION_FILE")"
+NODE_MAX_MAJOR_EXCLUSIVE=23
 
-if command -v node &>/dev/null && command -v npm &>/dev/null; then
-    ok "node $(node --version), npm $(npm --version) (repo pin: $NODE_VERSION_PIN)"
-else
-    echo "    Node.js not found — installing via nvm..."
+node_version_supported() {
+    local current="${1#v}"
+    python3 - "$current" "$NODE_VERSION_PIN" "$NODE_MAX_MAJOR_EXCLUSIVE" <<'PY'
+import sys
+
+
+def parse(version: str) -> tuple[int, int, int]:
+    parts = version.split(".")
+    return (int(parts[0]), int(parts[1]), int(parts[2]))
+
+
+current = parse(sys.argv[1])
+minimum = parse(sys.argv[2])
+max_major_exclusive = int(sys.argv[3])
+raise SystemExit(0 if current >= minimum and current[0] < max_major_exclusive else 1)
+PY
+}
+
+install_node_with_nvm() {
     export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
     if [[ ! -s "$NVM_DIR/nvm.sh" ]]; then
         python3 -c "
@@ -116,6 +132,19 @@ os.chmod(dest, os.stat(dest).st_mode | stat.S_IEXEC)
     source "$NVM_DIR/nvm.sh"
     nvm install "$NODE_VERSION_PIN"
     ok "Installed node $(node --version), npm $(npm --version)"
+}
+
+if command -v node &>/dev/null && command -v npm &>/dev/null; then
+    NODE_CURRENT="$(node --version)"
+    if node_version_supported "$NODE_CURRENT"; then
+        ok "node $NODE_CURRENT, npm $(npm --version) (required: >=$NODE_VERSION_PIN <$NODE_MAX_MAJOR_EXCLUSIVE)"
+    else
+        echo "    Node.js $NODE_CURRENT unsupported (need >=$NODE_VERSION_PIN <$NODE_MAX_MAJOR_EXCLUSIVE) - installing via nvm..."
+        install_node_with_nvm
+    fi
+else
+    echo "    Node.js/npm not found - installing Node.js $NODE_VERSION_PIN via nvm..."
+    install_node_with_nvm
 fi
 
 NPM_BIN="$(command -v npm)"

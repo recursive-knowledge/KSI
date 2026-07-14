@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-# clean_run_artifacts.sh — remove local artifacts left in the repo root by past runs.
+# clean_run_artifacts.sh - remove local root-level run sidecars and old strays.
 #
-# Experiments write their knowledge/runtime SQLite DBs to the repo root and their
-# traces under results/. Both are gitignored, so they accumulate silently.
+# Benchmark wrappers and older runs may leave knowledge/runtime SQLite DBs at
+# the repo root; direct CLI defaults use runtime_state/knowledge/. Top-level
+# results/ campaign directories can also accumulate. These paths are gitignored.
 #
 # Usage:
 #   bash scripts/dev/clean_run_artifacts.sh                 # dry run (default): list, delete nothing

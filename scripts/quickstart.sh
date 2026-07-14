@@ -2,7 +2,8 @@
 # One command, fresh clone -> solved task on the bundled custom-tasks demo.
 #
 # No external dataset download and no prior setup_all.sh run needed. Given
-# Docker and Node 20+ installed (and either uv or a local `pip install -e .`),
+# Docker and Node.js 22.16.0 installed (and either uv or a local
+# `pip install -e .`),
 # this self-bootstraps everything it needs:
 #   - a provider profile, synthesized from an ambient ANTHROPIC_API_KEY /
 #     OPENAI_API_KEY if you don't already have one (like GEPA reads the key
@@ -92,7 +93,7 @@ bootstrap() {
       echo "    installing runtime_runner dependencies"
       npm --prefix runtime_runner install --legacy-peer-deps --silent
     else
-      echo "ERROR: Node.js/npm not found — install Node 20+ and re-run." >&2
+      echo "ERROR: Node.js/npm not found — install Node.js 22.16.0 and re-run." >&2
       exit 1
     fi
   fi

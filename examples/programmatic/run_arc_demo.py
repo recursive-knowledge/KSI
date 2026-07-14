@@ -1,7 +1,9 @@
 """Drive a kcsi run from Python instead of the CLI.
 
-This is the programmatic equivalent of `scripts/quickstart.sh`: it runs the
-bundled synthetic ARC demo tasks through `kcsi.run(...)`. It needs the same
+This is a programmatic ARC-format demo: it runs one bundled synthetic ARC task
+through `kcsi.run(...)`. The primary quickstart now uses
+`examples/custom_tasks/`; use `examples/custom_tasks/run.py` for the
+programmatic equivalent of that workflow. This example needs the same
 prerequisites as the CLI (Docker running, the `kcsi-agent:bench` image built,
 runtime_runner Node deps installed, and a provider API key in the environment).
 
@@ -32,7 +34,7 @@ def main() -> None:
     # 1. Load tasks (any registered task source works the same way).
     tasks = load_tasks_for_source(task_source="arc", tasks_path=DEMO_TASKS)
 
-    # 2. Configure the run (programmatic equivalent of the CLI flags).
+    # 2. Configure the run (same knobs as the CLI flags).
     config = kcsi.GenerationConfig(
         num_generations=1,
         num_agents=1,

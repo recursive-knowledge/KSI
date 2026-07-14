@@ -20,7 +20,7 @@ Verify your setup:
 
 ```bash
 uv run kcsi-doctor                 # setup readiness check
-bash scripts/quickstart.sh          # end-to-end synthetic ARC demo (no dataset download)
+bash scripts/quickstart.sh          # end-to-end custom-task demo (no dataset download)
 ```
 
 ## Develop / test / lint
