@@ -1,54 +1,68 @@
 /* ==========================================================================
-   KSI docs — Apple-style theme layer over Material.
-   Monochrome light/dark palette with a single accent (Apple's marketing
-   blue). mkdocs.yml's theme.font.code loads Fira Code; Material's
-   font-loading template also fetches Roboto as an unused side effect
-   (see the --md-text-font-family override below), so body/heading text
-   stays on the system stack while code uses Fira Code.
+   KSI docs — theme layer over Material, matched to the paper/blog page
+   (recursive-knowledge.github.io/knowledge-centric-self-improvement).
+   Warm off-white / near-black palette with a single terracotta accent, and
+   Inter as the body typeface (loaded via mkdocs.yml theme.font.text: Inter).
+   mkdocs.yml theme.font.code loads Fira Code for code spans/blocks.
+
+   Palette tokens mirror the blog's CSS custom properties so the two sites
+   read as one system:
+     accent   #c45e3b (light)  /  #e58a5f (dark)
+     bg       #faf9f5 (light)  /  #181612 (dark)
+     text     #1d1c1a (light)  /  #e9e7e2 (dark)
    ========================================================================== */
 
 :root {
-  --ksi-accent-light: #0071e3;
-  --ksi-accent-dark: #2997ff;
+  /* Interactive accent (buttons, hovers, active tabs) */
+  --ksi-accent-light: #c45e3b;
+  --ksi-accent-dark: #e58a5f;
+  /* Link text — the blog uses the darker `accent-hover` for readable body
+     links on the warm background, and the lighter tint on the dark page. */
+  --ksi-link-light: #a64a2b;
+  --ksi-link-dark: #f0a07d;
+
+  /* Warm hairline borders + surfaces, per scheme */
+  --ksi-border-light: #e7e3d8;
+  --ksi-surface-light: #f1efe7;
+  --ksi-border-dark: #2e2a22;
+  --ksi-surface-dark: #221f19;
 }
 
 :root,
 body {
-  /* mkdocs.yml's theme.font only specifies `code` (JetBrains Mono), but
-     Material's font-loading template always resolves `text` too (defaults
-     to "Roboto") whenever theme.font is truthy — that webfont gets fetched
-     but is never wanted. This override bypasses --md-text-font (which
-     Material set to "Roboto") entirely, keeping body/heading text on the
-     system font stack regardless.
+  /* theme.font.text: Inter makes Material resolve --md-text-font to "Inter".
+     Restate the full stack here so body/heading text falls back gracefully
+     to the system UI font if the Inter webfont hasn't loaded yet.
 
      IMPORTANT: this must be scoped to `body`, not just `:root` — Material's
      own compiled CSS declares this same custom property directly on the
      `body` element, and a direct declaration always wins over one merely
-     inherited from an ancestor (:root/<html>), regardless of the
-     ancestor's selector specificity. A :root-only override is silently
-     inert; verified via getComputedStyle(document.body) during this fix. */
-  --md-text-font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+     inherited from an ancestor (:root/<html>). A :root-only override is
+     silently inert. */
+  --md-text-font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 /* ---- Light scheme ("default") -------------------------------------------- */
 [data-md-color-scheme="default"] {
-  --md-primary-fg-color: #ffffff;
-  --md-primary-bg-color: #1d1d1f;
+  --md-primary-fg-color: #faf9f5;
+  --md-primary-bg-color: #1d1c1a;
   --md-accent-fg-color: var(--ksi-accent-light);
-  --md-typeset-a-color: var(--ksi-accent-light);
-  --md-default-fg-color: #1d1d1f;
-  --md-default-bg-color: #ffffff;
-  --md-code-bg-color: #f5f5f7;
+  --md-typeset-a-color: var(--ksi-link-light);
+  --md-default-fg-color: #1d1c1a;
+  --md-default-bg-color: #faf9f5;
+  --md-code-bg-color: var(--ksi-surface-light);
 }
 
 [data-md-color-scheme="default"] .md-header {
-  background: #ffffff;
-  border-bottom: 1px solid #d2d2d7;
+  background: #faf9f5;
+  color: #1d1c1a;
+  border-bottom: 1px solid var(--ksi-border-light);
 }
 
 [data-md-color-scheme="default"] .md-tabs {
   background: transparent;
-  border-bottom: 1px solid #e8e8ed;
+  color: #1d1c1a;
+  border-bottom: 1px solid var(--ksi-border-light);
 }
 
 [data-md-color-scheme="default"] .md-tabs__link--active {
@@ -58,23 +72,23 @@ body {
 
 /* ---- Dark scheme ("slate", stays the default on load) -------------------- */
 [data-md-color-scheme="slate"] {
-  --md-primary-fg-color: #000000;
-  --md-primary-bg-color: #f5f5f7;
+  --md-primary-fg-color: #181612;
+  --md-primary-bg-color: #e9e7e2;
   --md-accent-fg-color: var(--ksi-accent-dark);
-  --md-typeset-a-color: var(--ksi-accent-dark);
-  --md-default-fg-color: #f5f5f7;
-  --md-default-bg-color: #000000;
-  --md-code-bg-color: #1d1d1f;
+  --md-typeset-a-color: var(--ksi-link-dark);
+  --md-default-fg-color: #e9e7e2;
+  --md-default-bg-color: #181612;
+  --md-code-bg-color: #161614;
 }
 
 [data-md-color-scheme="slate"] .md-header {
-  background: #000000;
-  border-bottom: 1px solid #424245;
+  background: #181612;
+  border-bottom: 1px solid var(--ksi-border-dark);
 }
 
 [data-md-color-scheme="slate"] .md-tabs {
   background: transparent;
-  border-bottom: 1px solid #2c2c2e;
+  border-bottom: 1px solid var(--ksi-border-dark);
 }
 
 [data-md-color-scheme="slate"] .md-tabs__link--active {
@@ -102,10 +116,10 @@ body {
   border-radius: 8px;
 }
 [data-md-color-scheme="slate"] .md-typeset pre > code {
-  border: 1px solid #2c2c2e;
+  border: 1px solid var(--ksi-border-dark);
 }
 [data-md-color-scheme="default"] .md-typeset pre > code {
-  border: 1px solid #e8e8ed;
+  border: 1px solid var(--ksi-border-light);
 }
 
 /* ---- Data tables ----------------------------------------------------------- */
@@ -119,29 +133,29 @@ body {
   overflow: hidden;
 }
 [data-md-color-scheme="slate"] .md-typeset table:not([class]) {
-  border: 1px solid #2c2c2e;
+  border: 1px solid var(--ksi-border-dark);
 }
 [data-md-color-scheme="default"] .md-typeset table:not([class]) {
-  border: 1px solid #e8e8ed;
+  border: 1px solid var(--ksi-border-light);
 }
 
 .md-typeset table:not([class]) th {
   font-weight: 600;
 }
 [data-md-color-scheme="slate"] .md-typeset table:not([class]) th {
-  background: #1d1d1f;
+  background: var(--ksi-surface-dark);
 }
 [data-md-color-scheme="default"] .md-typeset table:not([class]) th {
-  background: #f5f5f7;
+  background: var(--ksi-surface-light);
 }
 
 /* Hairline row separators in the scheme border color; drop the trailing rule
    so it doesn't double up against the rounded outer border. */
 [data-md-color-scheme="slate"] .md-typeset table:not([class]) td {
-  border-top: 1px solid #2c2c2e;
+  border-top: 1px solid var(--ksi-border-dark);
 }
 [data-md-color-scheme="default"] .md-typeset table:not([class]) td {
-  border-top: 1px solid #e8e8ed;
+  border-top: 1px solid var(--ksi-border-light);
 }
 .md-typeset table:not([class]) tr:last-child td {
   border-bottom: 0;
@@ -184,32 +198,32 @@ body {
   padding: 0.6rem 1.4rem;
 }
 
-/* Primary CTA: solid accent fill, Apple's pill-button convention */
+/* Primary CTA: solid accent fill, pill-button convention (matches the blog) */
 [data-md-color-scheme="default"] .ksi-cta .md-button--primary {
   background: var(--ksi-accent-light);
   border-color: transparent;
   color: #ffffff;
 }
 [data-md-color-scheme="default"] .ksi-cta .md-button--primary:hover {
-  background: #0077ed;
+  background: var(--ksi-link-light);
 }
 [data-md-color-scheme="slate"] .ksi-cta .md-button--primary {
   background: var(--ksi-accent-dark);
   border-color: transparent;
-  color: #000000;
+  color: #181612;
 }
 [data-md-color-scheme="slate"] .ksi-cta .md-button--primary:hover {
-  background: #45a8ff;
+  background: var(--ksi-link-dark);
 }
 
 /* Secondary CTA: hairline outline, no fill */
 [data-md-color-scheme="default"] .ksi-cta .md-button:not(.md-button--primary) {
-  border-color: #d2d2d7;
-  color: #1d1d1f;
+  border-color: var(--ksi-border-light);
+  color: #1d1c1a;
 }
 [data-md-color-scheme="slate"] .ksi-cta .md-button:not(.md-button--primary) {
-  border-color: #424245;
-  color: #f5f5f7;
+  border-color: var(--ksi-border-dark);
+  color: #e9e7e2;
 }
 
 /* ==========================================================================
@@ -222,17 +236,17 @@ body {
 }
 
 [data-md-color-scheme="default"] .md-typeset .grid.cards > ul > li {
-  background: #f5f5f7;
-  border: 1px solid #d2d2d7;
+  background: var(--ksi-surface-light);
+  border: 1px solid var(--ksi-border-light);
 }
 [data-md-color-scheme="slate"] .md-typeset .grid.cards > ul > li {
-  background: #1d1d1f;
-  border: 1px solid #424245;
+  background: var(--ksi-surface-dark);
+  border: 1px solid var(--ksi-border-dark);
 }
 
 .md-typeset .grid.cards > ul > li:hover {
   transform: translateY(-4px);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 10px 24px rgba(60, 40, 20, 0.12);
 }
 [data-md-color-scheme="slate"] .md-typeset .grid.cards > ul > li:hover {
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
@@ -274,7 +288,7 @@ body {
   height: 1.9rem;
   padding: 0;
   border-radius: 8px;
-  border: 1px solid var(--md-default-fg-color--lightest, #d2d2d7);
+  border: 1px solid var(--md-default-fg-color--lightest, #e7e3d8);
   background: var(--md-default-bg-color);
   color: var(--md-default-fg-color--light, currentColor);
   cursor: pointer;
@@ -320,7 +334,7 @@ body.mermaid-zoom-lock {
   height: 2.2rem;
   padding: 0 0.7rem;
   border-radius: 8px;
-  border: 1px solid var(--md-default-fg-color--lightest, #d2d2d7);
+  border: 1px solid var(--md-default-fg-color--lightest, #e7e3d8);
   background: var(--md-default-bg-color);
   color: var(--md-default-fg-color);
   font-size: 0.9rem;
