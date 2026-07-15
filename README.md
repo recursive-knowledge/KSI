@@ -1,7 +1,10 @@
 # KSI — Knowledge-centric Self-Improvement
 
-[![Documentation](https://img.shields.io/badge/docs-recursive--knowledge.github.io%2FKSI-3f51b5?logo=materialformkdocs&logoColor=white)](https://recursive-knowledge.github.io/KSI/)
-[![Blog / paper page](https://img.shields.io/badge/blog-Knowledge--Centric_Self--Improvement-c45e3b?logo=githubpages&logoColor=white)](https://recursive-knowledge.github.io/knowledge-centric-self-improvement/)
+[![CI](https://github.com/recursive-knowledge/KSI/actions/workflows/ci.yml/badge.svg)](https://github.com/recursive-knowledge/KSI/actions/workflows/ci.yml)
+[![Docs](https://img.shields.io/badge/docs-site-3f51b5?logo=materialformkdocs&logoColor=white)](https://recursive-knowledge.github.io/KSI/)
+[![Blog](https://img.shields.io/badge/blog-paper_page-c45e3b?logo=githubpages&logoColor=white)](https://recursive-knowledge.github.io/knowledge-centric-self-improvement/)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue)](./LICENSE)
+[![Python](https://img.shields.io/badge/python-3.12%2B-blue?logo=python&logoColor=white)](./pyproject.toml)
 
 KSI runs a population of disposable agents on **your own tasks**, each
 attempting independently inside a sandboxed container. They share what worked
