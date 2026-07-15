@@ -49,6 +49,16 @@ knowledge, and seeds the next generation with it.
 
     [:octicons-arrow-right-24: Browse the FAQ](faq.md)
 
+-   :material-language-python:{ .lg } &nbsp; **Programmatic API**
+
+    ---
+
+    Drive a run from Python with `ksi.run(...)` — plus
+    [larger runs](experiments.md) and the
+    [API reference](reference/api.md).
+
+    [:octicons-arrow-right-24: API guide](programmatic_api.md)
+
 -   :material-sitemap:{ .lg } &nbsp; **Architecture**
 
     ---
@@ -57,46 +67,32 @@ knowledge, and seeds the next generation with it.
 
     [:octicons-arrow-right-24: Read the overview](architecture.md)
 
--   :material-school:{ .lg } &nbsp; **Improvement strategies**
+-   :material-puzzle:{ .lg } &nbsp; **Extending KSI**
 
     ---
 
-    The forum / distill / seed loop, and how to select a strategy.
-
-    [:octicons-arrow-right-24: Learn the loop](improvement_strategies.md)
-
--   :material-flask:{ .lg } &nbsp; **Running larger runs**
-
-    ---
-
-    The canonical CLI launch surface, plus the flags that matter once you
-    scale up.
-
-    [:octicons-arrow-right-24: Run experiments](experiments.md)
-
--   :material-puzzle:{ .lg } &nbsp; **Extension seams**
-
-    ---
-
-    The four `register_*` entry points and the spec dataclasses.
+    The four `register_*` extension seams, adding benchmarks and
+    evaluators, and the [improvement strategies](improvement_strategies.md).
 
     [:octicons-arrow-right-24: Extend KSI](extending.md)
 
--   :material-language-python:{ .lg } &nbsp; **Programmatic API**
+-   :material-book-open-variant:{ .lg } &nbsp; **Reference**
 
     ---
 
-    Drive a run from Python with `ksi.run(...)`.
+    The [glossary](glossary.md), [artifacts & cleanup](artifacts.md), and
+    runtime startup performance notes.
 
-    [:octicons-arrow-right-24: API guide](programmatic_api.md)
+    [:octicons-arrow-right-24: Browse the reference](glossary.md)
 
--   :material-book-open-variant:{ .lg } &nbsp; **Python API reference**
+-   :material-chart-bar:{ .lg } &nbsp; **Benchmarks**
 
     ---
 
-    Auto-generated from docstrings for the public surface.
+    Run the reference benchmarks yourself — data prep, task maps, and
+    run presets.
 
-    [:octicons-arrow-right-24: Browse the reference](reference/api.md)
+    [:octicons-arrow-right-24: See benchmarks](benchmarks.md)
 
 </div>
 
