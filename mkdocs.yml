@@ -87,6 +87,7 @@ nav:
       - getting-started.md
       - Contributing: CONTRIBUTING.md
   - Your own tasks: your_own_tasks.md
+  - FAQ: faq.md
   - Programmatic API:
       - programmatic_api.md
       - Running larger runs: experiments.md
@@ -98,7 +99,6 @@ nav:
       - Add an evaluator / runtime: adding_an_evaluator.md
       - Improvement strategies: improvement_strategies.md
   - Reference:
-      - FAQ: faq.md
       - Glossary: glossary.md
       - Artifacts & cleanup: artifacts.md
       - Runtime startup performance: runtime-startup-performance.md
