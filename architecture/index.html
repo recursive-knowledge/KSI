@@ -415,7 +415,7 @@
   
     
   
-  Paper ↗
+  Blog ↗
 
       </a>
     </li>
@@ -1404,7 +1404,7 @@
   <span class="md-ellipsis">
     
   
-    Paper ↗
+    Blog ↗
   
 
     
@@ -1607,7 +1607,8 @@ OpenAI models run through the same container runtime with
 <code>MODEL_PROVIDER=openai</code> in the provider profile (the former <code>--runtime openai</code>
 compatibility alias was removed).</p>
 <p>Component map:</p>
-<pre class="mermaid"><code>flowchart LR
+<pre class="mermaid"><code>%%{init: {"flowchart": {"useMaxWidth": false}}}%%
+flowchart LR
     subgraph Control["Python control plane"]
         CLI["ksi.cli&lt;br/&gt;uv run python -m ksi.cli"]
         Loader["tasks.loaders&lt;br/&gt;arc / swebench_pro / polyglot / terminal_bench_2"]
@@ -1660,7 +1661,8 @@ agent-scoped sessions.</p>
 <h2 id="2-attempt-runtime-lifecycle">2. Attempt Runtime Lifecycle<a class="headerlink" href="#2-attempt-runtime-lifecycle" title="Permanent link">&para;</a></h2>
 <p>One task attempt moves through these components, in three stages:</p>
 <p><strong>Dispatch</strong> — the host builds the payload and launches the container:</p>
-<pre class="mermaid"><code>sequenceDiagram
+<pre class="mermaid"><code>%%{init: {"sequence": {"useMaxWidth": false}}}%%
+sequenceDiagram
     participant Eng as engine.py
     participant Host as container_host.py
     participant Main as main.ts
@@ -1674,7 +1676,8 @@ agent-scoped sessions.</p>
     CR-&gt;&gt;Dock: docker run ksi-agent:bench with mounted DB/snapshot files</code></pre>
 <p><strong>In-container execution</strong> — the agent runs, backed by MCP tools and the
 provider SDK:</p>
-<pre class="mermaid"><code>sequenceDiagram
+<pre class="mermaid"><code>%%{init: {"sequence": {"useMaxWidth": false}}}%%
+sequenceDiagram
     participant Dock as Docker container
     participant AR as agent-runner
     participant MCP as mcp_server.py
@@ -1687,7 +1690,8 @@ provider SDK:</p>
 <p><strong>Result path and scoring</strong> — continuing from the agent-runner's final
 status above, the envelope travels back up the host stack to be scored and
 persisted:</p>
-<pre class="mermaid"><code>sequenceDiagram
+<pre class="mermaid"><code>%%{init: {"sequence": {"useMaxWidth": false}}}%%
+sequenceDiagram
     participant AR as agent-runner
     participant Main as main.ts
     participant Host as container_host.py
@@ -1718,7 +1722,8 @@ directory) under <code>/app/memory-db</code> so <code>arc_load_task</code> still
 <p>The in-container runner emits a JSON envelope. When the envelope is parseable,
 the envelope status and host normalization are more informative than the Docker
 exit code.</p>
-<pre class="mermaid"><code>flowchart TB
+<pre class="mermaid"><code>%%{init: {"flowchart": {"useMaxWidth": false}}}%%
+flowchart TB
     Runner["agent-runner envelope&lt;br/&gt;success / error / recovered_from_session"]
     Host{"host parse + normalize"}
     Activity{"success has output,&lt;br/&gt;tokens, or tool calls?"}
@@ -1773,7 +1778,8 @@ event, a per-turn sum, session recovery, or were unavailable.</p>
 <h2 id="4-generation-knowledge-loop">4. Generation Knowledge Loop<a class="headerlink" href="#4-generation-knowledge-loop" title="Permanent link">&para;</a></h2>
 <p>The generation loop has more control flow than a simple five-step chain:</p>
 <p>Generation control flow:</p>
-<pre class="mermaid"><code>flowchart TB
+<pre class="mermaid"><code>%%{init: {"flowchart": {"useMaxWidth": false}}}%%
+flowchart TB
     Start["Start generation N"]
     Claim["Claim / assign tasks&lt;br/&gt;deterministic population strategy"]
     Enrich["Enrich seed packages&lt;br/&gt;prior attempts + distilled bundles"]
@@ -1845,7 +1851,8 @@ those mechanisms entirely.</p>
 sets the optional runtime audit DB. If omitted, the runtime DB is derived as a
 <code>&lt;stem&gt;_runtime.sqlite</code> sidecar from the knowledge DB path; <code>--no-runtime-db</code>
 disables the sidecar. <code>--memory-db-path</code> has been removed.</p>
-<pre class="mermaid"><code>flowchart LR
+<pre class="mermaid"><code>%%{init: {"flowchart": {"useMaxWidth": false}}}%%
+flowchart LR
     Engine["orchestrator.engine"]
     MCP["mcp_server.py"]
     Persist["SqlitePersistence&lt;br/&gt;+ token accumulator"]

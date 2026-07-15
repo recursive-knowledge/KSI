@@ -269,6 +269,16 @@ body {
 /* ==========================================================================
    Mermaid diagram zoom (see javascripts/mermaid-zoom.js)
    ========================================================================== */
+/* Render diagrams at their native, readable size (the fences set
+   useMaxWidth:false) and let wide ones scroll horizontally inside their own box.
+   Previously Material capped every diagram at the content-column width, so wide
+   flowcharts/sequence diagrams were scaled down until the label text was
+   unreadable. */
+.md-typeset .mermaid {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
 /* Host the expand button in the top-right of each rendered diagram. */
 .md-typeset .mermaid.mermaid-zoomable {
   position: relative;
