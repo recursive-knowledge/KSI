@@ -16,7 +16,7 @@ knowledge, and seeds the next generation with it.
 
 <div class="ksi-cta" markdown>
 [Get started :material-arrow-right:](getting-started.md){ .md-button .md-button--primary }
-[Paper](https://recursive-knowledge.github.io/knowledge-centric-self-improvement/){ .md-button }
+[Blog](https://recursive-knowledge.github.io/knowledge-centric-self-improvement/){ .md-button }
 [GitHub](https://github.com/recursive-knowledge/KSI){ .md-button }
 </div>
 
