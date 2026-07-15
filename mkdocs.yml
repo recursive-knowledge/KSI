@@ -8,7 +8,7 @@ docs_dir: docs
 theme:
   name: material
   logo: assets/logo.svg
-  favicon: assets/favicon.svg
+  favicon: assets/favicon-v2.svg
   font:
     text: Inter
     code: Fira Code
