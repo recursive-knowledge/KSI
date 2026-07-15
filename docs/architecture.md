@@ -16,6 +16,7 @@ compatibility alias was removed).
 Component map:
 
 ```mermaid
+%%{init: {"flowchart": {"useMaxWidth": false}}}%%
 flowchart LR
     subgraph Control["Python control plane"]
         CLI["ksi.cli<br/>uv run python -m ksi.cli"]
@@ -76,6 +77,7 @@ One task attempt moves through these components, in three stages:
 **Dispatch** — the host builds the payload and launches the container:
 
 ```mermaid
+%%{init: {"sequence": {"useMaxWidth": false}}}%%
 sequenceDiagram
     participant Eng as engine.py
     participant Host as container_host.py
@@ -94,6 +96,7 @@ sequenceDiagram
 provider SDK:
 
 ```mermaid
+%%{init: {"sequence": {"useMaxWidth": false}}}%%
 sequenceDiagram
     participant Dock as Docker container
     participant AR as agent-runner
@@ -111,6 +114,7 @@ status above, the envelope travels back up the host stack to be scored and
 persisted:
 
 ```mermaid
+%%{init: {"sequence": {"useMaxWidth": false}}}%%
 sequenceDiagram
     participant AR as agent-runner
     participant Main as main.ts
@@ -149,6 +153,7 @@ the envelope status and host normalization are more informative than the Docker
 exit code.
 
 ```mermaid
+%%{init: {"flowchart": {"useMaxWidth": false}}}%%
 flowchart TB
     Runner["agent-runner envelope<br/>success / error / recovered_from_session"]
     Host{"host parse + normalize"}
@@ -188,6 +193,7 @@ The generation loop has more control flow than a simple five-step chain:
 Generation control flow:
 
 ```mermaid
+%%{init: {"flowchart": {"useMaxWidth": false}}}%%
 flowchart TB
     Start["Start generation N"]
     Claim["Claim / assign tasks<br/>deterministic population strategy"]
@@ -251,6 +257,7 @@ sets the optional runtime audit DB. If omitted, the runtime DB is derived as a
 disables the sidecar. `--memory-db-path` has been removed.
 
 ```mermaid
+%%{init: {"flowchart": {"useMaxWidth": false}}}%%
 flowchart LR
     Engine["orchestrator.engine"]
     MCP["mcp_server.py"]
