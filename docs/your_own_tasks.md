@@ -7,6 +7,9 @@ file, and each record becomes one attempt.
 
 ## Record schema
 
+Only `task_id` and `prompt` are required. Add an `eval` command to score the
+attempt, and `files` (or `workspace_dir`) to hand the agent starting files:
+
 ```jsonc
 {
   "task_id": "my-task-1",                     // required, unique
@@ -36,25 +39,23 @@ starts the agent from an empty `repo/`.
 ## The workspace / `repo/` contract
 
 Whichever way you supply starting files, KSI seeds them into the agent's
-workspace under a `repo/` directory before the attempt starts (the same seam
-the benchmark task sources use). The agent is told in its prompt that
-`repo/` holds the task's starting files and that it should create or edit
-files there. After the attempt, the `command` evaluator (below) runs in a
-post-attempt copy of that same directory.
+workspace under a `repo/` directory before the attempt starts. The agent's
+prompt tells it that `repo/` holds the task's starting files and that it should
+create or edit files there. After the attempt, the `command` evaluator (below)
+runs against a copy of that same directory.
 
-**Known limitation — workspace capture is capped at 12 files.** By default
-KSI wipes the container workspace after each task
-(`--wipe-workspace-per-task true`), so grading runs against a *captured* copy
-of `repo/` rather than the live container filesystem. For a generic (non
--benchmark) task source, that capture channel reads back at most 12 files
-from the workspace, skipping anything named `score.json` or containing
-`test` in its filename (plus `.pyc`/`__pycache__` noise and any single file
-over 1 MB); a solution spread across more than 12 files silently
-loses the extras from this channel. This is fine for small, self-contained
-tasks (a script or two). For a larger multi-file solution, either point
-`--wipe-workspace-per-task false` at your run so the evaluator sees the live
-on-disk workspace instead, or design the eval command to check for what
-matters rather than relying on every generated file surviving capture.
+**Known limitation — workspace capture is capped at 12 files.** By default KSI
+wipes the container workspace after each task (`--wipe-workspace-per-task true`),
+so grading runs against a *captured* copy of `repo/`, not the live container
+filesystem. For a custom (non-benchmark) task, that capture reads back at most
+**12 files** and skips anything named `score.json`, anything with `test` in its
+filename, `.pyc`/`__pycache__` noise, and any single file over 1 MB. A solution
+spread across more files silently loses the extras.
+
+This is fine for small, self-contained tasks (a script or two). For a larger
+multi-file solution, either pass `--wipe-workspace-per-task false` so the
+evaluator grades the live on-disk workspace, or write the eval command to check
+what matters rather than relying on every generated file surviving capture.
 
 Note that `--wipe-workspace-per-task false` also bypasses the capture-path
 anti-tamper filtering: with the live workspace graded directly, an agent
