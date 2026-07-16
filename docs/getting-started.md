@@ -70,11 +70,11 @@ The direct CLI defaults traces to `analysis/traces/<experiment>/`; set
 `KSI_TRACE_DIR` before launching if your environment needs a different trace
 root.
 
-Here's a real excerpt (trimmed of full timestamps) from an actual quickstart run against
-`claude-haiku-4-5-20251001` (the `configs/ksi/.env.haiku` profile the quickstart synthesizes by
-default) — task names, `solved=3/3`, and the `[tokens]` line's fields are stable across runs, but
-elapsed times and token counts are not, since they depend on the model and how the agent solves
-each task:
+Here's a real excerpt from a quickstart run against `claude-haiku-4-5-20251001`
+(the default `configs/ksi/.env.haiku` profile), with timestamps trimmed. The task
+names, `solved=3/3`, and the `[tokens]` fields stay the same across runs; the
+elapsed times and token counts won't, since they depend on the model and how the
+agent solves each task:
 
 ```text
 INFO ksi.orchestrator.execution_phase: [gen 1] task=reverse-words agent=agent-1 done elapsed=27.4s score=1.0000
@@ -85,10 +85,10 @@ INFO ksi.orchestrator.persistence: [tokens] total=418,329 cached_input=346,149 u
 ```
 
 **Knowledge DB check** — every solved attempt writes an `entry_type='attempt'`
-row alongside an `insight` row; with `--per-task-forum-rounds 0
---cross-task-forum-rounds 0` (the quickstart's defaults, for speed) there are
-no discussion posts, and with nothing unsolved and no cross-task posts in
-this single-generation run, distillation has nothing to write either:
+row plus an `insight` row. The quickstart turns off both forums for speed
+(`--per-task-forum-rounds 0 --cross-task-forum-rounds 0`), so there are no
+discussion posts — and with nothing unsolved in this single-generation run,
+distillation has nothing to write either:
 
 ```console
 $ sqlite3 runtime_state/knowledge/quickstart_demo/quickstart_demo_knowledge.sqlite \

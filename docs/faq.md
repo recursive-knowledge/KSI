@@ -5,37 +5,40 @@ Common questions about KSI — from first-time setup through research use.
 ## What is KSI in one sentence?
 
 KSI (Knowledge-centric Self-Improvement) is a benchmark framework that treats
-agents as disposable workers and keeps improvement in a persistent shared
-knowledge substrate rather than in any individual agent's memory or identity.
-Transient agents run in sandboxed Docker containers, write attempts and forum
-posts to SQLite-backed knowledge stores, distill reusable guidance, and seed
-later generations from those distilled bundles.
+agents as disposable workers and keeps improvement in a shared knowledge store
+rather than in any single agent's memory.
+
+Under the hood: agents run in sandboxed Docker containers, write their attempts
+and forum posts to SQLite knowledge stores, distill what worked into reusable
+guidance, and seed later generations from it.
 
 ## What problem does it solve — when should I use it?
 
-KSI addresses the question of where improvement should live in an agentic
-system. Its core thesis is that improvement should reside in durable shared
-knowledge rather than in any individual agent; that an agent's workstream
-should be an on-demand capability, not a persistent identity; and that the
-resulting knowledge should be model-agnostic and transferable across model
-families and new tasks. Use it when you want to study or deploy self-improving
-agents on structured benchmarks (coding, reasoning, dialogue) and need a
-principled, reproducible substrate for that improvement.
+KSI answers a design question: where should an agent system's improvement live?
+Its bet is that improvement belongs in durable, shared knowledge — not in any
+single agent — so it stays model-agnostic and transfers across model families
+and new tasks. Reach for it when you want to study or run self-improving agents
+on structured benchmarks (coding, reasoning, dialogue) and need a reproducible
+place for that improvement to accumulate.
 
 ## When should I NOT use this?
 
 KSI's overhead — Docker sandboxing, a SQLite knowledge substrate, multi-phase
 forum/distill/seed generations — pays off when you're studying or running
 *multiple generations of self-improvement across a task population*. It's
-probably the wrong tool if any of these apply: you need a single agent to
-solve one task right now with no multi-run learning loop (a plain agent call
-is simpler and faster); you don't have Docker available or can't run
-containers in your environment; you need sub-second iteration on prompt/tool
-changes (each attempt is a full containerized run); or your benchmark doesn't
-fit the task/evaluator model (a `TaskSpec` in, an `EvalResult` out — see
-[programmatic_api.md](programmatic_api.md)) and adapting it isn't worth the
-investment. If you're unsure, the Quickstart in the README costs one Docker
-image build and a few cents of API usage to try.
+probably the wrong tool if:
+
+- you just need one agent to solve one task right now, with no learning loop (a
+  plain agent call is simpler and faster);
+- you can't run Docker containers in your environment;
+- you need sub-second iteration on prompt/tool changes (each attempt is a full
+  containerized run); or
+- your benchmark doesn't fit the task/evaluator model (a `TaskSpec` in, an
+  `EvalResult` out — see [programmatic_api.md](programmatic_api.md)) and adapting
+  it isn't worth the effort.
+
+If you're unsure, the Quickstart in the README costs one Docker image build and
+a few cents of API usage to try.
 
 ## How is this different from just running an agent in a loop?
 

@@ -9,9 +9,9 @@ hide:
 # Knowledge-centric Self-Improvement
 
 <p class="ksi-tagline">
-A generational orchestration framework: a population of disposable agents
-attempts **your own tasks**, discusses what worked, distills transferable
-knowledge, and seeds the next generation with it.
+A population of disposable agents attempts **your own tasks**, compares notes
+on what worked, distills the lessons into reusable knowledge, and seeds the
+next generation with it.
 </p>
 
 <div class="ksi-cta" markdown>
@@ -36,8 +36,7 @@ knowledge, and seeds the next generation with it.
 
     ---
 
-    Point KSI at any JSON/JSONL file of tasks — the record schema and the
-    `command` evaluator's scoring contract.
+    Point KSI at any JSON/JSONL file of tasks — no dataset or loader code needed.
 
     [:octicons-arrow-right-24: Bring your own tasks](your_own_tasks.md)
 
@@ -71,8 +70,9 @@ knowledge, and seeds the next generation with it.
 
     ---
 
-    The four `register_*` extension seams, adding benchmarks and
-    evaluators, and the [improvement strategies](improvement_strategies.md).
+    Add a benchmark, evaluator, runtime, or
+    [improvement strategy](improvement_strategies.md) — one `register_*` call
+    each, no core edits.
 
     [:octicons-arrow-right-24: Extend KSI](extending.md)
 
