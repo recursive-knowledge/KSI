@@ -1566,11 +1566,11 @@ summary written to disk.</p>
 <p>The direct CLI defaults traces to <code>analysis/traces/&lt;experiment&gt;/</code>; set
 <code>KSI_TRACE_DIR</code> before launching if your environment needs a different trace
 root.</p>
-<p>Here's a real excerpt (trimmed of full timestamps) from an actual quickstart run against
-<code>claude-haiku-4-5-20251001</code> (the <code>configs/ksi/.env.haiku</code> profile the quickstart synthesizes by
-default) — task names, <code>solved=3/3</code>, and the <code>[tokens]</code> line's fields are stable across runs, but
-elapsed times and token counts are not, since they depend on the model and how the agent solves
-each task:</p>
+<p>Here's a real excerpt from a quickstart run against <code>claude-haiku-4-5-20251001</code>
+(the default <code>configs/ksi/.env.haiku</code> profile), with timestamps trimmed. The task
+names, <code>solved=3/3</code>, and the <code>[tokens]</code> fields stay the same across runs; the
+elapsed times and token counts won't, since they depend on the model and how the
+agent solves each task:</p>
 <div class="highlight"><pre><span></span><code>INFO ksi.orchestrator.execution_phase: [gen 1] task=reverse-words agent=agent-1 done elapsed=27.4s score=1.0000
 INFO ksi.orchestrator.execution_phase: [gen 1] task=fizzbuzz agent=agent-0 done elapsed=28.1s score=1.0000
 INFO ksi.orchestrator.execution_phase: [gen 1] task=anagram-groups agent=agent-2 done elapsed=33.0s score=1.0000
@@ -1578,10 +1578,10 @@ INFO ksi.orchestrator.engine: completed traces=3 tasks=3 solved=3/3 (100.0%)
 INFO ksi.orchestrator.persistence: [tokens] total=418,329 cached_input=346,149 uncached_input=9,129 output=5,090 cache_create=57,961
 </code></pre></div>
 <p><strong>Knowledge DB check</strong> — every solved attempt writes an <code>entry_type='attempt'</code>
-row alongside an <code>insight</code> row; with <code>--per-task-forum-rounds 0
---cross-task-forum-rounds 0</code> (the quickstart's defaults, for speed) there are
-no discussion posts, and with nothing unsolved and no cross-task posts in
-this single-generation run, distillation has nothing to write either:</p>
+row plus an <code>insight</code> row. The quickstart turns off both forums for speed
+(<code>--per-task-forum-rounds 0 --cross-task-forum-rounds 0</code>), so there are no
+discussion posts — and with nothing unsolved in this single-generation run,
+distillation has nothing to write either:</p>
 <div class="highlight"><pre><span></span><code><span class="gp">$ </span>sqlite3<span class="w"> </span>runtime_state/knowledge/quickstart_demo/quickstart_demo_knowledge.sqlite<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span><span class="s2">&quot;select entry_type, source_phase, count(*) from knowledge group by entry_type, source_phase order by entry_type, source_phase;&quot;</span>
 <span class="go">attempt|execution|3</span>
