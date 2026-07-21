@@ -1,10 +1,22 @@
+<div align="center">
+
+<img src="docs/assets/logo.svg" alt="KSI" width="120"/>
+
 # KSI — Knowledge-centric Self-Improvement
 
-[![CI](https://github.com/recursive-knowledge/KSI/actions/workflows/ci.yml/badge.svg)](https://github.com/recursive-knowledge/KSI/actions/workflows/ci.yml)
-[![Docs](https://img.shields.io/badge/docs-site-3f51b5?logo=materialformkdocs&logoColor=white)](https://recursive-knowledge.github.io/KSI/)
-[![Blog](https://img.shields.io/badge/blog-paper_page-c45e3b?logo=githubpages&logoColor=white)](https://recursive-knowledge.github.io/knowledge-centric-self-improvement/)
-[![License](https://img.shields.io/badge/license-Apache--2.0-blue)](./LICENSE)
-[![Python](https://img.shields.io/badge/python-3.12%2B-blue?logo=python&logoColor=white)](./pyproject.toml)
+### *Disposable agents attempt your tasks, share what worked, and distill knowledge that seeds the next generation.*
+
+<p>
+  <a href="https://github.com/recursive-knowledge/KSI/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/recursive-knowledge/KSI/ci.yml?style=for-the-badge&label=CI&logo=githubactions&logoColor=white"></a>
+  <a href="https://recursive-knowledge.github.io/KSI/"><img alt="Docs" src="https://img.shields.io/badge/Docs-Site-3f51b5?style=for-the-badge&logo=materialformkdocs&logoColor=white"></a>
+  <a href="https://recursive-knowledge.github.io/knowledge-centric-self-improvement/"><img alt="Blog" src="https://img.shields.io/badge/Blog-Paper_Page-c45e3b?style=for-the-badge&logo=githubpages&logoColor=white"></a>
+  <a href="./LICENSE"><img alt="License" src="https://img.shields.io/badge/License-Apache--2.0-blue?style=for-the-badge"></a>
+  <a href="./pyproject.toml"><img alt="Python" src="https://img.shields.io/badge/Python-3.12%2B-3776AB?style=for-the-badge&logo=python&logoColor=white"></a>
+</p>
+
+</div>
+
+---
 
 KSI runs a population of disposable agents on **your own tasks**, each working
 independently in a sandboxed container. They compare notes on what worked in a
