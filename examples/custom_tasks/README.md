@@ -36,6 +36,12 @@ KSI at. Do not run a custom tasks file you don't trust.
 
 ## Run it
 
+First create a provider profile from a template (once):
+
+```bash
+cp configs/ksi/.env.haiku.template configs/ksi/.env.haiku   # then set your API key
+```
+
 CLI form:
 
 ```bash
@@ -48,8 +54,8 @@ Programmatic form:
 uv run python examples/custom_tasks/run.py
 ```
 
-Both need Docker running, the `ksi-agent:bench` image built, and a
-provider profile with a real API key (see `configs/ksi/*.template`).
+Both need Docker running, Node.js (>=22.16.0 <23), the `ksi-agent:bench` image
+built, and a provider profile with a real API key (see `configs/ksi/*.template`).
 
 ## Expected output
 

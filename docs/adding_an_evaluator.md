@@ -9,7 +9,7 @@ An evaluator implements the `Evaluator` protocol (`src/ksi/protocols.py`):
 
 ```python
 class Evaluator(Protocol):
-    def evaluate(self, *, task: TaskSpec, model_output: str, **kwargs: Any) -> EvalResult: ...
+    def evaluate(self, *, task: TaskSpec, model_output: str, **kwargs: Any) -> dict[str, Any]: ...
 ```
 
 `EvalResult` is a `TypedDict` (`src/ksi/models.py`, exported from `ksi`), so

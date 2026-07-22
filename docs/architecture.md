@@ -141,10 +141,10 @@ subdirectory mount, gated to forum-phase task sources only. The MCP server
 selects the SQLite filename from the payload/environment and uses that file
 as the authoritative knowledge substrate.
 
-ARC tools are independent from memory tools. `arc_tools` is emitted even when
-`--no-memory` or `--disable-memory-mcp` removes agent-facing knowledge tools,
-and the TypeScript runner mounts the ARC snapshot file itself (not its
-directory) under `/app/memory-db` so `arc_load_task` still works.
+ARC runs natively for every provider — it neither mounts an ARC snapshot nor
+registers an ARC MCP server. The agent reads `payload.json` from its workspace
+and writes attempt files with native file tools; the host synthesizes the
+`arc_submit_trial` trace after the container exits.
 
 ## 3. Runtime Status And Normalization
 
@@ -394,8 +394,9 @@ Provider configuration is loaded from `configs/ksi/*.env` files and
 normalized by `src/ksi/providers.py`.
 
 - Claude task execution defaults to the Claude Code SDK path in
-  `agent-runner/src/index.ts`. Scheduled ARC and forum tasks can use direct
-  Anthropic adapters unless configured back to the Claude Code path.
+  `agent-runner/src/index.ts`, which also serves ARC natively. Scheduled forum
+  tasks can use a direct Anthropic adapter unless configured back to the Claude
+  Code path.
 - OpenAI task execution uses `@openai/agents` in `agent-runner/src/openai.ts`.
 - Host-side reflection, lesson extraction, and distillation use
   `src/ksi/runtime/llm.py`, which wraps the Python Anthropic SDK or OpenAI
