@@ -85,23 +85,23 @@ nav:
   - Home: index.md
   - Getting started:
       - getting-started.md
-      - Contributing: CONTRIBUTING.md
-  - Your own tasks: your_own_tasks.md
+      - Your own tasks: your_own_tasks.md
+      - Running larger runs: experiments.md
+  - Benchmarks: benchmarks.md
   - FAQ: faq.md
   - Programmatic API:
       - programmatic_api.md
-      - Running larger runs: experiments.md
       - Python API reference: reference/api.md
   - Architecture: architecture.md
   - Extending KSI:
       - Extension seams: extending.md
       - Add a benchmark / task source: adding_a_benchmark.md
       - Add an evaluator / runtime: adding_an_evaluator.md
-      - Open-source & self-hosted models: open_source_models.md
       - Improvement strategies: improvement_strategies.md
+      - Open-source & self-hosted models: open_source_models.md
+      - Contributing: CONTRIBUTING.md
   - Reference:
       - Glossary: glossary.md
       - Artifacts & cleanup: artifacts.md
       - Runtime startup performance: runtime-startup-performance.md
-  - Benchmarks: benchmarks.md
   - Blog ↗: https://recursive-knowledge.github.io/knowledge-centric-self-improvement/
