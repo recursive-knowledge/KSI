@@ -83,8 +83,8 @@ Copy the template for your provider, fill in your key, and pass the path with
 Every run makes real LLM API calls billed to the key in your provider profile;
 there is no built-in spending cap. Cost scales with the number of tasks,
 generations, and the model you choose. To get a feel before committing,
-start with the bundled synthetic demo: `bash scripts/quickstart.sh` runs
-four harder tasks across three generations with Haiku — the cheapest way to
+start with the bundled demo: `bash scripts/quickstart.sh` runs three hard
+ARC-AGI-1 tasks across three generations with Haiku — the cheapest way to
 watch the full loop.
 Use `DRY_RUN=true` on any experiment wrapper script to print the full CLI
 command and DB paths without launching anything.
