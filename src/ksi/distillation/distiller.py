@@ -667,10 +667,11 @@ def _load_cross_task_posts_all_gens(inp: DistillInput) -> list[dict[str, Any]]:
             }
         )
     if not out:
-        log.warning(
+        log.info(
             "cross_task_forum cross-gen query returned 0 rows up to gen=%d "
-            "(window=%d) — no cross-task posts in window. Check that the "
-            "cross-task forum phase actually ran.",
+            "(window=%d) — no cross-task posts yet. Expected when the cross-task "
+            "forum is disabled (--cross-task-forum-rounds 0), at gen 1, or when no "
+            "posts were produced in the window.",
             inp.generation,
             window,
         )
