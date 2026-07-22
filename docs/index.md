@@ -9,7 +9,7 @@ hide:
 # Knowledge-centric Self-Improvement
 
 <p class="ksi-tagline">
-A population of disposable agents attempts **your own tasks**, compares notes
+A population of disposable agents attempts <strong>your own tasks</strong>, compares notes
 on what worked, distills the lessons into reusable knowledge, and seeds the
 next generation with it.
 </p>

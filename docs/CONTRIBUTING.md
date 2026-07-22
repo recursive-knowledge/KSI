@@ -1,4 +1,4 @@
-# Contributing to ksi
+# Contributing to KSI
 
 Thanks for your interest in extending the knowledge-centric self-improvement
 agent. This guide gets you from clone to a tested change.
@@ -10,7 +10,7 @@ runs through `uv run`.
 
 ```bash
 git clone https://github.com/recursive-knowledge/KSI
-cd ksi
+cd KSI
 bash scripts/setup_all.sh          # installs deps + builds the agent container image
 # or, deps only:
 uv sync --extra memory
@@ -52,9 +52,9 @@ dispatch site or a moved symbol can break a test in a file you never opened;
 running only the files you touched hides that. (The pre-commit hook runs ruff
 and the TypeScript typechecks, but not pytest.)
 
-## Extending ksi (the seams)
+## Extending KSI (the seams)
 
-ksi is built around small, typed extension points so you can add a benchmark,
+KSI is built around small, typed extension points so you can add a benchmark,
 evaluator, runtime, or improvement strategy **without editing core engine code**.
 Each is a `Protocol` + a registry. Start here:
 

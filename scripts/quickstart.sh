@@ -18,6 +18,9 @@
 #   PROFILE=configs/ksi/.env.openai bash scripts/quickstart.sh
 #
 # Env knobs:
+#   TASKS_PATH=<path>  run your own tasks .jsonl/.json instead of the bundled demo
+#   EXPERIMENT_NAME=x  name the run (default: quickstart_demo)
+#   PROFILE=<path>     provider profile to use (default: configs/ksi/.env.haiku)
 #   SKIP_BOOTSTRAP=1   don't build the image / install deps / synthesize a profile
 #   SKIP_DOCTOR=1      skip the readiness check
 #   DRY_RUN=true       print the run command (skips the image build / npm install,
@@ -30,7 +33,7 @@ KSI_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 cd "$KSI_ROOT"
 
 PROFILE="${PROFILE:-configs/ksi/.env.haiku}"
-TASKS_PATH="examples/custom_tasks/tasks.jsonl"
+TASKS_PATH="${TASKS_PATH:-examples/custom_tasks/tasks.jsonl}"
 EXPERIMENT_NAME="${EXPERIMENT_NAME:-quickstart_demo}"
 AGENT_IMAGE="ksi-agent:bench"
 

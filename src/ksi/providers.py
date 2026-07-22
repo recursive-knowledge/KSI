@@ -12,6 +12,12 @@ class ProviderConfigError(KsiError, RuntimeError):
     pass
 
 
+# Valid OpenAI GPT-5.x reasoning_effort values. The API rejects anything else
+# (e.g. 'minimal') with a 400 on every call, which otherwise surfaces only deep
+# in the runtime traces — validate at profile load so it fails loudly up front.
+_OPENAI_REASONING_EFFORTS = frozenset({"none", "low", "medium", "high", "xhigh"})
+
+
 _PROFILE_MOVES = (("configs/providers", "configs/ksi"),)
 
 
@@ -102,6 +108,12 @@ def load_provider_profile(profile_path: str) -> dict[str, str]:
         if not key:
             raise ProviderConfigError("openai/api mode requires OPENAI_API_KEY.")
         out["OPENAI_API_KEY"] = key
+        effort = cfg.get("REASONING_EFFORT", "").strip() or os.environ.get("REASONING_EFFORT", "").strip()
+        if effort and effort.lower() not in _OPENAI_REASONING_EFFORTS:
+            raise ProviderConfigError(
+                f"Invalid REASONING_EFFORT={effort!r} for openai. "
+                f"Supported values: {', '.join(sorted(_OPENAI_REASONING_EFFORTS))}."
+            )
 
     # Optional pass-throughs.
     for key in (

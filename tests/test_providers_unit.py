@@ -110,3 +110,26 @@ class TestLoadProviderProfile:
         cfg = load_provider_profile(str(p))
         assert cfg["KSI_DISABLE_VECTOR"] == "1"
         assert cfg["MEMORY_ENABLE_SEMANTIC_SEARCH"] == "0"
+
+
+def test_openai_invalid_reasoning_effort_raises(tmp_path, monkeypatch):
+    monkeypatch.delenv("REASONING_EFFORT", raising=False)
+    p = tmp_path / ".env.test"
+    p.write_text(
+        "MODEL_PROVIDER=openai\nMODEL=gpt-5.4-mini\nMODEL_AUTH_MODE=api\n"
+        "OPENAI_API_KEY=sk-test-key-123\nREASONING_EFFORT=minimal\n"
+    )
+    with pytest.raises(ProviderConfigError, match="Invalid REASONING_EFFORT"):
+        load_provider_profile(str(p))
+
+
+def test_openai_valid_reasoning_effort_accepted(tmp_path, monkeypatch):
+    monkeypatch.delenv("REASONING_EFFORT", raising=False)
+    for effort in ("none", "low", "medium", "high", "xhigh"):
+        p = tmp_path / ".env.test"
+        p.write_text(
+            "MODEL_PROVIDER=openai\nMODEL=gpt-5.4-mini\nMODEL_AUTH_MODE=api\n"
+            f"OPENAI_API_KEY=sk-test-key-123\nREASONING_EFFORT={effort}\n"
+        )
+        cfg = load_provider_profile(str(p))
+        assert cfg["REASONING_EFFORT"] == effort

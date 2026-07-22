@@ -4,7 +4,7 @@ Common questions about KSI — from first-time setup through research use.
 
 ## What is KSI in one sentence?
 
-KSI (Knowledge-centric Self-Improvement) is a benchmark framework that treats
+KSI (Knowledge-centric Self-Improvement) is a framework that treats
 agents as disposable workers and keeps improvement in a shared knowledge store
 rather than in any single agent's memory.
 
@@ -160,21 +160,6 @@ source of truth). A complete runnable example is at
 `examples/programmatic/run_arc_demo.py`. See [programmatic_api.md](programmatic_api.md)
 for the full API reference and migration notes if you are coming from an older
 programmatic interface.
-
-## What does `--improvement-strategy knowledge` vs `raw_attempts` do?
-
-`knowledge` (the default) runs the full self-improvement loop each generation:
-per-task forum, cross-task forum, distillation, and seeding. It is
-behavior-preserving relative to the engine's historical defaults.
-
-`raw_attempts` is the true knowledge-off ablation baseline: forums,
-distillation, knowledge-guided seeding, and same-task enrichment (prior-attempt
-history, best-score, memory-snapshot injection) are all skipped, regardless of
-`--no-memory`; agents receive only raw-attempts seeding. Use it to measure how
-much of the performance gain comes from the knowledge loop versus simply
-accumulating more attempts. See
-[improvement_strategies.md](improvement_strategies.md) for details and the
-`register_strategy` seam to add custom strategies.
 
 ## My run failed or produced an empty knowledge DB — where do I start?
 

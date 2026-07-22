@@ -70,7 +70,7 @@ orch.set_improvement_strategy(RawAttemptsStrategy())
 
 ## Bundled strategies
 
-- **`DefaultKnowledgeStrategy`** — current behaviour, extracted verbatim via
+- **`DefaultKnowledgeStrategy`** — current behavior, extracted verbatim via
   phase-service delegation. Adds no new branching; every gating flag still
   works as before.
 - **`RawAttemptsStrategy`** — the true knowledge-off ablation: no forums, no
@@ -118,7 +118,7 @@ registries). Two are built in: `knowledge` (default) and `raw_attempts`
    ```
 
    (Or wire it ad-hoc via `orch.set_improvement_strategy(MyStrategy())`.)
-5. Add an equivalence/behaviour test alongside
+5. Add an equivalence/behavior test alongside
    `tests/test_improvement_strategy.py`.
 
 ## What remains engine-owned

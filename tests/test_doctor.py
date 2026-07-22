@@ -103,3 +103,18 @@ def test_check_vector_status_not_a_knowledge_db(tmp_path, capsys) -> None:
     doctor._check_vector_status(r, str(db_path))
     assert r.hard_failures == 0
     assert "vector_status table missing" in capsys.readouterr().out
+
+
+def test_check_providers_surfaces_incomplete_profile_reason(tmp_path, monkeypatch, capsys) -> None:
+    # A profile with a key but missing MODEL_PROVIDER/MODEL must report WHY it is
+    # unusable, not the generic "no usable key".
+    (tmp_path / ".env.openai").write_text("OPENAI_API_KEY=sk-test-123\n")
+    monkeypatch.setattr(doctor, "PROVIDERS_DIR", tmp_path)
+
+    r = doctor.Report()
+    doctor._check_providers(r)
+    out = capsys.readouterr().out
+
+    assert r.hard_failures == 1
+    assert ".env.openai" in out
+    assert "MODEL_PROVIDER" in out
