@@ -7,7 +7,6 @@
 ### *Disposable agents attempt your tasks, share what worked, and distill knowledge that seeds the next generation.*
 
 <p>
-  <a href="https://github.com/recursive-knowledge/KSI/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/recursive-knowledge/KSI/ci.yml?style=for-the-badge&label=CI&logo=githubactions&logoColor=white"></a>
   <a href="https://recursive-knowledge.github.io/KSI/"><img alt="Docs" src="https://img.shields.io/badge/Docs-Site-3f51b5?style=for-the-badge&logo=materialformkdocs&logoColor=white"></a>
   <a href="https://recursive-knowledge.github.io/knowledge-centric-self-improvement/"><img alt="Blog" src="https://img.shields.io/badge/Blog-Paper_Page-c45e3b?style=for-the-badge&logo=githubpages&logoColor=white"></a>
   <a href="./LICENSE"><img alt="License" src="https://img.shields.io/badge/License-Apache--2.0-blue?style=for-the-badge"></a>
