@@ -1491,7 +1491,7 @@ rather than comparing name strings.</p>
 </tr>
 <tr>
 <td><code>loader</code></td>
-<td>task-loader callable; <code>load_tasks_for_source</code> calls <code>spec.loader(tasks_path, *, task_source=..., evals_path=..., arc_max_trials=...)</code> (built-in loaders are attached by <code>src/ksi/tasks/loaders.py</code> at import time)</td>
+<td>task-loader callable; <code>load_tasks_for_source</code> calls <code>spec.loader(tasks_path, *, task_source=..., evals_path=..., arc_max_trials=...)</code> (built-in loaders are attached by <code>src/ksi/benchmarks/loaders.py</code> at import time)</td>
 </tr>
 <tr>
 <td><code>supports_mcp_arc</code></td>
@@ -1533,7 +1533,7 @@ rather than comparing name strings.</p>
 </table>
 <h3 id="a-real-example-how-arc-is-registered">A real example: how <code>arc</code> is registered<a class="headerlink" href="#a-real-example-how-arc-is-registered" title="Permanent link">&para;</a></h3>
 <p>The shortest of the four built-in registrations is <code>arc</code>
-(<code>src/ksi/tasks/registry.py</code>):</p>
+(<code>src/ksi/benchmarks/sources.py</code>):</p>
 <div class="highlight"><pre><span></span><code><span class="n">register_task_source</span><span class="p">(</span>
     <span class="n">TaskSourceSpec</span><span class="p">(</span>
         <span class="n">name</span><span class="o">=</span><span class="s2">&quot;arc&quot;</span><span class="p">,</span>
@@ -1567,7 +1567,7 @@ it <em>doesn't</em> set (<code>loader</code>,
 <code>validate_tasks_path</code>, <code>uses_repo_snapshots</code>, <code>supports_classification</code>,
 <code>needs_eval_records</code>, <code>delegates_runtime</code>, ...) keeps its conservative
 default — <code>loader</code> and <code>validate_tasks_path</code> are populated separately by
-<code>src/ksi/tasks/loaders.py</code> and <code>src/ksi/tasks/path_validation.py</code> at import
+<code>src/ksi/benchmarks/loaders.py</code> and <code>src/ksi/tasks/path_validation.py</code> at import
 time rather than inline in the registration call, which is why a real source
 can look shorter than the full field table suggests.</p>
 <p>Compare this against <code>swebench_pro</code>'s registration in the same file — it sets
@@ -1577,7 +1577,7 @@ different capability profile than ARC's.</p>
 <h2 id="steps">Steps<a class="headerlink" href="#steps" title="Permanent link">&para;</a></h2>
 <ol>
 <li><strong>Register the spec.</strong> Add a <code>register_task_source(TaskSourceSpec(...))</code> call
-   in <code>src/ksi/tasks/registry.py</code> (or at runtime via <code>register_task_source</code> for a
+   in <code>src/ksi/benchmarks/sources.py</code> (or at runtime via <code>register_task_source</code> for a
    plugin). Set only the flags your benchmark needs; defaults are the
    conservative generic behavior.</li>
 </ol>
@@ -1648,7 +1648,7 @@ different capability profile than ARC's.</p>
  for the source (the generic <code>_GENERIC_DOMAIN_HINT</code> is reserved for the
  unresolvable/cross-task case, where there is no single benchmark to key
  on). The four built-in sources set it on their own specs in
- <code>src/ksi/tasks/registry.py</code>.
+ <code>src/ksi/benchmarks/sources.py</code>.
    - Evaluator: register the evaluator with <code>register_evaluator</code> (see <a href="../adding_an_evaluator/">adding_an_evaluator.md</a>) if new.
    - CLI <code>--tasks-path</code> validation needs no dispatch edit: set
  <code>validate_tasks_path</code> on the spec (as above). A source without it is

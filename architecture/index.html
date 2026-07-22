@@ -1722,10 +1722,10 @@ file individually under <code>/app/memory-db</code> — plus a <code>forum_bus/<
 subdirectory mount, gated to forum-phase task sources only. The MCP server
 selects the SQLite filename from the payload/environment and uses that file
 as the authoritative knowledge substrate.</p>
-<p>ARC tools are independent from memory tools. <code>arc_tools</code> is emitted even when
-<code>--no-memory</code> or <code>--disable-memory-mcp</code> removes agent-facing knowledge tools,
-and the TypeScript runner mounts the ARC snapshot file itself (not its
-directory) under <code>/app/memory-db</code> so <code>arc_load_task</code> still works.</p>
+<p>ARC runs natively for every provider — it neither mounts an ARC snapshot nor
+registers an ARC MCP server. The agent reads <code>payload.json</code> from its workspace
+and writes attempt files with native file tools; the host synthesizes the
+<code>arc_submit_trial</code> trace after the container exits.</p>
 <h2 id="3-runtime-status-and-normalization">3. Runtime Status And Normalization<a class="headerlink" href="#3-runtime-status-and-normalization" title="Permanent link">&para;</a></h2>
 <p>The in-container runner emits a JSON envelope. When the envelope is parseable,
 the envelope status and host normalization are more informative than the Docker
@@ -2026,8 +2026,9 @@ captured.</p>
 normalized by <code>src/ksi/providers.py</code>.</p>
 <ul>
 <li>Claude task execution defaults to the Claude Code SDK path in
-  <code>agent-runner/src/index.ts</code>. Scheduled ARC and forum tasks can use direct
-  Anthropic adapters unless configured back to the Claude Code path.</li>
+  <code>agent-runner/src/index.ts</code>, which also serves ARC natively. Scheduled forum
+  tasks can use a direct Anthropic adapter unless configured back to the Claude
+  Code path.</li>
 <li>OpenAI task execution uses <code>@openai/agents</code> in <code>agent-runner/src/openai.ts</code>.</li>
 <li>Host-side reflection, lesson extraction, and distillation use
   <code>src/ksi/runtime/llm.py</code>, which wraps the Python Anthropic SDK or OpenAI
