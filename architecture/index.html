@@ -242,17 +242,20 @@
   
   
   
-    <li class="md-tabs__item">
-      <a href="../getting-started/" class="md-tabs__link">
-        
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/" class="md-tabs__link">
+          
   
   
     
   
   Getting started
 
-      </a>
-    </li>
+        </a>
+      </li>
+    
   
 
       
@@ -262,13 +265,13 @@
   
   
     <li class="md-tabs__item">
-      <a href="../your_own_tasks/" class="md-tabs__link">
+      <a href="../benchmarks/" class="md-tabs__link">
         
   
   
     
   
-  Your own tasks
+  Benchmarks
 
       </a>
     </li>
@@ -378,25 +381,6 @@
         </a>
       </li>
     
-  
-
-      
-        
-  
-  
-  
-  
-    <li class="md-tabs__item">
-      <a href="../benchmarks/" class="md-tabs__link">
-        
-  
-  
-    
-  
-  Benchmarks
-
-      </a>
-    </li>
   
 
       
@@ -521,6 +505,66 @@
   
   
   
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
       <a href="../getting-started/" class="md-nav__link">
         
@@ -541,9 +585,10 @@
     </li>
   
 
-    
-      
-      
+              
+            
+              
+                
   
   
   
@@ -557,6 +602,69 @@
     
   
     Your own tasks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../experiments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Running larger runs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../benchmarks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Benchmarks
   
 
     
@@ -604,8 +712,6 @@
   
     
     
-      
-        
       
         
       
@@ -671,34 +777,6 @@
     
   
     Programmatic API
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../experiments/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Running larger runs
   
 
     
@@ -959,6 +1037,8 @@
       
         
       
+        
+      
     
     
     
@@ -1103,6 +1183,34 @@
     
   
     Improvement strategies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../open_source_models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Open-source & self-hosted models
   
 
     
@@ -1270,33 +1378,6 @@
           </ul>
         </nav>
       
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../benchmarks/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Benchmarks
-  
-
-    
-  </span>
-  
-  
-
-      </a>
     </li>
   
 
@@ -2003,9 +2084,19 @@ bridge network.</p>
 </tbody>
 </table>
 <p>Operator-supplied extras are appended via <code>KSI_EGRESS_ALLOW=host1,host2</code>
-(comma-separated). Use this for Bedrock, Vertex, or other provider endpoints:</p>
-<div class="highlight"><pre><span></span><code><span class="nv">KSI_EGRESS_ALLOW</span><span class="o">=</span>bedrock-runtime.us-east-1.amazonaws.com<span class="w"> </span>bash<span class="w"> </span>scripts/run_ksi.sh<span class="w"> </span>...
+(comma-separated) — intended for Bedrock, Vertex, or other provider endpoints:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">KSI_EGRESS_ALLOW</span><span class="o">=</span>bedrock-runtime.us-east-1.amazonaws.com<span class="w"> </span>...
 </code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">These variables are read from the runner subprocess environment</p>
+<p><code>deriveEgressAllowlist</code> reads <code>process.env</code> of the TypeScript runner. The
+Python CLI builds that environment from the provider profile plus a fixed
+system-key list (<code>_build_runner_env</code> in
+<code>src/ksi/runtime/container_host.py</code>), and neither <code>KSI_EGRESS_ALLOW</code> nor the
+<code>*_BASE_URL</code> variables are on either list — so a value exported in your
+shell does not currently reach the allowlist through a <code>ksi</code> /
+<code>scripts/run_ksi.sh</code> run.</p>
+</div>
 <p><strong>Escape hatch</strong>: set <code>KSI_EGRESS=open</code> to disable isolation and restore
 the legacy direct-bridge behavior (no internal network, no proxy). Use only for
 debugging — not for production campaigns.</p>
