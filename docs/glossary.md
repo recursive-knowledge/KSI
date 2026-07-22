@@ -16,11 +16,11 @@ The set of [agents](#agent) working in a given [generation](#generation). Popula
 
 ### task source
 
-A registry-backed plugin that supplies tasks for agents to attempt. Maintained task sources: `arc`, `swebench_pro`, `polyglot`, `terminal_bench_2`. Register a new one via `src/ksi/tasks/registry.py`. See [Adding a benchmark](adding_a_benchmark.md) for details.
+A registry-backed plugin that supplies tasks for agents to attempt. Maintained task sources: `arc`, `swebench_pro`, `polyglot`, `terminal_bench_2`, `custom`. Register a new one in `src/ksi/benchmarks/sources.py`. See [Adding a benchmark](adding_a_benchmark.md) for details.
 
 ### evaluator
 
-A registry-backed plugin that scores an [agent's](#agent) [attempt](#attempt) against a task. Maintained evaluators: `none`, `arc_session`, `swebench_pro`, `polyglot_harness`, `terminal_bench_2`. Register a new one via `src/ksi/eval/registry.py`.
+A registry-backed plugin that scores an [agent's](#agent) [attempt](#attempt) against a task. Maintained evaluators: `none`, `command`, `arc_session`, `swebench_pro`, `polyglot_harness`, `terminal_bench_2`. Register a new one via `src/ksi/eval/registry.py`.
 
 ### runtime
 

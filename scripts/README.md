@@ -15,7 +15,7 @@ presets live under [`benchmarks/`](../benchmarks/README.md) instead.
 | `typecheck_agent_runner.sh` | Type-checks the TypeScript agent runner. |
 | `dev/` | Developer guardrails such as worktree discipline checks. |
 
-Benchmark dataset preparation (`dataprep/`, `arc_prep/`) and the run presets
+Benchmark dataset preparation (`scripts/dataprep/`, `scripts/arc_prep/`) and the run presets
 (`run_arc.sh`, `run_polyglot.sh`, `run_swebench_pro.sh`,
 `run_terminal_bench_2.sh`) live under
 [`benchmarks/`](../benchmarks/README.md); see
