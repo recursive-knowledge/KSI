@@ -242,20 +242,17 @@
   
   
   
-    
-    
-      <li class="md-tabs__item">
-        <a href="../getting-started/" class="md-tabs__link">
-          
+    <li class="md-tabs__item">
+      <a href="../getting-started/" class="md-tabs__link">
+        
   
   
     
   
   Getting started
 
-        </a>
-      </li>
-    
+      </a>
+    </li>
   
 
       
@@ -409,6 +406,25 @@
   
   
     <li class="md-tabs__item">
+      <a href="../CONTRIBUTING/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Contributing
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
       <a href="https://recursive-knowledge.github.io/knowledge-centric-self-improvement/" class="md-tabs__link">
         
   
@@ -505,64 +521,6 @@
   
   
   
-    
-    
-      
-        
-      
-        
-      
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
-        
-          
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Getting started
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_2">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Getting started
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
     <li class="md-nav__item">
       <a href="../getting-started/" class="md-nav__link">
         
@@ -580,42 +538,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../CONTRIBUTING/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Contributing
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -871,17 +793,6 @@
     <span class="md-ellipsis">
       
         Cross-task distillation: target conditioning
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#removed-compatibility-flags" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Removed compatibility flags
       
     </span>
   </a>
@@ -1336,6 +1247,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../CONTRIBUTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="https://recursive-knowledge.github.io/knowledge-centric-self-improvement/" class="md-nav__link">
         
   
@@ -1420,17 +1358,6 @@
     <span class="md-ellipsis">
       
         Cross-task distillation: target conditioning
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#removed-compatibility-flags" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Removed compatibility flags
       
     </span>
   </a>
@@ -1589,49 +1516,6 @@ task gets its own cross-task bundle, distilled with that task's full prompt
 as the relevance signal and delivered only to the agent attempting it. Pass
 <code>--cross-task-distill-target-conditioning false</code> to use a single broadcast
 bundle shared across all agents instead.</p>
-<h2 id="removed-compatibility-flags">Removed compatibility flags<a class="headerlink" href="#removed-compatibility-flags" title="Permanent link">&para;</a></h2>
-<p>The following CLI flags were deprecated compatibility aliases and have been
-removed. Passing one of the forum flags fails with an error naming the
-replacement; <code>--runtime openai</code> fails argparse choices validation.</p>
-<table>
-<thead>
-<tr>
-<th>Removed flag</th>
-<th>Use instead</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>--agents N</code></td>
-<td><code>--max-concurrent-tasks N</code> (agent count now derives from the filtered task pool)</td>
-</tr>
-<tr>
-<td><code>--runtime openai</code></td>
-<td><code>--runtime container</code> with <code>MODEL_PROVIDER=openai</code> in the provider profile</td>
-</tr>
-<tr>
-<td><code>--forum-rounds N</code></td>
-<td><code>--per-task-forum-rounds N</code> <strong>and</strong> <code>--cross-task-forum-rounds N</code></td>
-</tr>
-<tr>
-<td><code>--forum-mode off</code></td>
-<td><code>--per-task-forum-rounds 0 --cross-task-forum-rounds 0</code></td>
-</tr>
-<tr>
-<td><code>--forum-mode self</code> / <code>--forum-mode multi</code></td>
-<td>nothing — this was the default behavior (forums on)</td>
-</tr>
-<tr>
-<td><code>--forum-ablate-r3</code></td>
-<td><code>--distill-enabled=false</code></td>
-</tr>
-</tbody>
-</table>
-<p>Note: <code>--knowledge-db-path</code> is <strong>not</strong> deprecated — it is the canonical
-knowledge-substrate flag. The removed flag is <code>--memory-db-path</code>; use
-<code>--knowledge-db-path</code> (authoritative substrate) or <code>--runtime-db-path</code>
-(optional audit sidecar) instead. See
-<a href="../architecture/#5-database-ownership">Database Ownership</a>.</p>
 <h2 id="see-also">See also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="https://github.com/recursive-knowledge/KSI/blob/main/benchmarks/docs/BENCHMARK_PREPARE.md">benchmarks/docs/BENCHMARK_PREPARE.md</a> —

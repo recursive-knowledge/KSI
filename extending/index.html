@@ -242,20 +242,17 @@
   
   
   
-    
-    
-      <li class="md-tabs__item">
-        <a href="../getting-started/" class="md-tabs__link">
-          
+    <li class="md-tabs__item">
+      <a href="../getting-started/" class="md-tabs__link">
+        
   
   
     
   
   Getting started
 
-        </a>
-      </li>
-    
+      </a>
+    </li>
   
 
       
@@ -409,6 +406,25 @@
   
   
     <li class="md-tabs__item">
+      <a href="../CONTRIBUTING/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Contributing
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
       <a href="https://recursive-knowledge.github.io/knowledge-centric-self-improvement/" class="md-tabs__link">
         
   
@@ -505,64 +521,6 @@
   
   
   
-    
-    
-      
-        
-      
-        
-      
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
-        
-          
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Getting started
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_2">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Getting started
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
     <li class="md-nav__item">
       <a href="../getting-started/" class="md-nav__link">
         
@@ -580,42 +538,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../CONTRIBUTING/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Contributing
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -1028,7 +950,7 @@
   <a href="#driving-ksi-programmatically" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Driving ksi programmatically
+        Driving KSI programmatically
       
     </span>
   </a>
@@ -1331,6 +1253,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../CONTRIBUTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="https://recursive-knowledge.github.io/knowledge-centric-self-improvement/" class="md-nav__link">
         
   
@@ -1420,7 +1369,7 @@
   <a href="#driving-ksi-programmatically" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Driving ksi programmatically
+        Driving KSI programmatically
       
     </span>
   </a>
@@ -1458,8 +1407,8 @@
   
 
 
-<h1 id="extending-ksi">Extending ksi<a class="headerlink" href="#extending-ksi" title="Permanent link">&para;</a></h1>
-<p>ksi is built around small, typed <strong>seams</strong> so researchers and developers can
+<h1 id="extending-ksi">Extending KSI<a class="headerlink" href="#extending-ksi" title="Permanent link">&para;</a></h1>
+<p>KSI is built around small, typed <strong>seams</strong> so researchers and developers can
 implement variants without editing core engine code. Every seam is the same
 shape: a <code>Protocol</code> that defines the contract + a <strong>registry</strong> you register into.
 No <code>if name == ...</code> dispatch edits anywhere.</p>
@@ -1537,8 +1486,8 @@ dict directly. Direct mutation bypasses the duplicate-name detection, so the
 <code>REGISTRY</code> dicts are intentionally <strong>not</strong> part of the public surface (not in any
 registry module's <code>__all__</code>). Read the registered set with <code>resolve_&lt;seam&gt;</code> /
 <code>supported_&lt;seam&gt;s</code>.</p>
-<p>Every exception ksi raises subclasses <code>ksi.KsiError</code>, so a programmatic
-caller can <code>except ksi.KsiError</code> to catch any ksi-originated failure (the
+<p>Every exception KSI raises subclasses <code>ksi.KsiError</code>, so a programmatic
+caller can <code>except ksi.KsiError</code> to catch any KSI-originated failure (the
 concrete types keep their historical <code>RuntimeError</code> / <code>ValueError</code> base too).</p>
 <h3 id="constructing-a-registered-component-programmatically">Constructing a registered component programmatically<a class="headerlink" href="#constructing-a-registered-component-programmatically" title="Permanent link">&para;</a></h3>
 <p><code>EvaluatorSpec.factory</code> is called as <code>factory(args)</code> and <code>RuntimeSpec.factory</code>
@@ -1566,7 +1515,7 @@ the base runtime; the Terminal-Bench-2 delegation wrapper is a CLI-only concern.
 no arguments, so <code>ksi.register_strategy</code>'d strategies are already buildable
 via <code>get_strategy_spec(name).factory()</code>.</p>
 </blockquote>
-<h2 id="driving-ksi-programmatically">Driving ksi programmatically<a class="headerlink" href="#driving-ksi-programmatically" title="Permanent link">&para;</a></h2>
+<h2 id="driving-ksi-programmatically">Driving KSI programmatically<a class="headerlink" href="#driving-ksi-programmatically" title="Permanent link">&para;</a></h2>
 <p>Once your seam is registered (or constructed directly), drive a run from Python
 with <code>ksi.run(...)</code> — see <a href="../programmatic_api/">programmatic_api.md</a>.</p>
 <h2 id="contributing">Contributing<a class="headerlink" href="#contributing" title="Permanent link">&para;</a></h2>

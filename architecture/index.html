@@ -242,20 +242,17 @@
   
   
   
-    
-    
-      <li class="md-tabs__item">
-        <a href="../getting-started/" class="md-tabs__link">
-          
+    <li class="md-tabs__item">
+      <a href="../getting-started/" class="md-tabs__link">
+        
   
   
     
   
   Getting started
 
-        </a>
-      </li>
-    
+      </a>
+    </li>
   
 
       
@@ -409,6 +406,25 @@
   
   
     <li class="md-tabs__item">
+      <a href="../CONTRIBUTING/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Contributing
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
       <a href="https://recursive-knowledge.github.io/knowledge-centric-self-improvement/" class="md-tabs__link">
         
   
@@ -505,64 +521,6 @@
   
   
   
-    
-    
-      
-        
-      
-        
-      
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
-        
-          
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Getting started
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_2">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Getting started
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
     <li class="md-nav__item">
       <a href="../getting-started/" class="md-nav__link">
         
@@ -580,42 +538,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../CONTRIBUTING/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Contributing
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -1002,21 +924,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#11-tb2-verifier-trust-boundary" class="md-nav__link">
+  <a href="#11-operational-references" class="md-nav__link">
     <span class="md-ellipsis">
       
-        11. TB2 Verifier Trust Boundary
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#12-operational-references" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        12. Operational References
+        11. Operational References
       
     </span>
   </a>
@@ -1397,6 +1308,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../CONTRIBUTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="https://recursive-knowledge.github.io/knowledge-centric-self-improvement/" class="md-nav__link">
         
   
@@ -1554,21 +1492,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#11-tb2-verifier-trust-boundary" class="md-nav__link">
+  <a href="#11-operational-references" class="md-nav__link">
     <span class="md-ellipsis">
       
-        11. TB2 Verifier Trust Boundary
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#12-operational-references" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        12. Operational References
+        11. Operational References
       
     </span>
   </a>
@@ -2115,66 +2042,7 @@ proxy container name still resolves.</p>
   two concurrent campaigns sharing the same value intentionally share one
   egress proxy/network lease and must have the same provider allowlist needs.</li>
 </ul>
-<h2 id="11-tb2-verifier-trust-boundary">11. TB2 Verifier Trust Boundary<a class="headerlink" href="#11-tb2-verifier-trust-boundary" title="Permanent link">&para;</a></h2>
-<p>Terminal-Bench 2 (TB2) runs the agent and the task verifier <strong>inside the same
-container</strong>. After the agent phase finishes, KSI injects <code>/tests</code> and invokes
-the verifier through a trusted <code>/bin/bash</code> extracted from the pristine task
-image, with that trusted directory prepended to <code>PATH</code>. If the trusted
-toolchain cannot be established, KSI refuses the legacy <code>bash /tests/test.sh</code>
-fallback and records an unscored
-<code>trial_status=verifier_fail_closed_untrusted_toolchain</code> by default. Set
-<code>KSI_TB2_REQUIRE_TRUSTED_VERIFIER=0</code> only to reproduce legacy comparisons. The
-resulting reward is read back from an agent-visible bind mount
-(<code>-v {logs_root}:/logs</code>; <code>verifier/reward.txt</code> → <code>resolved = bool(reward is not
-None and reward &gt;= 1.0)</code>).</p>
-<p><strong>Threat model.</strong> The TB2 agent runs as <strong>root in the same container</strong> as the
-verifier, the verifier trusts the in-container toolchain and an
-<strong>unsanitized <code>PATH</code></strong>, and the reward flows back over a mount the agent can
-write. A determined root agent could therefore trojan the toolchain (shadow
-<code>bash</code>/coreutils on <code>PATH</code>, tamper with <code>/tests</code>, or write <code>/logs/.../reward.txt</code>
-directly) to force <code>resolved = True</code> without actually solving the task. This is
-a <strong>reward-hacking</strong> surface, not an egress/exfil surface — §10 isolation does
-not address it.</p>
-<p><strong>Why this is deferred (document + defer).</strong> The exposure is <strong>symmetric
-across A/B arms</strong>: every arm runs the agent and verifier under identical trust
-assumptions, so both have equal opportunity to hack the reward. Past A/B deltas
-are therefore <strong>not contaminated</strong> by this surface — a systematic exploit would
-lift both arms equally. What it <em>does</em> mean is that <strong>absolute TB2 numbers are
-not adversarial-reward-hack-robust</strong>: they should be read as "solve rate under a
-cooperative agent," not as a hardened, exploit-proof score.</p>
-<p><strong>The self-improvement loop weakens the "cooperative agent" assumption.</strong> Unlike
-a one-shot solver, KSI distills and seeds strategies that scored <code>reward &gt;= 1.0</code>
-into later generations. If an agent ever <em>accidentally</em> discovers a reward-path
-write (shadow <code>bash</code>, tamper <code>/tests</code>, write <code>/logs/verifier/reward.txt</code>), the
-loop selects for and amplifies it across generations rather than treating it as a
-one-off. That amplification risk — not a single gamed task — is the trigger for
-implementing the pristine verifier: watch the detection audit below for
-any reward-path <em>write</em> or <code>/solution</code> <em>read</em>, and prioritize the rebuild if one
-appears in a recorded campaign.</p>
-<p><strong>Hardening state.</strong> KSI now hardens the verifier entrypoint by injecting a
-trusted shell from the pristine image and failing closed when that injection is
-unavailable. The remaining robust fix is a <strong>pristine verifier</strong>: run <code>test.sh</code>
-from a clean <code>docker commit</code> / fresh image of the pre-agent container with a
-fully sanitized toolchain, so every interpreter and subprocess the verifier
-uses is independent of anything the agent touched. That architectural rebuild
-remains intentionally deferred because it would
-change runtime behavior and re-baseline TB2. Separately,
-the agent-runs-as-root fact is confirmed, but for the maintained 89-task native
-corpus the grading assets are protected <em>architecturally</em> — the task <code>/tests</code>
-directory is injected only <strong>after</strong> the agent phase (root-proof) and the single
-in-image reference (<code>adaptive-rejection-sampler</code>) ships an AES-encrypted
-<code>protected.tar.gz.enc</code> — so <code>/protected</code> file permissions were never the
-protection surface. The <code>chmod 700 /protected</code> plaintext-answer leak was specific
-to the now-abandoned TB1-converted tasks, not the native corpus.</p>
-<p><strong>Detection in the meantime.</strong> A post-hoc audit scans recorded TB2 tool-traces
-for agent reads/writes of verifier-controlled paths (<code>/protected</code>, <code>/tests</code>,
-<code>/solution</code>, <code>/logs/verifier</code>) and grades each finding <strong>high</strong> (answer leak /
-reward tamper — fails the gate) or <strong>info</strong> (recon of an empty/encrypted surface).
-It surfaces suspicious access after the fact over a runtime DB
-(<code>attempts.tool_trace_json</code>) or transcript dir, covering both structured
-<code>*.json</code> / <code>*.jsonl</code> tool-traces and free-text <code>agent.transcript.md</code>.
-This mirrors the ARC mount-answer audit precedent.</p>
-<h2 id="12-operational-references">12. Operational References<a class="headerlink" href="#12-operational-references" title="Permanent link">&para;</a></h2>
+<h2 id="11-operational-references">11. Operational References<a class="headerlink" href="#11-operational-references" title="Permanent link">&para;</a></h2>
 <ul>
 <li>CLI flags: <code>uv run python -m ksi.cli --help</code></li>
 <li>Run presets: <a href="https://github.com/recursive-knowledge/KSI/blob/main/benchmarks/README.md">benchmarks/README.md</a></li>

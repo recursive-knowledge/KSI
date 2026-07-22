@@ -242,20 +242,17 @@
   
   
   
-    
-    
-      <li class="md-tabs__item">
-        <a href="../getting-started/" class="md-tabs__link">
-          
+    <li class="md-tabs__item">
+      <a href="../getting-started/" class="md-tabs__link">
+        
   
   
     
   
   Getting started
 
-        </a>
-      </li>
-    
+      </a>
+    </li>
   
 
       
@@ -409,6 +406,25 @@
   
   
     <li class="md-tabs__item">
+      <a href="../CONTRIBUTING/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Contributing
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
       <a href="https://recursive-knowledge.github.io/knowledge-centric-self-improvement/" class="md-tabs__link">
         
   
@@ -505,64 +521,6 @@
   
   
   
-    
-    
-      
-        
-      
-        
-      
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
-        
-          
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Getting started
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_2">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Getting started
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
     <li class="md-nav__item">
       <a href="../getting-started/" class="md-nav__link">
         
@@ -580,42 +538,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../CONTRIBUTING/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Contributing
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -850,17 +772,6 @@
     <span class="md-ellipsis">
       
         Can I run KSI from Python instead of the CLI?
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#what-does-improvement-strategy-knowledge-vs-raw_attempts-do" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What does --improvement-strategy knowledge vs raw_attempts do?
       
     </span>
   </a>
@@ -1441,6 +1352,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../CONTRIBUTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="https://recursive-knowledge.github.io/knowledge-centric-self-improvement/" class="md-nav__link">
         
   
@@ -1631,17 +1569,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#what-does-improvement-strategy-knowledge-vs-raw_attempts-do" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What does --improvement-strategy knowledge vs raw_attempts do?
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#my-run-failed-or-produced-an-empty-knowledge-db-where-do-i-start" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1686,7 +1613,7 @@
 <h1 id="frequently-asked-questions">Frequently asked questions<a class="headerlink" href="#frequently-asked-questions" title="Permanent link">&para;</a></h1>
 <p>Common questions about KSI — from first-time setup through research use.</p>
 <h2 id="what-is-ksi-in-one-sentence">What is KSI in one sentence?<a class="headerlink" href="#what-is-ksi-in-one-sentence" title="Permanent link">&para;</a></h2>
-<p>KSI (Knowledge-centric Self-Improvement) is a benchmark framework that treats
+<p>KSI (Knowledge-centric Self-Improvement) is a framework that treats
 agents as disposable workers and keeps improvement in a shared knowledge store
 rather than in any single agent's memory.</p>
 <p>Under the hood: agents run in sandboxed Docker containers, write their attempts
@@ -1861,18 +1788,6 @@ source of truth). A complete runnable example is at
 <code>examples/programmatic/run_arc_demo.py</code>. See <a href="../programmatic_api/">programmatic_api.md</a>
 for the full API reference and migration notes if you are coming from an older
 programmatic interface.</p>
-<h2 id="what-does-improvement-strategy-knowledge-vs-raw_attempts-do">What does <code>--improvement-strategy knowledge</code> vs <code>raw_attempts</code> do?<a class="headerlink" href="#what-does-improvement-strategy-knowledge-vs-raw_attempts-do" title="Permanent link">&para;</a></h2>
-<p><code>knowledge</code> (the default) runs the full self-improvement loop each generation:
-per-task forum, cross-task forum, distillation, and seeding. It is
-behavior-preserving relative to the engine's historical defaults.</p>
-<p><code>raw_attempts</code> is the true knowledge-off ablation baseline: forums,
-distillation, knowledge-guided seeding, and same-task enrichment (prior-attempt
-history, best-score, memory-snapshot injection) are all skipped, regardless of
-<code>--no-memory</code>; agents receive only raw-attempts seeding. Use it to measure how
-much of the performance gain comes from the knowledge loop versus simply
-accumulating more attempts. See
-<a href="../improvement_strategies/">improvement_strategies.md</a> for details and the
-<code>register_strategy</code> seam to add custom strategies.</p>
 <h2 id="my-run-failed-or-produced-an-empty-knowledge-db-where-do-i-start">My run failed or produced an empty knowledge DB — where do I start?<a class="headerlink" href="#my-run-failed-or-produced-an-empty-knowledge-db-where-do-i-start" title="Permanent link">&para;</a></h2>
 <p>Run <code>uv run ksi-doctor</code> first; it prints a checklist of everything a run
 needs and the exact command to fix each gap. The most common causes are: Docker

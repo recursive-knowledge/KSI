@@ -16,7 +16,7 @@
         <link rel="prev" href="..">
       
       
-        <link rel="next" href="../CONTRIBUTING/">
+        <link rel="next" href="../your_own_tasks/">
       
       
         
@@ -244,20 +244,17 @@
     
   
   
-    
-    
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="./" class="md-tabs__link">
-          
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
+        
   
   
     
   
   Getting started
 
-        </a>
-      </li>
-    
+      </a>
+    </li>
   
 
       
@@ -409,6 +406,25 @@
   
   
     <li class="md-tabs__item">
+      <a href="../CONTRIBUTING/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Contributing
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
       <a href="https://recursive-knowledge.github.io/knowledge-centric-self-improvement/" class="md-tabs__link">
         
   
@@ -501,69 +517,6 @@
     
       
       
-  
-  
-    
-  
-  
-  
-    
-    
-      
-        
-      
-        
-      
-    
-    
-    
-      
-        
-        
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
-        
-          
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Getting started
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_2">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Getting started
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
   
   
     
@@ -708,42 +661,6 @@
     </ul>
   
 </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../CONTRIBUTING/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Contributing
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
       
     </li>
   
@@ -1347,6 +1264,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../CONTRIBUTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="https://recursive-knowledge.github.io/knowledge-centric-self-improvement/" class="md-nav__link">
         
   
@@ -1558,19 +1502,18 @@ missing.</p>
 </tr>
 </tbody>
 </table>
-<p>For the quickstart, <code>&lt;experiment&gt;</code> defaults to <code>quickstart_demo</code>. The
-quickstart itself doesn't pass <code>--output-json</code>, so it won't produce a
-<code>results/quickstart_demo.json</code> — pass that flag yourself (or use one of the
-<code>benchmarks/</code> run presets, which set it for you) if you want a score
-summary written to disk.</p>
-<p>The direct CLI defaults traces to <code>analysis/traces/&lt;experiment&gt;/</code>; set
-<code>KSI_TRACE_DIR</code> before launching if your environment needs a different trace
-root.</p>
-<p>Here's a real excerpt from a quickstart run against <code>claude-haiku-4-5-20251001</code>
-(the default <code>configs/ksi/.env.haiku</code> profile), with timestamps trimmed. The task
-names, <code>solved=3/3</code>, and the <code>[tokens]</code> fields stay the same across runs; the
-elapsed times and token counts won't, since they depend on the model and how the
-agent solves each task:</p>
+<p>For the quickstart, <code>&lt;experiment&gt;</code> defaults to <code>quickstart_demo</code>. The run prints
+each task's score as it goes and ends with a <code>completed … solved=3/3 (100.0%)</code>
+line — that's the signal your environment is set up correctly. Elapsed times and
+token counts vary by model and run; the task names and <code>solved=3/3</code> don't.</p>
+<details class="note">
+<summary>A closer look — sample output, optional artifacts, and the knowledge DB</summary>
+<p>The quickstart doesn't pass <code>--output-json</code>, so it writes no
+<code>results/quickstart_demo.json</code>; pass that flag yourself (or use a <code>benchmarks/</code>
+run preset, which sets it for you) for a score summary on disk. Traces default
+to <code>analysis/traces/&lt;experiment&gt;/</code> — set <code>KSI_TRACE_DIR</code> to change the root.</p>
+<p>A real excerpt from a run against <code>claude-haiku-4-5-20251001</code> (the default
+<code>configs/ksi/.env.haiku</code> profile), timestamps trimmed:</p>
 <div class="highlight"><pre><span></span><code>INFO ksi.orchestrator.execution_phase: [gen 1] task=reverse-words agent=agent-1 done elapsed=27.4s score=1.0000
 INFO ksi.orchestrator.execution_phase: [gen 1] task=fizzbuzz agent=agent-0 done elapsed=28.1s score=1.0000
 INFO ksi.orchestrator.execution_phase: [gen 1] task=anagram-groups agent=agent-2 done elapsed=33.0s score=1.0000
@@ -1578,27 +1521,35 @@ INFO ksi.orchestrator.engine: completed traces=3 tasks=3 solved=3/3 (100.0%)
 INFO ksi.orchestrator.persistence: [tokens] total=418,329 cached_input=346,149 uncached_input=9,129 output=5,090 cache_create=57,961
 </code></pre></div>
 <p><strong>Knowledge DB check</strong> — every solved attempt writes an <code>entry_type='attempt'</code>
-row plus an <code>insight</code> row. The quickstart turns off both forums for speed
+row plus an <code>insight</code> row. The quickstart turns both forums off for speed
 (<code>--per-task-forum-rounds 0 --cross-task-forum-rounds 0</code>), so there are no
-discussion posts — and with nothing unsolved in this single-generation run,
+discussion posts, and with nothing unsolved in this single-generation run
 distillation has nothing to write either:</p>
 <div class="highlight"><pre><span></span><code><span class="gp">$ </span>sqlite3<span class="w"> </span>runtime_state/knowledge/quickstart_demo/quickstart_demo_knowledge.sqlite<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span><span class="s2">&quot;select entry_type, source_phase, count(*) from knowledge group by entry_type, source_phase order by entry_type, source_phase;&quot;</span>
 <span class="go">attempt|execution|3</span>
 <span class="go">insight|execution|3</span>
 </code></pre></div>
-<p>If your own run's numbers differ (different elapsed times, different token
-counts), that's expected — <code>solved=3/3 (100.0%)</code> is the signal that your
-environment is set up correctly.</p>
+</details>
 <h2 id="what-just-happened">What just happened?<a class="headerlink" href="#what-just-happened" title="Permanent link">&para;</a></h2>
 <p>KSI runs a knowledge-refinement loop across generations:</p>
 <ol>
 <li>A population of agents each attempt the tasks in isolated containers.</li>
 <li>They record every attempt in the knowledge database.</li>
-<li>They <a href="../glossary/#forum"><em>discuss</em></a> what worked (the <em><a href="../glossary/#forum">forum</a></em>).</li>
-<li>The system <a href="../glossary/#distillation"><em>distills</em></a> the discussion into reusable guidance.</li>
+<li>They <a href="../glossary/#forum"><em>discuss</em></a> what worked in two <a href="../glossary/#forum">forums</a>: a <strong>per-task forum</strong>, where the agents that attempted the same task compare their approaches, and a <strong>cross-task forum</strong>, where lessons that generalize beyond a single task are shared across the whole population.</li>
+<li>The system <a href="../glossary/#distillation"><em>distills</em></a> those discussions into reusable guidance.</li>
 <li>The next generation is <a href="../glossary/#seeding"><em>seeded</em></a> with that guidance.</li>
 </ol>
+<div class="admonition note">
+<p class="admonition-title">Why the demo doesn't show steps 3–5</p>
+<p>The quickstart runs a single generation with both forums off, so steps 3–5
+don't fire here. And because every task solves on the first attempt, there
+would be nothing to learn anyway: a solved task is dropped from later
+generations (<code>--drop-solved</code>, on by default), so a multi-generation run
+<strong>stops early</strong> once everything is solved. To watch the full loop, turn the
+forums on, request several generations, and use tasks hard enough that some
+fail — see <a href="../experiments/">experiments.md</a>.</p>
+</div>
 <h2 id="next-steps">Next steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Bring your own tasks</strong> — the record schema, the <code>command</code> evaluator's
@@ -1675,13 +1626,13 @@ environment is set up correctly.</p>
         
         
           
-          <a href="../CONTRIBUTING/" class="md-footer__link md-footer__link--next" aria-label="Next: Contributing">
+          <a href="../your_own_tasks/" class="md-footer__link md-footer__link--next" aria-label="Next: Your own tasks">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Contributing
+                Your own tasks
               </div>
             </div>
             <div class="md-footer__button md-icon">

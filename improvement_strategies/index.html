@@ -242,20 +242,17 @@
   
   
   
-    
-    
-      <li class="md-tabs__item">
-        <a href="../getting-started/" class="md-tabs__link">
-          
+    <li class="md-tabs__item">
+      <a href="../getting-started/" class="md-tabs__link">
+        
   
   
     
   
   Getting started
 
-        </a>
-      </li>
-    
+      </a>
+    </li>
   
 
       
@@ -409,6 +406,25 @@
   
   
     <li class="md-tabs__item">
+      <a href="../CONTRIBUTING/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Contributing
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
       <a href="https://recursive-knowledge.github.io/knowledge-centric-self-improvement/" class="md-tabs__link">
         
   
@@ -505,64 +521,6 @@
   
   
   
-    
-    
-      
-        
-      
-        
-      
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
-        
-          
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Getting started
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_2">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Getting started
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
     <li class="md-nav__item">
       <a href="../getting-started/" class="md-nav__link">
         
@@ -580,42 +538,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../CONTRIBUTING/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Contributing
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -1375,6 +1297,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../CONTRIBUTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="https://recursive-knowledge.github.io/knowledge-centric-self-improvement/" class="md-nav__link">
         
   
@@ -1634,7 +1583,7 @@ improvement-mechanism concerns.</p>
 </code></pre></div>
 <h2 id="bundled-strategies">Bundled strategies<a class="headerlink" href="#bundled-strategies" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong><code>DefaultKnowledgeStrategy</code></strong> — current behaviour, extracted verbatim via
+<li><strong><code>DefaultKnowledgeStrategy</code></strong> — current behavior, extracted verbatim via
   phase-service delegation. Adds no new branching; every gating flag still
   works as before.</li>
 <li><strong><code>RawAttemptsStrategy</code></strong> — the true knowledge-off ablation: no forums, no
@@ -1679,7 +1628,7 @@ registries). Two are built in: <code>knowledge</code> (default) and <code>raw_at
 <span class="n">register_strategy</span><span class="p">(</span><span class="n">StrategySpec</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;my_strategy&quot;</span><span class="p">,</span> <span class="n">factory</span><span class="o">=</span><span class="n">MyStrategy</span><span class="p">))</span>
 </code></pre></div>
 <p>(Or wire it ad-hoc via <code>orch.set_improvement_strategy(MyStrategy())</code>.)
-5. Add an equivalence/behaviour test alongside
+5. Add an equivalence/behavior test alongside
    <code>tests/test_improvement_strategy.py</code>.</p>
 <h2 id="what-remains-engine-owned">What remains engine-owned<a class="headerlink" href="#what-remains-engine-owned" title="Permanent link">&para;</a></h2>
 <p>This refactor is deliberately phase-service-first:</p>
