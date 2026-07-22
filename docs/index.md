@@ -28,7 +28,9 @@ next generation with it.
 
     ---
 
-    Fresh clone to a solved demo task in one command — no dataset download.
+    Fresh clone to a solved demo task in one command — then
+    [your own tasks](your_own_tasks.md) and
+    [larger runs](experiments.md).
 
     [:octicons-arrow-right-24: Run the demo](getting-started.md)
 
@@ -52,8 +54,7 @@ next generation with it.
 
     ---
 
-    Drive a run from Python with `ksi.run(...)` — plus
-    [larger runs](experiments.md) and the
+    Drive a run from Python with `ksi.run(...)` — plus the auto-generated
     [API reference](reference/api.md).
 
     [:octicons-arrow-right-24: API guide](programmatic_api.md)
