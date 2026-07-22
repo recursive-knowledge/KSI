@@ -1,6 +1,6 @@
-# Extending ksi
+# Extending KSI
 
-ksi is built around small, typed **seams** so researchers and developers can
+KSI is built around small, typed **seams** so researchers and developers can
 implement variants without editing core engine code. Every seam is the same
 shape: a `Protocol` that defines the contract + a **registry** you register into.
 No `if name == ...` dispatch edits anywhere.
@@ -57,8 +57,8 @@ dict directly. Direct mutation bypasses the duplicate-name detection, so the
 registry module's `__all__`). Read the registered set with `resolve_<seam>` /
 `supported_<seam>s`.
 
-Every exception ksi raises subclasses `ksi.KsiError`, so a programmatic
-caller can `except ksi.KsiError` to catch any ksi-originated failure (the
+Every exception KSI raises subclasses `ksi.KsiError`, so a programmatic
+caller can `except ksi.KsiError` to catch any KSI-originated failure (the
 concrete types keep their historical `RuntimeError` / `ValueError` base too).
 
 ### Constructing a registered component programmatically
@@ -91,7 +91,7 @@ the base runtime; the Terminal-Bench-2 delegation wrapper is a CLI-only concern.
 > no arguments, so `ksi.register_strategy`'d strategies are already buildable
 > via `get_strategy_spec(name).factory()`.
 
-## Driving ksi programmatically
+## Driving KSI programmatically
 
 Once your seam is registered (or constructed directly), drive a run from Python
 with `ksi.run(...)` — see [programmatic_api.md](./programmatic_api.md).
