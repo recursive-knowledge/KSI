@@ -10,8 +10,9 @@
 #     from the environment);
 #   - the ksi-agent:bench Docker image (built on first run if missing);
 #   - the host runtime_runner Node dependencies.
-# Then it runs 3 generations with the forums on and solved tasks retained, so
-# the full knowledge loop (execute -> forum -> distill -> seed) fires end to end.
+# Then it runs 3 generations with the forums on over four deliberately harder
+# tasks (not all solvable in one shot), so the full knowledge loop
+# (execute -> forum -> distill -> seed) fires end to end across generations.
 #
 # Usage:
 #   ANTHROPIC_API_KEY=sk-ant-... bash scripts/quickstart.sh
@@ -131,13 +132,15 @@ if [[ ! -f "$PROFILE" ]]; then
   exit 1
 fi
 
-# Full-loop demo: 3 generations with the per-task and cross-task forums on and
-# solved tasks retained (--no-drop-solved), so every phase fires across
-# generations — execute -> forum -> distill -> seed -> next generation. This
-# takes longer than a single generation but exercises the whole
-# knowledge-refinement loop rather than just the execution phase. (Without
-# --no-drop-solved the demo tasks all solve on generation 1 and get dropped,
-# so the run would stop before seeding ever fires.)
+# Full-loop demo: 3 generations with the per-task and cross-task forums on, over
+# four tasks deliberately pitched beyond a single-shot solve (an arithmetic
+# parser with a truncation trap, a range-query task that needs a Fenwick tree, a
+# numerically-stable summation, and a continuous-score TSP heuristic). Because
+# they don't all solve on generation 1, unsolved tasks carry forward under the
+# default --drop-solved and every phase fires across generations —
+# execute -> forum -> distill -> seed -> next generation. This takes longer than
+# a single generation but exercises the whole knowledge-refinement loop rather
+# than just the execution phase.
 CMD=(
   "${PYRUN[@]}" -m ksi.cli
   --task-source custom
@@ -147,12 +150,11 @@ CMD=(
   --generations 3
   --per-task-forum-rounds 1
   --cross-task-forum-rounds 1
-  --no-drop-solved
-  --max-concurrent-tasks 3
+  --max-concurrent-tasks 4
   --experiment-name "$EXPERIMENT_NAME"
 )
 
-echo "==> Running quickstart demo (3 custom Python tasks: fizzbuzz, reverse-words, anagram-groups)"
+echo "==> Running quickstart demo (4 harder Python tasks: calc-eval, range-queries, precise-sum, tsp-heuristic)"
 echo "    ${CMD[*]}"
 
 if [[ "${DRY_RUN:-false}" == "true" ]]; then

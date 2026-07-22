@@ -4,10 +4,11 @@ Go from a fresh clone to a solved demo task in one command, then learn what just
 
 ## What you'll do
 
-Run three generations of agents against three bundled, self-contained tasks and watch the full
-knowledge loop — execute, discuss, distill, seed — fire end to end. No dataset download, no manual
-setup. The demo takes several minutes and leaves you with a working environment ready to run your
-own tasks or a reference benchmark.
+Run three generations of agents against four bundled, self-contained tasks — pitched hard enough
+that they don't all solve on the first try — and watch the full knowledge loop — execute, discuss,
+distill, seed — fire end to end. No dataset download, no manual setup. The demo takes several
+minutes and leaves you with a working environment ready to run your own tasks or a reference
+benchmark.
 
 ## Prerequisites
 
@@ -25,11 +26,11 @@ bash scripts/quickstart.sh
 
 The script self-bootstraps everything it needs: it synthesizes a provider profile from your key,
 builds the `ksi-agent:bench` image on first run (this takes a few minutes), installs the host
-Node dependencies, then runs three generations over the three bundled tasks under
+Node dependencies, then runs three generations over the four bundled tasks under
 [`examples/custom_tasks/`](https://github.com/recursive-knowledge/KSI/tree/main/examples/custom_tasks)
-(`fizzbuzz`, `reverse-words`, `anagram-groups`) — each graded by running `python3 tests.py`
-against the agent's attempt, with the per-task and cross-task forums on so every phase of the
-loop fires.
+(`calc-eval`, `range-queries`, `precise-sum`, `tsp-heuristic`) — each graded on the host by the
+task's own eval command, with the per-task and cross-task forums on so every phase of the loop
+fires.
 
 For the complete benchmark environment (including benchmark preparation and
 smoke tests), run `bash scripts/setup_all.sh`. Use `--no-test` when you need
@@ -62,12 +63,15 @@ The run logs each attempt and its score as it progresses. When it finishes, resu
 | Score summary (optional — only when `--output-json` is set) | `results/<experiment>.json` |
 | Execution traces | `analysis/traces/<experiment>/` |
 
-For the quickstart, `<experiment>` defaults to `quickstart_demo`. The run prints
+For the quickstart, `<experiment>` defaults to `quickstart_demo`. The run logs
 each task's score as it goes, and each generation ends with a
-`completed … solved=3/3 (100.0%)` line — three in all, one per generation.
-Seeing `solved=3/3` is the signal your environment is set up correctly. Elapsed
-times and token counts vary by model and run; the task names and `solved=3/3`
-don't.
+`completed … solved=N/M` line — three in all, one per generation. These tasks
+are meant to be hard, so expect only some to solve on generation 1, with the
+solve count and the `tsp-heuristic` score generally improving across the three
+generations as distilled knowledge accumulates (the hardest tasks may stay
+unsolved — that's fine). **The signal that your environment is set up correctly
+is that attempts run and get scored at all** — not that everything solves.
+Elapsed times, token counts, and exact solve counts vary by model and run.
 
 ??? note "A closer look — sample output, optional artifacts, and the knowledge DB"
 
@@ -79,13 +83,15 @@ don't.
     An illustrative excerpt from a generation's execution phase against
     `claude-haiku-4-5-20251001` (the default `configs/ksi/.env.haiku` profile),
     timestamps trimmed — each generation logs a block like this, followed by the
-    forum and distillation phases:
+    forum and distillation phases. Scores are mixed on generation 1 by design
+    (`tsp-heuristic` is a continuous score, never a clean `1.0`):
 
     ```text
-    INFO ksi.orchestrator.execution_phase: [gen 1] task=reverse-words agent=agent-1 done elapsed=27.4s score=1.0000
-    INFO ksi.orchestrator.execution_phase: [gen 1] task=fizzbuzz agent=agent-0 done elapsed=28.1s score=1.0000
-    INFO ksi.orchestrator.execution_phase: [gen 1] task=anagram-groups agent=agent-2 done elapsed=33.0s score=1.0000
-    INFO ksi.orchestrator.engine: completed traces=3 tasks=3 solved=3/3 (100.0%)
+    INFO ksi.orchestrator.execution_phase: [gen 1] task=range-queries agent=agent-1 done elapsed=31.2s score=1.0000
+    INFO ksi.orchestrator.execution_phase: [gen 1] task=tsp-heuristic agent=agent-3 done elapsed=44.7s score=0.7800
+    INFO ksi.orchestrator.execution_phase: [gen 1] task=calc-eval agent=agent-0 done elapsed=28.1s score=0.0000
+    INFO ksi.orchestrator.execution_phase: [gen 1] task=precise-sum agent=agent-2 done elapsed=26.5s score=0.0000
+    INFO ksi.orchestrator.engine: completed traces=4 tasks=4 solved=1/4 (25.0%)
     ```
 
     **Knowledge DB check** — because the demo now runs the full loop, the
@@ -113,15 +119,17 @@ KSI runs a knowledge-refinement loop across generations:
 4. The system [*distills*](glossary.md#distillation) those discussions into reusable guidance.
 5. The next generation is [*seeded*](glossary.md#seeding) with that guidance.
 
-!!! note "Why the demo keeps solved tasks (`--no-drop-solved`)"
-    The quickstart runs three generations with both forums on, so all five steps
-    fire. There's one wrinkle: every demo task solves on the first attempt, and a
-    solved task is normally dropped from later generations (`--drop-solved`, on by
-    default), which would empty the task pool and **stop the run** before seeding
-    ever fires. So the quickstart passes `--no-drop-solved` to retain the solved
-    tasks and carry the full loop across all three generations. On your own tasks,
-    leaving `--drop-solved` on (the default) is usually what you want — the loop
-    then concentrates each generation on what's still unsolved. See
+!!! note "Why these tasks are hard on purpose"
+    Earlier versions of this demo used trivial tasks that every agent solved on
+    the first attempt — so with `--drop-solved` (on by default) the task pool
+    emptied after generation 1 and the run **stopped** before the forum, distill,
+    and seed phases could show their value. These four tasks are pitched beyond a
+    reliable one-shot solve — a truncation-toward-zero parser trap, a range-query
+    task that needs a Fenwick tree, numerically-stable summation, and a
+    continuous-score TSP heuristic that is effectively never "perfect" — so
+    unsolved tasks carry forward under the default `--drop-solved` and the full
+    loop runs across all three generations. On your own *easy* tasks, expect the
+    run to stop early once everything is solved; that's the intended behavior. See
     [experiments.md](experiments.md).
 
 ## Next steps
