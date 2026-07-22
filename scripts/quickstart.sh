@@ -10,7 +10,8 @@
 #     from the environment);
 #   - the ksi-agent:bench Docker image (built on first run if missing);
 #   - the host runtime_runner Node dependencies.
-# Then it runs a single minimal generation so the demo finishes in a few minutes.
+# Then it runs 3 generations with the forums on and solved tasks retained, so
+# the full knowledge loop (execute -> forum -> distill -> seed) fires end to end.
 #
 # Usage:
 #   ANTHROPIC_API_KEY=sk-ant-... bash scripts/quickstart.sh
@@ -130,17 +131,23 @@ if [[ ! -f "$PROFILE" ]]; then
   exit 1
 fi
 
-# Minimal canonical run: only the required flags plus one fast generation with
-# the discussion/distillation phases off, so the demo finishes quickly.
+# Full-loop demo: 3 generations with the per-task and cross-task forums on and
+# solved tasks retained (--no-drop-solved), so every phase fires across
+# generations — execute -> forum -> distill -> seed -> next generation. This
+# takes longer than a single generation but exercises the whole
+# knowledge-refinement loop rather than just the execution phase. (Without
+# --no-drop-solved the demo tasks all solve on generation 1 and get dropped,
+# so the run would stop before seeding ever fires.)
 CMD=(
   "${PYRUN[@]}" -m ksi.cli
   --task-source custom
   --tasks-path "$TASKS_PATH"
   --evaluator command
   --provider-profile "$PROFILE"
-  --generations 1
-  --per-task-forum-rounds 0
-  --cross-task-forum-rounds 0
+  --generations 3
+  --per-task-forum-rounds 1
+  --cross-task-forum-rounds 1
+  --no-drop-solved
   --max-concurrent-tasks 3
   --experiment-name "$EXPERIMENT_NAME"
 )

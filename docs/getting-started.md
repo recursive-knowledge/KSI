@@ -4,9 +4,10 @@ Go from a fresh clone to a solved demo task in one command, then learn what just
 
 ## What you'll do
 
-Run one fast generation of agents against three bundled, self-contained tasks and see them score —
-no dataset download, no manual setup. The whole demo finishes in a few minutes and leaves you with
-a working environment ready to run your own tasks or a reference benchmark.
+Run three generations of agents against three bundled, self-contained tasks and watch the full
+knowledge loop — execute, discuss, distill, seed — fire end to end. No dataset download, no manual
+setup. The demo takes several minutes and leaves you with a working environment ready to run your
+own tasks or a reference benchmark.
 
 ## Prerequisites
 
@@ -24,10 +25,11 @@ bash scripts/quickstart.sh
 
 The script self-bootstraps everything it needs: it synthesizes a provider profile from your key,
 builds the `ksi-agent:bench` image on first run (this takes a few minutes), installs the host
-Node dependencies, then runs one generation over the three bundled tasks under
+Node dependencies, then runs three generations over the three bundled tasks under
 [`examples/custom_tasks/`](https://github.com/recursive-knowledge/KSI/tree/main/examples/custom_tasks)
 (`fizzbuzz`, `reverse-words`, `anagram-groups`) — each graded by running `python3 tests.py`
-against the agent's attempt.
+against the agent's attempt, with the per-task and cross-task forums on so every phase of the
+loop fires.
 
 For the complete benchmark environment (including benchmark preparation and
 smoke tests), run `bash scripts/setup_all.sh`. Use `--no-test` when you need
@@ -61,9 +63,11 @@ The run logs each attempt and its score as it progresses. When it finishes, resu
 | Execution traces | `analysis/traces/<experiment>/` |
 
 For the quickstart, `<experiment>` defaults to `quickstart_demo`. The run prints
-each task's score as it goes and ends with a `completed … solved=3/3 (100.0%)`
-line — that's the signal your environment is set up correctly. Elapsed times and
-token counts vary by model and run; the task names and `solved=3/3` don't.
+each task's score as it goes, and each generation ends with a
+`completed … solved=3/3 (100.0%)` line — three in all, one per generation.
+Seeing `solved=3/3` is the signal your environment is set up correctly. Elapsed
+times and token counts vary by model and run; the task names and `solved=3/3`
+don't.
 
 ??? note "A closer look — sample output, optional artifacts, and the knowledge DB"
 
@@ -72,29 +76,32 @@ token counts vary by model and run; the task names and `solved=3/3` don't.
     run preset, which sets it for you) for a score summary on disk. Traces default
     to `analysis/traces/<experiment>/` — set `KSI_TRACE_DIR` to change the root.
 
-    A real excerpt from a run against `claude-haiku-4-5-20251001` (the default
-    `configs/ksi/.env.haiku` profile), timestamps trimmed:
+    An illustrative excerpt from a generation's execution phase against
+    `claude-haiku-4-5-20251001` (the default `configs/ksi/.env.haiku` profile),
+    timestamps trimmed — each generation logs a block like this, followed by the
+    forum and distillation phases:
 
     ```text
     INFO ksi.orchestrator.execution_phase: [gen 1] task=reverse-words agent=agent-1 done elapsed=27.4s score=1.0000
     INFO ksi.orchestrator.execution_phase: [gen 1] task=fizzbuzz agent=agent-0 done elapsed=28.1s score=1.0000
     INFO ksi.orchestrator.execution_phase: [gen 1] task=anagram-groups agent=agent-2 done elapsed=33.0s score=1.0000
     INFO ksi.orchestrator.engine: completed traces=3 tasks=3 solved=3/3 (100.0%)
-    INFO ksi.orchestrator.persistence: [tokens] total=418,329 cached_input=346,149 uncached_input=9,129 output=5,090 cache_create=57,961
     ```
 
-    **Knowledge DB check** — every solved attempt writes an `entry_type='attempt'`
-    row plus an `insight` row. The quickstart turns both forums off for speed
-    (`--per-task-forum-rounds 0 --cross-task-forum-rounds 0`), so there are no
-    discussion posts, and with nothing unsolved in this single-generation run
-    distillation has nothing to write either:
+    **Knowledge DB check** — because the demo now runs the full loop, the
+    knowledge DB carries rows from every phase, not just execution. Group by
+    `entry_type` and `source_phase` to see them:
 
     ```console
     $ sqlite3 runtime_state/knowledge/quickstart_demo/quickstart_demo_knowledge.sqlite \
         "select entry_type, source_phase, count(*) from knowledge group by entry_type, source_phase order by entry_type, source_phase;"
-    attempt|execution|3
-    insight|execution|3
     ```
+
+    You'll see `attempt` and `insight` rows from `execution`, `post` rows from
+    `per_task_forum` and `cross_task_forum` (the two discussion phases), and
+    `distillation` rows from `per_task_distill` and `cross_task_distill`. Exact
+    counts vary with the model and how much each agent posts, and they grow with
+    each of the three generations.
 
 ## What just happened?
 
@@ -106,14 +113,16 @@ KSI runs a knowledge-refinement loop across generations:
 4. The system [*distills*](glossary.md#distillation) those discussions into reusable guidance.
 5. The next generation is [*seeded*](glossary.md#seeding) with that guidance.
 
-!!! note "Why the demo doesn't show steps 3–5"
-    The quickstart runs a single generation with both forums off, so steps 3–5
-    don't fire here. And because every task solves on the first attempt, there
-    would be nothing to learn anyway: a solved task is dropped from later
-    generations (`--drop-solved`, on by default), so a multi-generation run
-    **stops early** once everything is solved. To watch the full loop, turn the
-    forums on, request several generations, and use tasks hard enough that some
-    fail — see [experiments.md](experiments.md).
+!!! note "Why the demo keeps solved tasks (`--no-drop-solved`)"
+    The quickstart runs three generations with both forums on, so all five steps
+    fire. There's one wrinkle: every demo task solves on the first attempt, and a
+    solved task is normally dropped from later generations (`--drop-solved`, on by
+    default), which would empty the task pool and **stop the run** before seeding
+    ever fires. So the quickstart passes `--no-drop-solved` to retain the solved
+    tasks and carry the full loop across all three generations. On your own tasks,
+    leaving `--drop-solved` on (the default) is usually what you want — the loop
+    then concentrates each generation on what's still unsolved. See
+    [experiments.md](experiments.md).
 
 ## Next steps
 

@@ -41,8 +41,9 @@ bash scripts/quickstart.sh
 
 The script self-bootstraps everything it needs: it synthesizes a provider
 profile from your key, builds the `ksi-agent:bench` image on first run,
-installs the host Node dependencies, then runs one generation over the
-bundled [`examples/custom_tasks/`](./examples/custom_tasks/) demo. If
+installs the host Node dependencies, then runs three generations over the
+bundled [`examples/custom_tasks/`](./examples/custom_tasks/) demo — with the
+forums on, so the full execute → forum → distill → seed loop fires. If
 anything is missing, `uv run ksi-doctor` prints a ✓/✗ readiness checklist
 with the exact command to fix it.
 

@@ -84,7 +84,8 @@ Every run makes real LLM API calls billed to the key in your provider profile;
 there is no built-in spending cap. Cost scales with the number of tasks,
 generations, and the model you choose. To get a feel before committing,
 start with the bundled synthetic demo: `bash scripts/quickstart.sh` runs
-three tasks, one generation, with Haiku — the fastest and cheapest option.
+three tasks across three generations with Haiku — the cheapest way to watch
+the full loop.
 Use `DRY_RUN=true` on any experiment wrapper script to print the full CLI
 command and DB paths without launching anything.
 
