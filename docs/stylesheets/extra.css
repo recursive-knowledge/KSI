@@ -99,11 +99,11 @@ body {
 /* ---- Typographic rhythm --------------------------------------------------- */
 .md-typeset h1 {
   font-weight: 700;
-  letter-spacing: 0;
+  letter-spacing: -0.02em;
 }
 .md-typeset h2 {
   font-weight: 650;
-  letter-spacing: 0;
+  letter-spacing: -0.01em;
   margin-top: 2.2rem;
 }
 .md-typeset h3,
@@ -128,7 +128,7 @@ body {
    and a subtly tinted header row. Scoped to `:not([class])` so mkdocstrings and
    other generated tables keep their own styling. */
 .md-typeset table:not([class]) {
-  border-radius: 8px;
+  border-radius: 10px;
   border-spacing: 0;
   overflow: hidden;
 }
@@ -231,7 +231,9 @@ body {
    ========================================================================== */
 .md-typeset .grid.cards > ul > li,
 .md-typeset .grid > .card {
-  border-radius: 8px;
+  /* Matches the blog's `--radius: 14px` card token — see the header note about
+     the two sites reading as one system. */
+  border-radius: 14px;
   transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
 
