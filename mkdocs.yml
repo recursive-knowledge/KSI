@@ -97,6 +97,7 @@ nav:
       - Extension seams: extending.md
       - Add a benchmark / task source: adding_a_benchmark.md
       - Add an evaluator / runtime: adding_an_evaluator.md
+      - Open-source & self-hosted models: open_source_models.md
       - Improvement strategies: improvement_strategies.md
   - Reference:
       - Glossary: glossary.md
