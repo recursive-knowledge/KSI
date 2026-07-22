@@ -60,46 +60,41 @@ The run logs each attempt and its score as it progresses. When it finishes, resu
 | Score summary (optional — only when `--output-json` is set) | `results/<experiment>.json` |
 | Execution traces | `analysis/traces/<experiment>/` |
 
-For the quickstart, `<experiment>` defaults to `quickstart_demo`. The
-quickstart itself doesn't pass `--output-json`, so it won't produce a
-`results/quickstart_demo.json` — pass that flag yourself (or use one of the
-`benchmarks/` run presets, which set it for you) if you want a score
-summary written to disk.
+For the quickstart, `<experiment>` defaults to `quickstart_demo`. The run prints
+each task's score as it goes and ends with a `completed … solved=3/3 (100.0%)`
+line — that's the signal your environment is set up correctly. Elapsed times and
+token counts vary by model and run; the task names and `solved=3/3` don't.
 
-The direct CLI defaults traces to `analysis/traces/<experiment>/`; set
-`KSI_TRACE_DIR` before launching if your environment needs a different trace
-root.
+??? note "A closer look — sample output, optional artifacts, and the knowledge DB"
 
-Here's a real excerpt from a quickstart run against `claude-haiku-4-5-20251001`
-(the default `configs/ksi/.env.haiku` profile), with timestamps trimmed. The task
-names, `solved=3/3`, and the `[tokens]` fields stay the same across runs; the
-elapsed times and token counts won't, since they depend on the model and how the
-agent solves each task:
+    The quickstart doesn't pass `--output-json`, so it writes no
+    `results/quickstart_demo.json`; pass that flag yourself (or use a `benchmarks/`
+    run preset, which sets it for you) for a score summary on disk. Traces default
+    to `analysis/traces/<experiment>/` — set `KSI_TRACE_DIR` to change the root.
 
-```text
-INFO ksi.orchestrator.execution_phase: [gen 1] task=reverse-words agent=agent-1 done elapsed=27.4s score=1.0000
-INFO ksi.orchestrator.execution_phase: [gen 1] task=fizzbuzz agent=agent-0 done elapsed=28.1s score=1.0000
-INFO ksi.orchestrator.execution_phase: [gen 1] task=anagram-groups agent=agent-2 done elapsed=33.0s score=1.0000
-INFO ksi.orchestrator.engine: completed traces=3 tasks=3 solved=3/3 (100.0%)
-INFO ksi.orchestrator.persistence: [tokens] total=418,329 cached_input=346,149 uncached_input=9,129 output=5,090 cache_create=57,961
-```
+    A real excerpt from a run against `claude-haiku-4-5-20251001` (the default
+    `configs/ksi/.env.haiku` profile), timestamps trimmed:
 
-**Knowledge DB check** — every solved attempt writes an `entry_type='attempt'`
-row plus an `insight` row. The quickstart turns off both forums for speed
-(`--per-task-forum-rounds 0 --cross-task-forum-rounds 0`), so there are no
-discussion posts — and with nothing unsolved in this single-generation run,
-distillation has nothing to write either:
+    ```text
+    INFO ksi.orchestrator.execution_phase: [gen 1] task=reverse-words agent=agent-1 done elapsed=27.4s score=1.0000
+    INFO ksi.orchestrator.execution_phase: [gen 1] task=fizzbuzz agent=agent-0 done elapsed=28.1s score=1.0000
+    INFO ksi.orchestrator.execution_phase: [gen 1] task=anagram-groups agent=agent-2 done elapsed=33.0s score=1.0000
+    INFO ksi.orchestrator.engine: completed traces=3 tasks=3 solved=3/3 (100.0%)
+    INFO ksi.orchestrator.persistence: [tokens] total=418,329 cached_input=346,149 uncached_input=9,129 output=5,090 cache_create=57,961
+    ```
 
-```console
-$ sqlite3 runtime_state/knowledge/quickstart_demo/quickstart_demo_knowledge.sqlite \
-    "select entry_type, source_phase, count(*) from knowledge group by entry_type, source_phase order by entry_type, source_phase;"
-attempt|execution|3
-insight|execution|3
-```
+    **Knowledge DB check** — every solved attempt writes an `entry_type='attempt'`
+    row plus an `insight` row. The quickstart turns both forums off for speed
+    (`--per-task-forum-rounds 0 --cross-task-forum-rounds 0`), so there are no
+    discussion posts, and with nothing unsolved in this single-generation run
+    distillation has nothing to write either:
 
-If your own run's numbers differ (different elapsed times, different token
-counts), that's expected — `solved=3/3 (100.0%)` is the signal that your
-environment is set up correctly.
+    ```console
+    $ sqlite3 runtime_state/knowledge/quickstart_demo/quickstart_demo_knowledge.sqlite \
+        "select entry_type, source_phase, count(*) from knowledge group by entry_type, source_phase order by entry_type, source_phase;"
+    attempt|execution|3
+    insight|execution|3
+    ```
 
 ## What just happened?
 
@@ -107,9 +102,18 @@ KSI runs a knowledge-refinement loop across generations:
 
 1. A population of agents each attempt the tasks in isolated containers.
 2. They record every attempt in the knowledge database.
-3. They [*discuss*](glossary.md#forum) what worked (the *[forum](glossary.md#forum)*).
-4. The system [*distills*](glossary.md#distillation) the discussion into reusable guidance.
+3. They [*discuss*](glossary.md#forum) what worked in two [forums](glossary.md#forum): a **per-task forum**, where the agents that attempted the same task compare their approaches, and a **cross-task forum**, where lessons that generalize beyond a single task are shared across the whole population.
+4. The system [*distills*](glossary.md#distillation) those discussions into reusable guidance.
 5. The next generation is [*seeded*](glossary.md#seeding) with that guidance.
+
+!!! note "Why the demo doesn't show steps 3–5"
+    The quickstart runs a single generation with both forums off, so steps 3–5
+    don't fire here. And because every task solves on the first attempt, there
+    would be nothing to learn anyway: a solved task is dropped from later
+    generations (`--drop-solved`, on by default), so a multi-generation run
+    **stops early** once everything is solved. To watch the full loop, turn the
+    forums on, request several generations, and use tasks hard enough that some
+    fail — see [experiments.md](experiments.md).
 
 ## Next steps
 
