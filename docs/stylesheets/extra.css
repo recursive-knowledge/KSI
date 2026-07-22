@@ -392,7 +392,9 @@ body.mermaid-zoom-lock {
 /* ==========================================================================
    Mobile layout
    ========================================================================== */
-@media screen and (max-width: 44.984em) {
+/* 44.984375em is Material's own mobile breakpoint — keep them identical so our
+   overrides switch on exactly the same viewport Material does. */
+@media screen and (max-width: 44.984375em) {
   .md-typeset h1 {
     font-size: 1.75rem;
     line-height: 1.18;
@@ -407,19 +409,23 @@ body.mermaid-zoom-lock {
     padding: 2.1rem 0 1.9rem;
   }
 
+  /* `text-wrap: balance` evens out the line lengths so the title can't strand a
+     short last line (the original problem here). Prefer it over a hand-tuned
+     max-width, which only works for the current wording. Browsers without it
+     just fall back to normal wrapping. */
   .ksi-hero h1 {
-    max-width: 18.5rem;
-    margin-right: auto;
-    margin-left: auto;
     font-size: 1.8rem;
     line-height: 1.16;
+    text-wrap: balance;
   }
 
+  /* `pretty` rather than `balance`: it keeps full-measure lines but avoids a
+     one-word last line, which reads better for a multi-line paragraph. */
   .ksi-hero .ksi-tagline {
-    max-width: 20rem;
     margin-bottom: 1.25rem;
     font-size: 0.92rem;
     line-height: 1.55;
+    text-wrap: pretty;
   }
 
   .ksi-cta {
@@ -462,41 +468,32 @@ body.mermaid-zoom-lock {
     box-shadow: none;
   }
 
-  .md-typeset pre {
-    margin-right: 0;
-    margin-left: 0;
-  }
+  /* Long inline code (flags, paths, dotted identifiers) is the one thing Material
+     doesn't already break on a narrow screen — `word-break: break-word` leaves an
+     unbroken token to overflow the column. Block code needs nothing: Material
+     gives `pre > code` its own `overflow: auto` and pulls top-level blocks
+     edge-to-edge at this same breakpoint.
 
-  .md-typeset pre > code {
-    font-size: 0.68rem;
-  }
-
+     Wide tables need nothing either — Material wraps every table in
+     `.md-typeset__scrollwrap`, which already scrolls horizontally at all widths. */
   .md-typeset :not(pre) > code {
     overflow-wrap: anywhere;
   }
 
-  .md-typeset .md-typeset__table {
-    max-width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .md-typeset table:not([class]) {
-    min-width: 34rem;
-  }
-
+  /* Diagrams keep their native size here too (see the useMaxWidth:false init
+     directives in architecture.md) and scroll inside their own box. Shrinking a
+     wide flowchart to a 360px column would make its labels unreadable — the
+     exact problem native sizing was introduced to fix — so on mobile the
+     always-visible expand button below is the way to read a large diagram.
+     `overscroll-behavior-x` stops a swipe at the diagram's edge from triggering
+     the browser's back-navigation gesture. */
   .md-typeset .mermaid {
-    overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-x: contain;
   }
 
-  .md-typeset .mermaid > svg {
-    display: block;
-    max-width: 100% !important;
-    height: auto !important;
-  }
-
+  /* No hover on touch, so the expand affordance has to be permanently visible,
+     and sized to a comfortable touch target. */
   .mermaid-expand-btn {
     top: 0.4rem;
     right: 0.4rem;
