@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# One command, fresh clone -> solved task on the bundled custom-tasks demo.
+# One command, fresh clone -> the full knowledge loop on 5 hard ARC-AGI-1 tasks.
 #
 # No external dataset download and no prior setup_all.sh run needed. Given
 # Docker and Node.js 22.16.0 installed (and either uv or a local
@@ -10,7 +10,11 @@
 #     from the environment);
 #   - the ksi-agent:bench Docker image (built on first run if missing);
 #   - the host runtime_runner Node dependencies.
-# Then it runs a single minimal generation so the demo finishes in a few minutes.
+# Then it runs 3 generations with the forums on over 3 hard ARC-AGI-1 tasks
+# (bundled under examples/quickstart/arc1_hard/, no download). ARC tasks are hard
+# for every current model, so they don't all solve on generation 1 — unsolved
+# tasks carry forward under the default --drop-solved and the full knowledge loop
+# (execute -> forum -> distill -> seed) fires end to end across generations.
 #
 # Usage:
 #   ANTHROPIC_API_KEY=sk-ant-... bash scripts/quickstart.sh
@@ -18,7 +22,10 @@
 #   PROFILE=configs/ksi/.env.openai bash scripts/quickstart.sh
 #
 # Env knobs:
-#   TASKS_PATH=<path>  run your own tasks .jsonl/.json instead of the bundled demo
+#   TASKS_PATH=<path>  run your own custom tasks .jsonl/.json (command evaluator)
+#                      instead of the default ARC-AGI-1 demo
+#   ARC_DATA_DIR=<d>   directory of ARC task JSONs (default: the bundled 3 tasks)
+#   ARC_TASK_MAP=<p>   optional ARC task-map JSON to filter/pin the selection
 #   EXPERIMENT_NAME=x  name the run (default: quickstart_demo)
 #   PROFILE=<path>     provider profile to use (default: configs/ksi/.env.haiku)
 #   SKIP_BOOTSTRAP=1   don't build the image / install deps / synthesize a profile
@@ -33,9 +40,15 @@ KSI_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 cd "$KSI_ROOT"
 
 PROFILE="${PROFILE:-configs/ksi/.env.haiku}"
-TASKS_PATH="${TASKS_PATH:-examples/custom_tasks/tasks.jsonl}"
 EXPERIMENT_NAME="${EXPERIMENT_NAME:-quickstart_demo}"
 AGENT_IMAGE="ksi-agent:bench"
+
+# Demo task selection. Default: 3 hard ARC-AGI-1 tasks bundled under
+# examples/quickstart/arc1_hard/ (no download). Set TASKS_PATH to a custom
+# .jsonl/.json to run your own tasks through the command evaluator instead.
+TASKS_PATH="${TASKS_PATH:-}"
+ARC_DATA_DIR="${ARC_DATA_DIR:-examples/quickstart/arc1_hard}"
+ARC_TASK_MAP="${ARC_TASK_MAP:-}"
 
 # Prefer uv, but fall back to a plain interpreter so a `pip install`d package
 # (no uv) still works. uv is a convenience here, not a hard requirement.
@@ -130,22 +143,40 @@ if [[ ! -f "$PROFILE" ]]; then
   exit 1
 fi
 
-# Minimal canonical run: only the required flags plus one fast generation with
-# the discussion/distillation phases off, so the demo finishes quickly.
+# Full-loop demo: 3 generations with the per-task and cross-task forums on. The
+# default task set is 3 hard ARC-AGI-1 tasks — hard enough for any current model
+# that they don't all solve on generation 1, so unsolved tasks carry forward
+# under the default --drop-solved and every phase fires across generations
+# (execute -> forum -> distill -> seed -> next generation). Setting TASKS_PATH
+# switches to a custom .jsonl/.json graded by the command evaluator.
+if [[ -n "$TASKS_PATH" ]]; then
+  TASK_FLAGS=(--task-source custom --tasks-path "$TASKS_PATH" --evaluator command)
+  TASK_BANNER="custom tasks from $TASKS_PATH"
+  CONCURRENCY=4
+else
+  TASK_FLAGS=(
+    --task-source arc
+    --tasks-path "$ARC_DATA_DIR"
+    --evaluator arc_session
+    --arc-max-trials 2
+  )
+  [[ -n "$ARC_TASK_MAP" ]] && TASK_FLAGS+=(--task-map-path "$ARC_TASK_MAP")
+  TASK_BANNER="3 hard ARC-AGI-1 tasks"
+  CONCURRENCY=3
+fi
+
 CMD=(
   "${PYRUN[@]}" -m ksi.cli
-  --task-source custom
-  --tasks-path "$TASKS_PATH"
-  --evaluator command
+  "${TASK_FLAGS[@]}"
   --provider-profile "$PROFILE"
-  --generations 1
-  --per-task-forum-rounds 0
-  --cross-task-forum-rounds 0
-  --max-concurrent-tasks 3
+  --generations 3
+  --per-task-forum-rounds 1
+  --cross-task-forum-rounds 1
+  --max-concurrent-tasks "$CONCURRENCY"
   --experiment-name "$EXPERIMENT_NAME"
 )
 
-echo "==> Running quickstart demo (3 custom Python tasks: fizzbuzz, reverse-words, anagram-groups)"
+echo "==> Running quickstart demo ($TASK_BANNER)"
 echo "    ${CMD[*]}"
 
 if [[ "${DRY_RUN:-false}" == "true" ]]; then

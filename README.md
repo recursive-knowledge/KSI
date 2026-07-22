@@ -41,10 +41,12 @@ bash scripts/quickstart.sh
 
 The script self-bootstraps everything it needs: it synthesizes a provider
 profile from your key, builds the `ksi-agent:bench` image on first run,
-installs the host Node dependencies, then runs one generation over the
-bundled [`examples/custom_tasks/`](./examples/custom_tasks/) demo. If
-anything is missing, `uv run ksi-doctor` prints a ✓/✗ readiness checklist
-with the exact command to fix it.
+installs the host Node dependencies, then runs three generations over three
+hard [ARC-AGI-1](./examples/quickstart/arc1_hard/) tasks (bundled, no download)
+— with the forums on, so the full execute → forum → distill → seed loop fires.
+ARC tasks are hard for every current model, so they don't all solve on the first
+generation and the loop keeps going. If anything is missing, `uv run ksi-doctor`
+prints a ✓/✗ readiness checklist with the exact command to fix it.
 
 ## Documentation
 

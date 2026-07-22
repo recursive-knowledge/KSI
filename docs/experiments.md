@@ -1,9 +1,9 @@
 # Running larger runs
 
 The [quickstart](getting-started.md) and [your own tasks](your_own_tasks.md)
-walkthroughs run one generation over a handful of tiny tasks. This page
-covers the flags that matter once you scale up — more tasks, more
-generations, or a maintained reference benchmark instead of your own tasks.
+walkthroughs run over a handful of tiny tasks. This page covers the flags
+that matter once you scale up — more tasks, more generations, or a
+maintained reference benchmark instead of your own tasks.
 
 There is **one canonical launch surface**: the `ksi.cli` argument parser.
 Everything else (bash presets, `ksi.run(...)`) is a layer over the same
