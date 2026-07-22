@@ -376,3 +376,15 @@ body.mermaid-zoom-lock {
   max-height: 82vh;
   user-select: none;
 }
+
+/* Header title stays "KSI" — don't swap to the current page/section title as the
+   page H1 scrolls out of view (Material's default header-topic behavior). */
+.md-header__topic[data-md-component="header-topic"] {
+  display: none;
+}
+.md-header__title--active .md-header__topic:first-child {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+  z-index: 0;
+}

@@ -66,6 +66,7 @@ plugins:
 
 markdown_extensions:
   - admonition
+  - pymdownx.details
   - attr_list
   - md_in_html
   - toc:
@@ -83,9 +84,7 @@ markdown_extensions:
 
 nav:
   - Home: index.md
-  - Getting started:
-      - getting-started.md
-      - Contributing: CONTRIBUTING.md
+  - Getting started: getting-started.md
   - Your own tasks: your_own_tasks.md
   - FAQ: faq.md
   - Programmatic API:
@@ -103,4 +102,5 @@ nav:
       - Artifacts & cleanup: artifacts.md
       - Runtime startup performance: runtime-startup-performance.md
   - Benchmarks: benchmarks.md
+  - Contributing: CONTRIBUTING.md
   - Blog ↗: https://recursive-knowledge.github.io/knowledge-centric-self-improvement/

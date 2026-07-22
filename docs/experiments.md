@@ -83,27 +83,6 @@ as the relevance signal and delivered only to the agent attempting it. Pass
 `--cross-task-distill-target-conditioning false` to use a single broadcast
 bundle shared across all agents instead.
 
-## Removed compatibility flags
-
-The following CLI flags were deprecated compatibility aliases and have been
-removed. Passing one of the forum flags fails with an error naming the
-replacement; `--runtime openai` fails argparse choices validation.
-
-| Removed flag | Use instead |
-|--------------|-------------|
-| `--agents N` | `--max-concurrent-tasks N` (agent count now derives from the filtered task pool) |
-| `--runtime openai` | `--runtime container` with `MODEL_PROVIDER=openai` in the provider profile |
-| `--forum-rounds N` | `--per-task-forum-rounds N` **and** `--cross-task-forum-rounds N` |
-| `--forum-mode off` | `--per-task-forum-rounds 0 --cross-task-forum-rounds 0` |
-| `--forum-mode self` / `--forum-mode multi` | nothing — this was the default behavior (forums on) |
-| `--forum-ablate-r3` | `--distill-enabled=false` |
-
-Note: `--knowledge-db-path` is **not** deprecated — it is the canonical
-knowledge-substrate flag. The removed flag is `--memory-db-path`; use
-`--knowledge-db-path` (authoritative substrate) or `--runtime-db-path`
-(optional audit sidecar) instead. See
-[Database Ownership](architecture.md#5-database-ownership).
-
 ## See also
 
 - [benchmarks/docs/BENCHMARK_PREPARE.md](https://github.com/recursive-knowledge/KSI/blob/main/benchmarks/docs/BENCHMARK_PREPARE.md) —
