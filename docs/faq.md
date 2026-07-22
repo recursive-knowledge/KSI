@@ -78,6 +78,34 @@ Opus) and OpenAI models through provider profiles stored under
 Copy the template for your provider, fill in your key, and pass the path with
 `--provider-profile configs/ksi/.env.haiku` (or equivalent).
 
+`MODEL_PROVIDER` accepts only `anthropic` and `openai` — there is no `vllm`,
+`ollama`, or `openrouter` provider. For open-weight models, see the next
+question.
+
+## Can I run an open-source model (Llama, Qwen, DeepSeek)?
+
+Not out of the box today, but the gap is wiring rather than architecture — you
+would not need a new provider adapter.
+
+The shortest path is to put a proxy that speaks the Anthropic Messages format
+(e.g. [LiteLLM](https://docs.litellm.ai/docs/anthropic_unified/)) in front of
+your model and let the existing Claude Agent SDK path talk to it, keeping
+`MODEL_PROVIDER=anthropic`. The host-side phases (forum, distillation,
+reflection) can already be redirected this way today; the containerized agent
+cannot, because the base-URL variables aren't forwarded into the container yet.
+
+!!! warning "Don't half-configure this"
+    Setting a base URL today does not error — it **splits your traffic**:
+    knowledge phases hit your local server while every task container still
+    calls the hosted API.
+
+Expect prompt-cache savings to largely disappear through a proxy, and cost
+reporting to read `$0.00` for unrecognized model names. The real risk is
+neither — it is whether your model holds up in a long multi-turn tool-calling
+loop.
+
+More detail: [Open-source & self-hosted models](./open_source_models.md).
+
 ## What does a run cost?
 
 Every run makes real LLM API calls billed to the key in your provider profile;
