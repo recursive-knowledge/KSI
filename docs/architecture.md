@@ -446,11 +446,20 @@ The allowlist is derived from the provider profile at launch time:
 | `openai` | `api.openai.com` + `OPENAI_BASE_URL` host (if set) |
 
 Operator-supplied extras are appended via `KSI_EGRESS_ALLOW=host1,host2`
-(comma-separated). Use this for Bedrock, Vertex, or other provider endpoints:
+(comma-separated) — intended for Bedrock, Vertex, or other provider endpoints:
 
 ```bash
-KSI_EGRESS_ALLOW=bedrock-runtime.us-east-1.amazonaws.com bash scripts/run_ksi.sh ...
+KSI_EGRESS_ALLOW=bedrock-runtime.us-east-1.amazonaws.com ...
 ```
+
+!!! note "These variables are read from the runner subprocess environment"
+    `deriveEgressAllowlist` reads `process.env` of the TypeScript runner. The
+    Python CLI builds that environment from the provider profile plus a fixed
+    system-key list (`_build_runner_env` in
+    `src/ksi/runtime/container_host.py`), and neither `KSI_EGRESS_ALLOW` nor the
+    `*_BASE_URL` variables are on either list — so a value exported in your
+    shell does not currently reach the allowlist through a `ksi` /
+    `scripts/run_ksi.sh` run.
 
 **Escape hatch**: set `KSI_EGRESS=open` to disable isolation and restore
 the legacy direct-bridge behavior (no internal network, no proxy). Use only for
