@@ -197,20 +197,25 @@ def _check_providers(r: Report) -> None:
         return
 
     usable: list[str] = []
+    reasons: list[str] = []
     for prof in profiles:
         try:
             load_provider_profile(str(prof))
             usable.append(prof.name)
-        except ProviderConfigError:
-            pass
+        except ProviderConfigError as exc:
+            reasons.append(f"{prof.name}: {exc}")
 
     if usable:
         r.ok("provider profile ready", ", ".join(usable))
     else:
+        detail = f"checked {len(profiles)} profile(s) in {PROVIDERS_DIR}"
+        if reasons:
+            detail += " — " + "; ".join(reasons)
         r.fail(
-            "no provider profile has a usable key",
-            f"checked {len(profiles)} profile(s) in {PROVIDERS_DIR}",
-            "add a real key, e.g. set ANTHROPIC_API_KEY in configs/ksi/.env.haiku",
+            "no usable provider profile",
+            detail,
+            "fix the issue above — a profile needs MODEL_PROVIDER, MODEL, and a real key "
+            "(e.g. set OPENAI_API_KEY in configs/ksi/.env.openai)",
         )
 
 
