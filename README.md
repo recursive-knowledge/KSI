@@ -4,7 +4,7 @@
 
 # KSI — Knowledge-centric Self-Improvement
 
-### *Disposable agents attempt your tasks, share what worked, and distill knowledge that seeds the next generation.*
+### *Disposable agents attempt your tasks, share what worked, and distill knowledge that seeds the next attempt.*
 
 <p>
   <a href="https://recursive-knowledge.github.io/KSI/"><img alt="Docs" src="https://img.shields.io/badge/Docs-Site-3f51b5?style=for-the-badge&logo=materialformkdocs&logoColor=white"></a>
