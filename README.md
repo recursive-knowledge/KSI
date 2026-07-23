@@ -7,6 +7,7 @@
 ### *Disposable agents attempt your tasks, share what worked, and distill knowledge that seeds the next attempt.*
 
 <p>
+  <a href="https://arxiv.org/abs/2607.19592"><img alt="arXiv" src="https://img.shields.io/badge/arXiv-2607.19592-b31b1b?style=for-the-badge&logo=arxiv&logoColor=white"></a>
   <a href="https://recursive-knowledge.github.io/KSI/"><img alt="Docs" src="https://img.shields.io/badge/Docs-Site-3f51b5?style=for-the-badge&logo=materialformkdocs&logoColor=white"></a>
   <a href="https://recursive-knowledge.github.io/knowledge-centric-self-improvement/"><img alt="Blog" src="https://img.shields.io/badge/Blog-Paper_Page-c45e3b?style=for-the-badge&logo=githubpages&logoColor=white"></a>
   <a href="./LICENSE"><img alt="License" src="https://img.shields.io/badge/License-Apache--2.0-blue?style=for-the-badge"></a>
@@ -72,9 +73,23 @@ The same pages are browsable as Markdown under [`docs/`](./docs/) in this
 repo, and benchmark-specific setup lives in
 [`benchmarks/`](./benchmarks/README.md).
 
-For the research behind KSI — the method narrative, results, and interactive
-knowledge dashboards — see the
+For the research behind KSI, see the
+**[paper on arXiv](https://arxiv.org/abs/2607.19592)** — and for the method
+narrative, results, and interactive knowledge dashboards, the
 **[paper page](https://recursive-knowledge.github.io/knowledge-centric-self-improvement/)**.
+
+## Citation
+
+If you use KSI in your research, please cite:
+
+```bibtex
+@article{wang2026knowledge,
+  title={Knowledge-Centric Self-Improvement},
+  author={Wang, Xuefei and Yoon, Lauren Hyoseo and Qu, Chengrui and Wang, Amanda Zichang and Sehgal, Atharva and Mazumdar, Eric and Yue, Yisong},
+  journal={arXiv preprint arXiv:2607.19592},
+  year={2026}
+}
+```
 
 ## Licensing
 

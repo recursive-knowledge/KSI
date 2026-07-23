@@ -105,4 +105,5 @@ nav:
       - Artifacts & cleanup: artifacts.md
       - Runtime startup performance: runtime-startup-performance.md
   - Contributing: CONTRIBUTING.md
+  - Paper ↗: https://arxiv.org/abs/2607.19592
   - Blog ↗: https://recursive-knowledge.github.io/knowledge-centric-self-improvement/
