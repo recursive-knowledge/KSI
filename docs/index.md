@@ -17,8 +17,10 @@ next generation with it.
 <div class="ksi-cta" markdown>
 [Get started :material-arrow-right:](getting-started.md){ .md-button .md-button--primary }
 [Paper](https://arxiv.org/abs/2607.19592){ .md-button }
+[alphaXiv](https://www.alphaxiv.org/abs/2607.19592){ .md-button }
 [Blog](https://recursive-knowledge.github.io/knowledge-centric-self-improvement/){ .md-button }
 [GitHub](https://github.com/recursive-knowledge/KSI){ .md-button }
+[X thread](https://x.com/xuefei_w/status/2082514394328842596){ .md-button }
 </div>
 
 </div>

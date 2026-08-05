@@ -8,8 +8,10 @@
 
 <p>
   <a href="https://arxiv.org/abs/2607.19592"><img alt="arXiv" src="https://img.shields.io/badge/arXiv-2607.19592-b31b1b?style=for-the-badge&logo=arxiv&logoColor=white"></a>
+  <a href="https://www.alphaxiv.org/abs/2607.19592"><img alt="alphaXiv" src="https://img.shields.io/badge/alphaXiv-Discuss-1f6feb?style=for-the-badge"></a>
   <a href="https://recursive-knowledge.github.io/KSI/"><img alt="Docs" src="https://img.shields.io/badge/Docs-Site-3f51b5?style=for-the-badge&logo=materialformkdocs&logoColor=white"></a>
   <a href="https://recursive-knowledge.github.io/knowledge-centric-self-improvement/"><img alt="Blog" src="https://img.shields.io/badge/Blog-Paper_Page-c45e3b?style=for-the-badge&logo=githubpages&logoColor=white"></a>
+  <a href="https://x.com/xuefei_w/status/2082514394328842596"><img alt="X thread" src="https://img.shields.io/badge/X-Thread-000000?style=for-the-badge&logo=x&logoColor=white"></a>
   <a href="./LICENSE"><img alt="License" src="https://img.shields.io/badge/License-Apache--2.0-blue?style=for-the-badge"></a>
   <a href="./pyproject.toml"><img alt="Python" src="https://img.shields.io/badge/Python-3.12%2B-3776AB?style=for-the-badge&logo=python&logoColor=white"></a>
 </p>
