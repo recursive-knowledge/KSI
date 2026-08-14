@@ -763,6 +763,9 @@ async function main(): Promise<void> {
           // bind-mount the runtime-audit DB individually; RUNTIME_DB_PATH
           // (set below) already assumes it, so both must stay in sync.
           runtimeDbPath: payload.runtime_audit?.db_path || undefined,
+          // Forum sources: dbPath is a standalone snapshot, and the live WAL
+          // trio must never be mounted (see MemoryMcpConfig.dbIsSnapshot).
+          dbIsSnapshot: Boolean(payload.knowledge.db_is_snapshot),
           taskId: payload.task?.id || '',
           taskSource,
           forumGeneration: coerceOptionalNumber(taskMeta.forum_generation),

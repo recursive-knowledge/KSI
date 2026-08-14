@@ -1327,13 +1327,23 @@ def main() -> None:
         except Exception:
             pass
 
-    # Initialize KnowledgeStore (authoritative swarm memory/state access)
+    # Initialize KnowledgeStore (authoritative swarm memory/state access).
+    # KNOWLEDGE_DB_IMMUTABLE=1 is set by the container runner when the mounted
+    # DB is a standalone point-in-time snapshot (forum containers — the live
+    # WAL trio never crosses the container boundary; see
+    # _store_common.snapshot_db_for_container_mount). immutable=1 makes SQLite
+    # skip locking and wal-index shared memory entirely, which is both correct
+    # (the snapshot never changes while mounted) and required for safety on
+    # macOS bind mounts, where even read-only WAL access writes to the shared
+    # -shm mapping.
+    knowledge_db_immutable = _env_flag("KNOWLEDGE_DB_IMMUTABLE", False)
     knowledge_store: KnowledgeStore | None = None
     if knowledge_db_path and Path(knowledge_db_path).exists():
         try:
             knowledge_store = KnowledgeStore(
                 knowledge_db_path,
                 read_only=True,
+                immutable=knowledge_db_immutable,
                 default_experiment=memory_experiment or "__mcp__",
                 enable_vec=enable_semantic,
             )

@@ -17,6 +17,7 @@ from typing import Any
 
 from ..benchmarks.polyglot_harness import DEFAULT_POLYGLOT_TIMEOUT_SEC
 from ..errors import AuthenticationFailure
+from ..memory._store_common import snapshot_db_for_container_mount
 from ..models import TaskSpec
 from ..prompts import build_execution_prompt, build_task_markdown
 from ..tasks.registry import resolve_source
@@ -1608,20 +1609,46 @@ class KsiContainerExecutor:
         seed_package: Any,
         swebench_container_images: dict[str, str],
         experiment_name: str,
-    ) -> tuple[Path | None, bool]:
+    ) -> tuple[Path | None, bool, Path | None]:
         """Materialize knowledge / runtime-audit side files into *td* and
         point *payload* at them.
 
-        Returns ``(snapshot_path, snapshot_failed)``: the memory-snapshot path
-        (so the caller can unlink it after the run) or ``None``, and a flag that
-        is ``True`` when a memory snapshot WAS available but its ``write_text``
-        failed — so the container starts cold (memory-less) and the caller can
-        stamp ``runtime_meta`` for later analysis. Mutates *payload*
-        in place: it may set ``payload["knowledge"]`` and
-        ``payload["runtime_audit"]``.
+        Returns ``(snapshot_path, snapshot_failed, db_snapshot_path)``: the
+        memory-snapshot path (so the caller can unlink it after the run) or
+        ``None``; a flag that is ``True`` when a memory snapshot WAS available
+        but its ``write_text`` failed — so the container starts cold
+        (memory-less) and the caller can stamp ``runtime_meta`` for later
+        analysis; and, for forum task sources only, the standalone knowledge-DB
+        snapshot file the container mounts instead of the live DB (the caller
+        unlinks it after the run). Mutates *payload* in place: it may set
+        ``payload["knowledge"]`` and ``payload["runtime_audit"]``.
+
+        Forum sources and the live DB: forum containers historically
+        bind-mounted the live knowledge DB (+ ``-wal``/``-shm``) read-write and
+        opened it ``read_only=True`` from the in-container MCP server. That is
+        NOT safe on macOS: Docker Desktop bind mounts (VirtioFS) provide
+        neither cross-VM POSIX advisory locks nor a coherent shared mmap of the
+        ``-shm`` wal-index, and in WAL mode even a read-only SQLite connection
+        writes to the wal-index (read-marks, recovery). A container reader
+        therefore silently clobbers the host writer's live wal-index, which
+        misdirects WAL appends/checkpoint backfills into wrong page offsets —
+        "database disk image is malformed" on the authoritative store (or a
+        host SIGBUS mid-commit). So for ``per_task_forum`` /
+        ``cross_task_forum`` the payload's ``knowledge.db_path`` now points at
+        a point-in-time ``VACUUM INTO`` snapshot (single file, rollback-journal
+        mode, no sidecars) and carries ``db_is_snapshot=True`` so the runner
+        mounts it read-only and never mounts the live WAL trio. Freshness is
+        unchanged in practice: forum-round posts travel via the ForumBus JSONL
+        (not the DB), and the DB itself only gains rows at drain/phase
+        boundaries — i.e. before the next container launch and snapshot. If
+        the snapshot cannot be built the container runs with NO knowledge DB
+        (``db_path`` keeps the absent snapshot path so nothing is mounted while
+        ForumBus still resolves ``<parent>/forum_bus``; the degradation is
+        logged) — it must never fall back to mounting the live DB.
         """
         snapshot_path: Path | None = None
         snapshot_failed = False
+        db_snapshot_path: Path | None = None
         if self.knowledge_db_path:
             knowledge_db = Path(self.knowledge_db_path)
             if not knowledge_db.is_absolute():
@@ -1663,6 +1690,36 @@ class KsiContainerExecutor:
                 "forum_generation": generation,
                 "experiment_name": experiment_name,
             }
+            if source in _FORUM_TASK_SOURCES:
+                # Forum containers get a standalone read-only snapshot, never
+                # the live WAL trio — see the docstring above for the
+                # macOS/VirtioFS corruption mechanism this closes.
+                db_snapshot_path = knowledge_db.parent / (
+                    f"knowledge_ro_snapshot_{agent_id}_{uuid.uuid4().hex[:8]}.sqlite"
+                )
+                try:
+                    snapshot_db_for_container_mount(knowledge_db, db_snapshot_path)
+                    payload["knowledge"]["db_path"] = str(db_snapshot_path)
+                except Exception:
+                    log.warning(
+                        "Failed to snapshot knowledge DB for forum container "
+                        "(task=%s agent=%s); container runs without a knowledge DB "
+                        "— NOT falling back to mounting the live DB",
+                        task.id,
+                        agent_id,
+                        exc_info=True,
+                    )
+                    # Keep db_path pointing at the (now nonexistent) snapshot:
+                    # the runner then mounts nothing for it, and the MCP server
+                    # finds no knowledge store — but ForumBus still derives its
+                    # JSONL dir from db_path's parent, so forum posts survive
+                    # the degraded launch. The helper never leaves a partial
+                    # file behind, so the path is guaranteed absent.
+                    payload["knowledge"]["db_path"] = str(db_snapshot_path)
+                    db_snapshot_path = None
+                # Always stamped for forum sources: tells the runner the live
+                # WAL trio must not be mounted, even when the snapshot failed.
+                payload["knowledge"]["db_is_snapshot"] = True
             if snapshot_written and snapshot_path is not None:
                 payload["knowledge"]["snapshot_path"] = str(snapshot_path)
         if self.runtime_db_path:
@@ -1672,7 +1729,7 @@ class KsiContainerExecutor:
             runtime_db.parent.mkdir(parents=True, exist_ok=True)
             runtime_db.touch(exist_ok=True)
             payload["runtime_audit"] = {"db_path": str(runtime_db)}
-        return snapshot_path, snapshot_failed
+        return snapshot_path, snapshot_failed, db_snapshot_path
 
     def _build_task_runner_env(
         self,
@@ -2293,7 +2350,7 @@ class KsiContainerExecutor:
 
         with tempfile.TemporaryDirectory(prefix="ksi-task-") as td, contextlib.ExitStack() as snapshot_guard:
             payload_path = Path(td) / "payload.json"
-            snapshot_path, knowledge_snapshot_failed = self._materialize_payload_side_files(
+            snapshot_path, knowledge_snapshot_failed, forum_db_snapshot_path = self._materialize_payload_side_files(
                 payload=ctx.payload,
                 td=td,
                 task=task,
@@ -2314,6 +2371,11 @@ class KsiContainerExecutor:
                 # cleans it up. The runner ``finally`` below unlinks
                 # promptly on the normal path; this is the idempotent safety net.
                 snapshot_guard.callback(_unlink_snapshot, snapshot_path)
+            if forum_db_snapshot_path is not None:
+                # Same lifecycle as the memory snapshot above: the forum
+                # knowledge-DB snapshot lives next to the live DB and must not
+                # outlive the container run it was cut for.
+                snapshot_guard.callback(_unlink_snapshot, forum_db_snapshot_path)
             payload_path.write_text(json.dumps(ctx.payload, ensure_ascii=True), encoding="utf-8")
 
             # Build the polyglot test-feedback config FIRST (it has no

@@ -23,6 +23,18 @@ export interface MemoryMcpConfig {
    * directory mount (issue #1009).
    */
   runtimeDbPath?: string;
+  /**
+   * True when dbPath points at a standalone point-in-time snapshot of the
+   * knowledge DB rather than the live file. Set by the Python container host
+   * for forum task sources: the live WAL trio (db + -wal + -shm) must never
+   * be bind-mounted into a container, because Docker Desktop's VirtioFS gives
+   * the container neither the host's POSIX advisory locks nor a coherent view
+   * of the -shm wal-index — even a read-only in-container SQLite connection
+   * writes to the wal-index and corrupts the host writer's database. When
+   * true, container_mounts.ts mounts dbPath as a single read-only file (no
+   * sidecars, no runtime-audit DB) and the MCP server opens it immutable.
+   */
+  dbIsSnapshot?: boolean;
   taskId?: string;
   taskSource?: string;
   forumGeneration?: number;
