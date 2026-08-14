@@ -323,6 +323,7 @@ class KnowledgeStore:
         db_path: str,
         *,
         read_only: bool = False,
+        immutable: bool = False,
         default_experiment: str = "default",
         enable_vec: bool = False,
         vec_dimensions: int = 768,
@@ -333,12 +334,24 @@ class KnowledgeStore:
         self._vec_enabled = False
         self._vec_dimensions = vec_dimensions
 
+        # ``immutable`` promises SQLite the file cannot change while open, so
+        # it skips ALL locking and shared-memory (wal-index) access. That is
+        # only true for the standalone snapshot files the container runtime
+        # mounts for forum containers (see
+        # _store_common.snapshot_db_for_container_mount) — never for a live DB,
+        # where it would serve stale/torn reads. Requires read_only.
+        if immutable and not read_only:
+            raise ValueError("immutable=True requires read_only=True")
+        self._immutable = bool(immutable)
+
         Path(db_path).parent.mkdir(parents=True, exist_ok=True)
         KnowledgeStore._cleanup_stale_locks(Path(db_path).parent)
         self._db_key = str(Path(db_path).resolve())
 
         if self._read_only:
             uri = f"file:{Path(db_path).resolve()}?mode=ro"
+            if self._immutable:
+                uri += "&immutable=1"
             self._conn = sqlite3.connect(uri, uri=True, check_same_thread=False, timeout=30.0)
         else:
             self._conn = sqlite3.connect(db_path, check_same_thread=False, timeout=30.0)

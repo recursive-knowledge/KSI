@@ -42,6 +42,12 @@ export interface KsiPayload {
     disable_memory_tools?: boolean;
     forum_generation?: number;
     experiment_name?: string;
+    /**
+     * True when db_path is a standalone snapshot cut for a forum container
+     * (may be "" when snapshot creation failed). The live WAL trio must not
+     * be mounted — see MemoryMcpConfig.dbIsSnapshot in shared_types.ts.
+     */
+    db_is_snapshot?: boolean;
   };
   runtime_audit?: {
     db_path: string;

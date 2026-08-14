@@ -245,7 +245,14 @@ export function buildMcpServerConfig(
       command: 'python3',
       args: ['/app/memory/mcp_server.py'],
       env: {
-        KNOWLEDGE_DB_PATH: `/app/memory-db/${dbFile}`,
+        // dbFile may be '' when a forum snapshot failed to build host-side;
+        // the MCP server then runs without a knowledge store (degraded, never
+        // live).
+        KNOWLEDGE_DB_PATH: dbFile ? `/app/memory-db/${dbFile}` : '',
+        // Snapshot DBs never change while mounted: immutable=1 lets SQLite
+        // skip all locking/wal-index access (required for safety on macOS
+        // bind mounts).
+        KNOWLEDGE_DB_IMMUTABLE: containerInput.memoryMcp.dbIsSnapshot ? '1' : '',
         MEMORY_SNAPSHOT_PATH: snapshotFile ? `/app/memory-db/${snapshotFile}` : '',
         MCP_TOOLSET: memoryToolset,
         FORUM_GENERATION: String(containerInput.memoryMcp.forumGeneration ?? 0),

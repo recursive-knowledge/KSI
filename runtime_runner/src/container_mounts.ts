@@ -373,18 +373,40 @@ export function appendMemoryAndArcMounts(
         // sidecars) rather than the whole per-experiment directory, so an agent
         // can't enumerate sibling files that land in the same subdirectory.
         if (forumWritesNeeded) {
-          // This branch only runs for forum containers, which need the DB
-          // mounted read-write (ForumBus.append / forum_signal_done INSERT),
-          // so the mounts are unconditionally read-write here.
-          addSqliteFileMounts(mounts, input.memoryMcp.dbPath, false, workspaceRuntime, 'Knowledge DB');
-          if (input.memoryMcp.runtimeDbPath) {
-            addSqliteFileMounts(
-              mounts,
-              input.memoryMcp.runtimeDbPath,
-              false,
-              workspaceRuntime,
-              'Runtime-audit DB',
-            );
+          if (input.memoryMcp.dbIsSnapshot) {
+            // dbPath is a standalone point-in-time snapshot (rollback-journal
+            // mode, no sidecars) cut by the Python container host. Mount it as
+            // a single read-only file and mount NOTHING live: bind-mounting a
+            // live WAL trio into the Docker VM corrupts the host DB on macOS
+            // (VirtioFS shares neither POSIX locks nor a coherent -shm mmap,
+            // and WAL readers write to the wal-index) — see
+            // MemoryMcpConfig.dbIsSnapshot. Forum WRITES don't need the DB:
+            // they flow through the forum_bus JSONL mount below and are
+            // drained into SQLite host-side. An empty/missing dbPath means
+            // snapshot creation failed — run without a knowledge DB rather
+            // than ever falling back to the live files.
+            if (input.memoryMcp.dbPath && fs.existsSync(input.memoryMcp.dbPath)) {
+              addSqliteFileMounts(mounts, input.memoryMcp.dbPath, true, workspaceRuntime, 'Knowledge DB snapshot');
+            } else {
+              logger.warn(
+                { group: workspaceRuntime.name, dbPath: input.memoryMcp.dbPath },
+                'Knowledge DB snapshot missing — forum container runs without a knowledge DB',
+              );
+            }
+          } else {
+            // Legacy path (payloads without db_is_snapshot): live DB mounted
+            // read-write (ForumBus.append / forum_signal_done INSERT),
+            // so the mounts are unconditionally read-write here.
+            addSqliteFileMounts(mounts, input.memoryMcp.dbPath, false, workspaceRuntime, 'Knowledge DB');
+            if (input.memoryMcp.runtimeDbPath) {
+              addSqliteFileMounts(
+                mounts,
+                input.memoryMcp.runtimeDbPath,
+                false,
+                workspaceRuntime,
+                'Runtime-audit DB',
+              );
+            }
           }
         }
         if (input.memoryMcp.snapshotPath) {

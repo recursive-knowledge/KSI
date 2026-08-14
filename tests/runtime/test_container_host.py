@@ -553,7 +553,7 @@ class TestKnowledgeSnapshotFailureFlag:
 
     def test_healthy_snapshot_write_reports_no_failure(self, tmp_path):
         executor = self._make_executor(tmp_path)
-        (snapshot_path, failed), payload = self._materialize(executor, tmp_path, {"entries": []})
+        (snapshot_path, failed, _db_snap), payload = self._materialize(executor, tmp_path, {"entries": []})
         assert failed is False
         assert snapshot_path is not None
         assert payload["knowledge"].get("snapshot_path") == str(snapshot_path)
@@ -563,10 +563,180 @@ class TestKnowledgeSnapshotFailureFlag:
         # A non-JSON-serializable snapshot makes the host-side write_text raise,
         # so the container would start cold. The method must swallow it (the
         # container still runs) AND signal the failure.
-        (snapshot_path, failed), payload = self._materialize(executor, tmp_path, {"bad": object()})
+        (snapshot_path, failed, _db_snap), payload = self._materialize(executor, tmp_path, {"bad": object()})
         assert failed is True
         # No snapshot_path is threaded into the payload, so the container starts cold.
         assert "snapshot_path" not in payload.get("knowledge", {})
+
+
+class TestForumKnowledgeDbSnapshot:
+    """Forum containers must mount a standalone snapshot, never the live DB.
+
+    Regression for the macOS/Docker Desktop corruption: bind-mounting the live
+    knowledge DB (+ ``-wal``/``-shm``) into forum containers let in-container
+    ``read_only=True`` SQLite connections write to the shared wal-index over a
+    VirtioFS mount with no cross-VM lock/mmap coherence, corrupting the host
+    store ("database disk image is malformed" at the gen boundary, scaling
+    with workstream count). See
+    tests/memory/test_forum_container_db_snapshot.py for the snapshot/immutable
+    primitives; this class pins the payload contract that keeps the live WAL
+    trio out of containers.
+    """
+
+    def _make_executor(self, tmp_path, **kw):
+        defaults = dict(
+            command=["echo", "dummy"],
+            working_dir=str(tmp_path),
+            instruction_path=str(tmp_path / "INSTRUCTION.md"),
+            agent_workspace_root=str(tmp_path / "workspaces"),
+            env={
+                "MODEL_PROVIDER": "anthropic",
+                "MODEL_AUTH_MODE": "api",
+                "MODEL": "claude-sonnet-4-6",
+                "ANTHROPIC_API_KEY": "sk-test",
+            },
+        )
+        defaults.update(kw)
+        return KsiContainerExecutor(**defaults)
+
+    def _seed_live_db(self, db_path):
+        from ksi.memory.knowledge_store import KnowledgeStore
+
+        store = KnowledgeStore(str(db_path), default_experiment="test_exp")
+        try:
+            store.record_post(
+                task_id="t1",
+                agent_id="agent-0",
+                generation=1,
+                text="prior post",
+                source_phase="per_task_forum",
+            )
+        finally:
+            store.close()
+
+    def _run_forum_task(self, tmp_path, task_source, db_path):
+        captured = []
+        snapshot_state = {}
+
+        def fake_run(cmd, **kw):
+            with open(cmd[-1]) as f:
+                payload = json.load(f)
+            captured.append(payload)
+            snap = str(payload.get("knowledge", {}).get("db_path", ""))
+            if snap:
+                p = Path(snap)
+                snapshot_state["exists_at_runner_time"] = p.exists()
+                if p.exists():
+                    header = p.read_bytes()[:100]
+                    # bytes 18/19: 1 = rollback journal, 2 = WAL
+                    snapshot_state["journal_mode_bytes"] = (header[18], header[19])
+                    snapshot_state["wal_sidecar"] = p.with_name(p.name + "-wal").exists()
+                    snapshot_state["shm_sidecar"] = p.with_name(p.name + "-shm").exists()
+            task_id = payload["task"]["id"]
+            return MagicMock(
+                returncode=0,
+                stdout=_runner_stdout(task_id=task_id),
+                stderr="",
+            )
+
+        task = TaskSpec(
+            id="__forum__g1_r0_agent-0",
+            prompt="discuss",
+            metadata={
+                "task_source": task_source,
+                "task_md_override": "discuss",
+                "forum_generation": 1,
+                "forum_round": 0,
+                "forum_agent_id": "agent-0",
+                "forum_expected_agents": 1,
+                "forum_task_ids": ["t1"],
+            },
+        )
+        with patch(
+            "ksi.runtime.container_host._run_command_with_backstop",
+            side_effect=fake_run,
+        ):
+            ex = self._make_executor(tmp_path, knowledge_db_path=str(db_path))
+            ex.run_task(
+                generation=1,
+                agent_id="agent-0",
+                task=task,
+                agent_seed_package={},
+                experiment_name="test_exp",
+            )
+        assert len(captured) == 1
+        return captured[0], snapshot_state
+
+    @pytest.mark.parametrize("task_source", ["per_task_forum", "cross_task_forum"])
+    def test_forum_payload_points_at_standalone_snapshot(self, tmp_path, task_source):
+        db_path = tmp_path / "exp_knowledge.sqlite"
+        self._seed_live_db(db_path)
+
+        payload, snap_state = self._run_forum_task(tmp_path, task_source, db_path)
+
+        mem = payload["knowledge"]
+        assert mem.get("db_is_snapshot") is True
+        # The live DB path must NOT cross the container boundary.
+        assert mem["db_path"] != str(db_path)
+        assert mem["db_path"], "snapshot path missing from a healthy forum payload"
+        # The snapshot existed while the runner ran, standalone: rollback
+        # journal mode, no -wal/-shm to share with the host writer.
+        assert snap_state.get("exists_at_runner_time") is True
+        assert snap_state.get("journal_mode_bytes") == (1, 1)
+        assert snap_state.get("wal_sidecar") is False
+        assert snap_state.get("shm_sidecar") is False
+        # Same lifecycle as the memory snapshot: unlinked after the run.
+        assert not Path(mem["db_path"]).exists(), "forum DB snapshot leaked after run_task"
+
+    def test_task_source_keeps_live_db_path(self, tmp_path):
+        """Non-forum sources keep the historical payload: the live path (their
+        containers never mount the DB files — the mount gate is forum-only).
+        """
+        db_path = tmp_path / "exp_knowledge.sqlite"
+        self._seed_live_db(db_path)
+        captured = []
+
+        def fake_run(cmd, **kw):
+            with open(cmd[-1]) as f:
+                captured.append(json.load(f))
+            return MagicMock(returncode=0, stdout=_runner_stdout(task_id="t1"), stderr="")
+
+        with patch(
+            "ksi.runtime.container_host._run_command_with_backstop",
+            side_effect=fake_run,
+        ):
+            ex = self._make_executor(tmp_path, knowledge_db_path=str(db_path))
+            ex.run_task(
+                generation=1,
+                agent_id="agent-0",
+                task=TaskSpec(id="t1", prompt="solve"),
+                agent_seed_package={},
+                experiment_name="test_exp",
+            )
+        mem = captured[0]["knowledge"]
+        assert mem["db_path"] == str(db_path)
+        assert "db_is_snapshot" not in mem
+
+    def test_snapshot_failure_degrades_without_live_fallback(self, tmp_path):
+        """If the snapshot cannot be built, the payload must NOT carry the live
+        DB path. It keeps the (absent) snapshot path so the runner mounts
+        nothing for it while ForumBus — whose JSONL dir derives from
+        ``db_path``'s parent — keeps working in the degraded container.
+        """
+        db_path = tmp_path / "exp_knowledge.sqlite"
+        # Not a SQLite database: VACUUM INTO fails naturally.
+        db_path.write_bytes(b"this is not a sqlite database")
+
+        payload, snap_state = self._run_forum_task(tmp_path, "per_task_forum", db_path)
+
+        mem = payload["knowledge"]
+        assert mem.get("db_is_snapshot") is True
+        # Never the live path; the stamped path must not exist (nothing for the
+        # runner to mount), but must live in the knowledge-DB dir so ForumBus
+        # still resolves <parent>/forum_bus.
+        assert mem["db_path"] != str(db_path)
+        assert snap_state.get("exists_at_runner_time") is False
+        assert Path(mem["db_path"]).parent == db_path.parent
 
 
 class TestRunnerEnvelopeIdentity:

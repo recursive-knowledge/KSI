@@ -217,6 +217,46 @@ def _locked_guard(
         process_lock.release()
 
 
+def snapshot_db_for_container_mount(src_path: str | Path, dest_path: str | Path) -> None:
+    """Produce a standalone, self-contained copy of ``src_path`` at ``dest_path``.
+
+    Used by the container runtime to build the read-only knowledge DB that
+    forum containers mount INSTEAD of the live DB. The live WAL trio
+    (``db`` + ``-wal`` + ``-shm``) must never cross the Docker VM boundary: on
+    macOS the bind-mount filesystem (VirtioFS) provides neither cross-boundary
+    POSIX advisory locks nor coherent shared mmaps, so even a ``mode=ro``
+    SQLite connection inside a container silently fights the host writer over
+    the ``-shm`` wal-index (readers update read-marks and may rebuild the
+    wal-index) and corrupts the database — see
+    tests/memory/test_forum_container_db_snapshot.py.
+
+    ``VACUUM INTO`` runs on its own read-only connection: it takes a consistent
+    WAL read snapshot of the source (safe alongside the store's writer thread,
+    same-host POSIX locking applies) and writes only to ``dest_path``. The
+    output is a compact single file in rollback-journal mode — no ``-wal`` /
+    ``-shm`` sidecars — so a container can open it read-only (even
+    ``immutable=1``) without ever touching shared WAL state.
+
+    Raises on failure (busy beyond the timeout, disk full); callers decide the
+    degrade path — they must NOT fall back to mounting the live DB.
+    """
+    src = Path(src_path).resolve()
+    dest = Path(dest_path)
+    # VACUUM INTO refuses to overwrite; a stale file at dest (e.g. crashed
+    # prior run with the same name) must go first.
+    dest.unlink(missing_ok=True)
+    conn = sqlite3.connect(f"file:{src}?mode=ro", uri=True, timeout=30.0)
+    try:
+        conn.execute("PRAGMA busy_timeout=30000")
+        conn.execute("VACUUM INTO ?", (str(dest),))
+    except BaseException:
+        # Never leave a half-written snapshot behind for a container to mount.
+        conn.close()
+        dest.unlink(missing_ok=True)
+        raise
+    conn.close()
+
+
 def _wal_checkpoint(
     *,
     read_only: bool,
